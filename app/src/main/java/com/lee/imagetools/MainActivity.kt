@@ -1,0 +1,99 @@
+package com.lee.imagetools
+
+import android.Manifest
+import android.os.Bundle
+import android.util.Log
+import android.view.MotionEvent
+import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.lee.imagetools.adapter.AlbumSelectAdapter
+import com.lee.imagetools.adapter.SelectAdapter
+import com.lee.imagetools.constant.Constants
+import com.lee.imagetools.entity.Album
+import com.lee.imagetools.tools.Tools
+import com.lee.imagetools.viewmodel.ImageViewModel
+import com.lee.imagetools.widget.ImageSelectBar
+
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
+    private val viewModel by viewModels<ImageViewModel>()
+    private val mSelectAdapter by lazy { AlbumSelectAdapter(arrayListOf()) }
+
+    private val imageSelectBar by lazy { findViewById<ImageSelectBar>(R.id.image_select_bar) }
+    private val viewMask by lazy { findViewById<View>(R.id.mask) }
+    private val rvSelect by lazy { findViewById<RecyclerView>(R.id.rv_select) }
+
+    private fun AppCompatActivity.requestPermission(
+        permission: String,
+        successCall: () -> Unit,
+        failedCall: (String) -> Unit = {}
+    ) {
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { it ->
+            if (it) successCall() else failedCall(permission)
+        }.launch(permission)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        bindView()
+        bindListener()
+        bindObservable()
+    }
+
+    private fun bindView() {
+        rvSelect.layoutManager = LinearLayoutManager(this)
+        rvSelect.adapter = mSelectAdapter
+    }
+
+    private fun bindListener() {
+        viewMask.setOnClickListener {
+            if (imageSelectBar.getEnable()) {
+                imageSelectBar.switch()
+            }
+        }
+        rvSelect.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                val view = rv.findChildViewUnder(e.x, e.y)
+                if (view == null && imageSelectBar.getEnable()) {
+                    imageSelectBar.switch()
+                }
+                return super.onInterceptTouchEvent(rv, e)
+            }
+        })
+        mSelectAdapter.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Album> {
+            override fun onClickItem(position: Int, item: Album) {
+                viewModel.getImagesByAlbumId(item.id)
+                imageSelectBar.switch()
+            }
+        })
+
+        imageSelectBar.setAnimCallback(object : ImageSelectBar.AnimCallback {
+            override fun animCall(enable: Boolean) {
+                Tools.selectViewTranslationAnimator(enable, rvSelect, viewMask)
+            }
+        })
+    }
+
+    private fun bindObservable() {
+        viewModel.albumsLiveData.observe(this, Observer {
+            mSelectAdapter.updateData(it)
+            Tools.viewTranslationHide(rvSelect)
+        })
+
+        viewModel.imagesLiveData.observe(this, Observer {
+            Log.i("jv.lee", "bindObservable: $it")
+        })
+
+        requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, {
+            viewModel.getAlbums()
+            viewModel.getImagesByAlbumId(Constants.DEFAULT_ALBUM_ID)
+        })
+    }
+
+
+}
