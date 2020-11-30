@@ -5,13 +5,16 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lee.imagetools.adapter.AlbumSelectAdapter
+import com.lee.imagetools.adapter.ImageSelectAdapter
 import com.lee.imagetools.adapter.SelectAdapter
 import com.lee.imagetools.constant.Constants
 import com.lee.imagetools.entity.Album
@@ -23,10 +26,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private val viewModel by viewModels<ImageViewModel>()
     private val mSelectAdapter by lazy { AlbumSelectAdapter(arrayListOf()) }
+    private val mImagesAdapter by lazy { ImageSelectAdapter(arrayListOf()) }
 
     private val imageSelectBar by lazy { findViewById<ImageSelectBar>(R.id.image_select_bar) }
     private val viewMask by lazy { findViewById<View>(R.id.mask) }
     private val rvSelect by lazy { findViewById<RecyclerView>(R.id.rv_select) }
+    private val rvImages by lazy { findViewById<RecyclerView>(R.id.rv_images) }
 
     private fun AppCompatActivity.requestPermission(
         permission: String,
@@ -48,6 +53,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun bindView() {
         rvSelect.layoutManager = LinearLayoutManager(this)
         rvSelect.adapter = mSelectAdapter
+
+        rvImages.layoutManager = GridLayoutManager(this, 4)
+        rvImages.adapter = mImagesAdapter
     }
 
     private fun bindListener() {
@@ -68,6 +76,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         mSelectAdapter.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Album> {
             override fun onClickItem(position: Int, item: Album) {
                 viewModel.getImagesByAlbumId(item.id)
+                imageSelectBar.setSelectName(item.name)
                 imageSelectBar.switch()
             }
         })
@@ -86,7 +95,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         })
 
         viewModel.imagesLiveData.observe(this, Observer {
-            Log.i("jv.lee", "bindObservable: $it")
+            mImagesAdapter.updateData(it)
         })
 
         requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, {

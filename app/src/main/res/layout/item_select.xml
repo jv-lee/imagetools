@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/selector_album_background">
+    android:background="@drawable/selector_select_item">
 
     <View
         android:layout_width="match_parent"

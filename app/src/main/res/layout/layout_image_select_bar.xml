@@ -14,11 +14,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/const_select"
+    <LinearLayout
+        android:id="@+id/linear_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/shape_album_select"
+        android:background="@drawable/shape_image_select_bar"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingStart="12dp"
         android:paddingLeft="12dp"
         android:paddingTop="4dp"
@@ -31,32 +33,24 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/tv_title"
+            android:id="@+id/tv_album_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawablePadding="3dp"
-            android:gravity="center"
-            android:includeFontPadding="false"
+            android:layout_marginEnd="6dp"
+            android:layout_marginRight="6dp"
+            android:gravity="start"
+            android:maxLines="1"
             android:text="@string/default_album_name"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textSize="16sp" />
 
         <ImageView
             android:id="@+id/iv_icon"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_marginStart="6dp"
-            android:layout_marginLeft="6dp"
-            android:background="@drawable/shape_icon"
-            android:src="@drawable/ic_expand_more"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tv_title"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:background="@drawable/shape_image_select_icon"
+            android:src="@drawable/ic_expand_more" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -15,9 +15,7 @@ import com.lee.imagetools.entity.Album
 class AlbumSelectAdapter(data: MutableList<Album>) :
     SelectAdapter<Album>(data) {
 
-    override fun getItemLayoutId(): Int {
-        return R.layout.item_select
-    }
+    override fun getItemLayoutId() = R.layout.item_select
 
     override fun convert(itemView: View, item: Album, position: Int) {
         val ivCover = itemView.findViewById<ImageView>(R.id.iv_cover)
