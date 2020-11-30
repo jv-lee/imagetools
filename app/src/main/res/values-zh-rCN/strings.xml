@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">ImageTools</string>
-    <string name="default_album_name">Recent projects</string>
+    <string name="default_album_name">最近项目</string>
 </resources>
