@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AnimationUtils
+import android.view.animation.LayoutAnimationController
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -55,6 +58,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         rvSelect.adapter = mSelectAdapter
 
         rvImages.layoutManager = GridLayoutManager(this, 4)
+        rvImages.layoutAnimation = Tools.getItemOrderAnimator(this)
         rvImages.adapter = mImagesAdapter
     }
 

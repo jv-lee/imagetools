@@ -6,6 +6,8 @@ import android.content.Context
 import android.graphics.Point
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.AnimationUtils
+import android.view.animation.LayoutAnimationController
 import com.lee.imagetools.R
 
 /**
@@ -28,24 +30,32 @@ object Tools {
             maskView.alpha = (dimen - Math.abs(it.animatedValue as Float)) / dimen
             containerView.translationY = it.animatedValue as Float
         }
-        animator.addListener(object:Animator.AnimatorListener{
+        animator.addListener(object : Animator.AnimatorListener {
             override fun onAnimationRepeat(animation: Animator?) {
 
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-                if(!enable) maskView.visibility = View.GONE
+                if (!enable) maskView.visibility = View.GONE
             }
 
             override fun onAnimationCancel(animation: Animator?) {
             }
 
             override fun onAnimationStart(animation: Animator?) {
-                if(enable) maskView.visibility = View.VISIBLE
+                if (enable) maskView.visibility = View.VISIBLE
             }
 
         })
         animator.start()
+    }
+
+    fun getItemOrderAnimator(context: Context): LayoutAnimationController {
+        val animController =
+            LayoutAnimationController(AnimationUtils.loadAnimation(context, R.anim.alpha_in))
+        animController.order = LayoutAnimationController.ORDER_NORMAL
+        animController.delay = 0.1f
+        return animController
     }
 
     fun getScreenWidth(context: Context): Int {
@@ -53,7 +63,10 @@ object Tools {
         val point = Point()
         windowManager.defaultDisplay.getSize(point)
         val widthDp = px2dp(context, point.x)
-        return dp2px(context, (widthDp - (context.resources.getDimension(R.dimen.item_padding) * 4)).toInt()).toInt()
+        return dp2px(
+            context,
+            (widthDp - (context.resources.getDimension(R.dimen.item_padding) * 4)).toInt()
+        ).toInt()
     }
 
     /**
