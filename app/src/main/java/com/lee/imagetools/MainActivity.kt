@@ -1,18 +1,16 @@
 package com.lee.imagetools
 
 import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.animation.AnimationUtils
-import android.view.animation.LayoutAnimationController
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -106,6 +104,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             viewModel.getAlbums()
             viewModel.getImagesByAlbumId(Constants.DEFAULT_ALBUM_ID)
         })
+    }
+
+    private fun startImageSelected(context: Context) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            == PackageManager.PERMISSION_DENIED
+        ) {
+            throw RuntimeException("Please apply for 'Manifest.permission.WRITE_EXTERNAL_STORAGE' permission first")
+        }
     }
 
 
