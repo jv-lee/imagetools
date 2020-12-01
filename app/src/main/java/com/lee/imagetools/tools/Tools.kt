@@ -21,7 +21,11 @@ object Tools {
         view.translationY = (-view.height).toFloat()
     }
 
-    fun selectViewTranslationAnimator(enable: Boolean, containerView: View, maskView: View) {
+    fun selectViewTranslationAnimator(
+        enable: Boolean,
+        containerView: View,
+        maskView: View
+    ): ValueAnimator {
         val dimen = containerView.height.toFloat()
         val animator =
             if (enable) ValueAnimator.ofFloat(-dimen, 0F)
@@ -48,13 +52,14 @@ object Tools {
 
         })
         animator.start()
+        return animator
     }
 
     fun getItemOrderAnimator(context: Context): LayoutAnimationController {
         val animController =
             LayoutAnimationController(AnimationUtils.loadAnimation(context, R.anim.item_alpha_in))
         animController.order = LayoutAnimationController.ORDER_NORMAL
-        animController.delay = 0.1f
+        animController.delay = 0.2f
         return animController
     }
 

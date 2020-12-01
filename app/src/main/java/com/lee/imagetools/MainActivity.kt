@@ -1,6 +1,7 @@
 package com.lee.imagetools
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -10,6 +11,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,6 +36,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val viewMask by lazy { findViewById<View>(R.id.mask) }
     private val rvSelect by lazy { findViewById<RecyclerView>(R.id.rv_select) }
     private val rvImages by lazy { findViewById<RecyclerView>(R.id.rv_images) }
+
+    private var animator: ValueAnimator? = null
 
     private fun AppCompatActivity.requestPermission(
         permission: String,
@@ -85,9 +90,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         imageSelectBar.setAnimCallback(object : ImageSelectBar.AnimCallback {
             override fun animCall(enable: Boolean) {
-                Tools.selectViewTranslationAnimator(enable, rvSelect, viewMask)
+                animator = Tools.selectViewTranslationAnimator(enable, rvSelect, viewMask)
             }
         })
+        (imageSelectBar as LifecycleObserver)
     }
 
     private fun bindObservable() {
@@ -117,5 +123,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        animator?.cancel()
+        animator = null
+    }
 
 }

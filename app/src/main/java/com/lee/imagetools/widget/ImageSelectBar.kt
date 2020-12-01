@@ -12,6 +12,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.lee.imagetools.R
+import com.lee.imagetools.lifecycle.ViewLifecycle
 import com.lee.imagetools.tools.Tools
 
 /**
@@ -20,7 +21,7 @@ import com.lee.imagetools.tools.Tools
  * @description
  */
 class ImageSelectBar constructor(context: Context, attributeSet: AttributeSet) :
-    FrameLayout(context, attributeSet) {
+    FrameLayout(context, attributeSet), ViewLifecycle {
 
     private var linearSelect: LinearLayout
     private var ivIcon: ImageView
@@ -28,6 +29,7 @@ class ImageSelectBar constructor(context: Context, attributeSet: AttributeSet) :
     private var enable = false
     private var switchTag = false
     private var mAnimCallback: AnimCallback? = null
+    private val animatorSet = HashSet<ValueAnimator>()
 
     init {
         LayoutInflater.from(context).inflate(R.layout.layout_image_select_bar, this, true)
@@ -36,17 +38,23 @@ class ImageSelectBar constructor(context: Context, attributeSet: AttributeSet) :
         ivIcon = findViewById(R.id.iv_icon)
         linearSelect = findViewById(R.id.linear_select)
         linearSelect.setOnClickListener { switch() }
+
+        bindLifecycle(context)
     }
 
     fun getEnable() = enable
 
     fun setSelectName(text: String) {
+        tvAlbumName.text = text
         val rect = Rect()
         tvAlbumName.paint.getTextBounds(text, 0, text.length, rect)
 
-        val animator = ValueAnimator.ofInt(tvAlbumName.width, rect.width() + Tools.dp2px(context,6).toInt())
+        val animator =
+            ValueAnimator.ofInt(tvAlbumName.width, rect.width() + Tools.dp2px(context, 6).toInt())
+        animatorSet.add(animator)
         animator.addUpdateListener {
-            tvAlbumName.layoutParams = LinearLayout.LayoutParams(it.animatedValue as Int, tvAlbumName.height)
+            tvAlbumName.layoutParams =
+                LinearLayout.LayoutParams(it.animatedValue as Int, tvAlbumName.height)
         }
         animator.addListener(object : Animator.AnimatorListener {
             override fun onAnimationRepeat(animation: Animator?) {
@@ -64,13 +72,13 @@ class ImageSelectBar constructor(context: Context, attributeSet: AttributeSet) :
 
         })
         animator.start()
-
     }
 
     fun switch() {
         if (switchTag) return
         val animator =
             if (enable) ValueAnimator.ofFloat(180f, 360f) else ValueAnimator.ofFloat(0f, 180f)
+        animatorSet.add(animator)
         animator.addUpdateListener {
             ivIcon.rotation = it.animatedValue as Float
         }
@@ -106,6 +114,14 @@ class ImageSelectBar constructor(context: Context, attributeSet: AttributeSet) :
 
     fun setAnimCallback(animatorCallback: AnimCallback) {
         this.mAnimCallback = animatorCallback
+    }
+
+    override fun onLifecycleCancel() {
+        for (valueAnimator in animatorSet) {
+            valueAnimator.cancel()
+            animatorSet.remove(valueAnimator)
+        }
+        unBindLifecycle(context)
     }
 
 }
