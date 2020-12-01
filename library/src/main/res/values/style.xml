@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ImageSelectActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowAnimationStyle">@style/Bottom.Animation</item>
+    </style>
+
+    <style name="Bottom.Animation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_bottom_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/default_in_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/default_in_out</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_bottom_out</item>
+    </style>
+</resources>
