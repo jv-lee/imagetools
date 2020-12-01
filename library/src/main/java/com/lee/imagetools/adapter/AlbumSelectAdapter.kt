@@ -12,8 +12,7 @@ import com.lee.imagetools.entity.Album
  * @date 2020/11/30
  * @description
  */
-class AlbumSelectAdapter(data: MutableList<Album>) :
-    SelectAdapter<Album>(data) {
+class AlbumSelectAdapter : SelectAdapter<Album>(arrayListOf()) {
 
     override fun getItemLayoutId() = R.layout.item_select
 

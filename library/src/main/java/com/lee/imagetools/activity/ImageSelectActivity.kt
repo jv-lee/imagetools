@@ -22,17 +22,12 @@ import com.lee.imagetools.viewmodel.ImageViewModel
 import com.lee.imagetools.widget.ImageSelectBar
 
 class ImageSelectActivity : AppCompatActivity(R.layout.activity_image_select) {
+
     private val viewModel by viewModels<ImageViewModel>()
-    private val mSelectAdapter by lazy {
-        AlbumSelectAdapter(
-            arrayListOf()
-        )
-    }
-    private val mImagesAdapter by lazy {
-        ImageSelectAdapter(
-            arrayListOf()
-        )
-    }
+
+    private val mSelectAdapter by lazy { AlbumSelectAdapter() }
+
+    private val mImagesAdapter by lazy { ImageSelectAdapter() }
 
     private val imageSelectBar by lazy { findViewById<ImageSelectBar>(R.id.image_select_bar) }
     private val viewMask by lazy { findViewById<View>(R.id.mask) }

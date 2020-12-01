@@ -8,7 +8,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="@color/colorAccent"
+        android:background="@color/colorLine"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <ImageView
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:textColor="@android:color/white"
+        android:textColor="@color/colorText"
         app:layout_constraintBottom_toBottomOf="@id/iv_cover"
         app:layout_constraintStart_toEndOf="@id/iv_cover"
         app:layout_constraintTop_toTopOf="@id/iv_cover" />

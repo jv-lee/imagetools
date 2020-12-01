@@ -13,7 +13,7 @@ import com.lee.imagetools.tools.Tools
  * @date 2020/11/30
  * @description
  */
-class ImageSelectAdapter(data: MutableList<Image>) : SelectAdapter<Image>(data) {
+class ImageSelectAdapter : SelectAdapter<Image>(arrayListOf()) {
     override fun getItemLayoutId() = R.layout.item_image
 
     override fun convert(itemView: View, item: Image, position: Int) {
@@ -21,7 +21,10 @@ class ImageSelectAdapter(data: MutableList<Image>) : SelectAdapter<Image>(data) 
 
         val screenWidth = Tools.getScreenWidth(itemView.context)
         ivImage.layoutParams =
-            ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, screenWidth / 4)
+            ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                screenWidth / 4
+            )
         Glide.with(itemView).load(item.path).into(ivImage)
     }
 

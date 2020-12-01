@@ -11,13 +11,13 @@
         android:id="@+id/image_select_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark"
+        android:background="@color/colorBackground"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark">
+        android:background="@color/colorBackground">
 
 
         <androidx.recyclerview.widget.RecyclerView
