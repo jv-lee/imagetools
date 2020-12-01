@@ -17,7 +17,12 @@
 package com.soundclound.android.crop;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 
@@ -30,16 +35,26 @@ abstract class MonitoredActivity extends Activity {
 
     public static interface LifeCycleListener {
         public void onActivityCreated(MonitoredActivity activity);
+
         public void onActivityDestroyed(MonitoredActivity activity);
+
         public void onActivityStarted(MonitoredActivity activity);
+
         public void onActivityStopped(MonitoredActivity activity);
     }
 
     public static class LifeCycleAdapter implements LifeCycleListener {
-        public void onActivityCreated(MonitoredActivity activity) {}
-        public void onActivityDestroyed(MonitoredActivity activity) {}
-        public void onActivityStarted(MonitoredActivity activity) {}
-        public void onActivityStopped(MonitoredActivity activity) {}
+        public void onActivityCreated(MonitoredActivity activity) {
+        }
+
+        public void onActivityDestroyed(MonitoredActivity activity) {
+        }
+
+        public void onActivityStarted(MonitoredActivity activity) {
+        }
+
+        public void onActivityStopped(MonitoredActivity activity) {
+        }
     }
 
     public void addLifeCycleListener(LifeCycleListener listener) {
@@ -53,6 +68,7 @@ abstract class MonitoredActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        statusBar(getWindow(), false);
         super.onCreate(savedInstanceState);
         for (LifeCycleListener listener : listeners) {
             listener.onActivityCreated(this);
@@ -80,6 +96,45 @@ abstract class MonitoredActivity extends Activity {
         super.onStop();
         for (LifeCycleListener listener : listeners) {
             listener.onActivityStopped(this);
+        }
+    }
+
+    /**
+     * 设置沉浸式状态栏
+     *
+     * @param window                   引用
+     * @param navigationBarTranslucent 导航栏是否设置为透明
+     */
+    private void statusBar(Window window, boolean navigationBarTranslucent) {
+        //5.0以设置沉浸式
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            //设置状态栏颜色调整
+            window.setStatusBarColor(Color.TRANSPARENT);
+
+            int visibility = window.getDecorView().getSystemUiVisibility();
+            //布局内容全屏展示
+            visibility |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            //隐藏虚拟导航栏
+//            visibility |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            //设置沉浸式 导航栏
+            if (navigationBarTranslucent) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            }
+            //防止内容区域大小发生变化
+            visibility |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            window.getDecorView().setSystemUiVisibility(visibility);
+            //4.0设置
+        } else {
+            //设置沉浸式 状态栏
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                //设置沉浸式 导航栏
+                if (navigationBarTranslucent) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+                }
+            }
         }
     }
 

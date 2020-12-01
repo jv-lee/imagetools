@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Parcelable
 import android.provider.MediaStore
 import kotlinx.android.parcel.Parcelize
+import java.io.File
 
 /**
  * @author jv.lee
@@ -20,6 +21,7 @@ data class Image(
     val select: Boolean = false
 ) : Parcelable {
     fun getImageUri(): Uri {
+//        return Uri.fromFile(File(path))
         return ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
     }
 }

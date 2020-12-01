@@ -32,7 +32,7 @@ import com.lee.imagetools.widget.ImageSelectBar
  * @date 2020/12/1
  * @description
  */
-internal class ImageSelectActivity : AppCompatActivity(R.layout.activity_image_select) {
+internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select) {
 
     private val viewModel by viewModels<ImageViewModel>()
 
@@ -49,6 +49,7 @@ internal class ImageSelectActivity : AppCompatActivity(R.layout.activity_image_s
 
     private val imageLaunch =
         registerForActivityResult(ImageActivityResult()) {
+            it ?: return@registerForActivityResult
             setResult(Constants.IMAGE_CROP_RESULT_CODE, Intent().putExtra(Constants.IMAGE_KEY, it))
             finish()
         }
