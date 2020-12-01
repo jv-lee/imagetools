@@ -20,7 +20,7 @@ import com.lee.imagetools.tools.Tools
  * @date 2020/11/30
  * @description
  */
-class ImageSelectBar constructor(context: Context, attributeSet: AttributeSet) :
+internal class ImageSelectBar constructor(context: Context, attributeSet: AttributeSet) :
     FrameLayout(context, attributeSet),
     ViewLifecycle {
 

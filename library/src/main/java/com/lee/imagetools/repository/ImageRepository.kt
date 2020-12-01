@@ -13,7 +13,7 @@ import java.util.*
  * @date 2020/11/30
  * @description
  */
-class ImageRepository(private val application: Application) {
+internal class ImageRepository(private val application: Application) {
 
     fun getAlbums(): List<Album> {
         val albums = arrayListOf<Album>()

@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
  * @date 2020/11/30
  * @description
  */
-class ImageViewModel(application: Application) : AndroidViewModel(application) {
+internal class ImageViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository by lazy {
         ImageRepository(

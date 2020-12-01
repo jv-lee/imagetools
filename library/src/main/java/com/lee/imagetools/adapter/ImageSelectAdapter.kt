@@ -13,7 +13,7 @@ import com.lee.imagetools.tools.Tools
  * @date 2020/11/30
  * @description
  */
-class ImageSelectAdapter : SelectAdapter<Image>(arrayListOf()) {
+internal class ImageSelectAdapter : SelectAdapter<Image>(arrayListOf()) {
     override fun getItemLayoutId() = R.layout.item_image
 
     override fun convert(itemView: View, item: Image, position: Int) {

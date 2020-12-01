@@ -11,7 +11,7 @@ import androidx.lifecycle.OnLifecycleEvent
  * @date 2020/12/1
  * @description
  */
-interface ViewLifecycle : LifecycleObserver {
+internal interface ViewLifecycle : LifecycleObserver {
 
     fun bindLifecycle(context: Context?) {
         context ?: return

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
  * @date 2020/11/30
  * @description
  */
-abstract class SelectAdapter<T>(private val data: MutableList<T>) :
+internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
     RecyclerView.Adapter<SelectAdapter<T>.SelectViewHolder>() {
 
     private var mItemClickListener: ItemClickListener<T>? = null

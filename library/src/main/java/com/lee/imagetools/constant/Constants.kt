@@ -5,6 +5,8 @@ package com.lee.imagetools.constant
  * @date 2020/11/30
  * @description
  */
-object Constants {
+internal object Constants {
     const val DEFAULT_ALBUM_ID = -1L
+    const val IMAGE_KEY = "image"
+    const val IMAGE_CROP_RESULT_CODE = 0x30
 }

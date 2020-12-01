@@ -5,4 +5,4 @@ package com.lee.imagetools.entity
  * @date 2020/11/30
  * @description
  */
-data class Album(val id: Long, val name: String, val cover: String)
+internal data class Album(val id: Long, val name: String, val cover: String)

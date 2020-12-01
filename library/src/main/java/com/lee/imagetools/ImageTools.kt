@@ -1,11 +1,9 @@
 package com.lee.imagetools
 
-import android.Manifest
-import android.app.Activity
-import android.content.Intent
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
-import com.lee.imagetools.activity.ImageSelectActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.appcompat.app.AppCompatActivity
+import com.lee.imagetools.entity.Image
+import com.lee.imagetools.intent.SelectActivityResult
 
 /**
  * @author jv.lee
@@ -14,16 +12,13 @@ import com.lee.imagetools.activity.ImageSelectActivity
  */
 object ImageTools {
 
-    fun intoImageSelect(activity: Activity) {
-        if (ActivityCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            == PackageManager.PERMISSION_DENIED
-        ) {
-            throw RuntimeException("Please apply for 'Manifest.permission.WRITE_EXTERNAL_STORAGE' permission first")
+    fun singleSelectLaunch(
+        activity: AppCompatActivity,
+        call: (item: Image) -> Unit
+    ): ActivityResultLauncher<Int> {
+        return activity.registerForActivityResult(SelectActivityResult()) {
+            it?.let(call)
         }
-        activity.startActivity(Intent(activity, ImageSelectActivity::class.java))
     }
 
 }

@@ -1,11 +1,15 @@
 package com.lee.imagetools.activity
 
+import android.Manifest
 import android.animation.ValueAnimator
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,11 +21,18 @@ import com.lee.imagetools.adapter.ImageSelectAdapter
 import com.lee.imagetools.adapter.SelectAdapter
 import com.lee.imagetools.constant.Constants
 import com.lee.imagetools.entity.Album
+import com.lee.imagetools.entity.Image
+import com.lee.imagetools.intent.ImageActivityResult
 import com.lee.imagetools.tools.Tools
 import com.lee.imagetools.viewmodel.ImageViewModel
 import com.lee.imagetools.widget.ImageSelectBar
 
-class ImageSelectActivity : AppCompatActivity(R.layout.activity_image_select) {
+/**
+ * @author jv.lee
+ * @date 2020/12/1
+ * @description
+ */
+internal class ImageSelectActivity : AppCompatActivity(R.layout.activity_image_select) {
 
     private val viewModel by viewModels<ImageViewModel>()
 
@@ -36,8 +47,21 @@ class ImageSelectActivity : AppCompatActivity(R.layout.activity_image_select) {
 
     private var animator: ValueAnimator? = null
 
+    private val imageLaunch =
+        registerForActivityResult(ImageActivityResult(ImageCropActivity::class.java)) {
+            setResult(Constants.IMAGE_CROP_RESULT_CODE, Intent().putExtra(Constants.IMAGE_KEY, it))
+            finish()
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_DENIED
+        ) {
+            throw RuntimeException("Please apply for 'Manifest.permission.WRITE_EXTERNAL_STORAGE' permission first")
+        }
         bindView()
         bindListener()
         bindObservable()
@@ -73,6 +97,12 @@ class ImageSelectActivity : AppCompatActivity(R.layout.activity_image_select) {
                 imageSelectBar.setSelectName(item.name)
                 imageSelectBar.switch()
             }
+        })
+        mImagesAdapter.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
+            override fun onClickItem(position: Int, item: Image) {
+                imageLaunch.launch(item)
+            }
+
         })
 
         imageSelectBar.setAnimCallback(object : ImageSelectBar.AnimCallback {

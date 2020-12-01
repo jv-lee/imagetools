@@ -12,7 +12,13 @@ import kotlinx.android.parcel.Parcelize
  * @description
  */
 @Parcelize
-data class Image(val id: Long,val name: String, val path: String,val timestamp:Long) : Parcelable {
+data class Image(
+    val id: Long,
+    val name: String,
+    val path: String,
+    val timestamp: Long,
+    val select: Boolean = false
+) : Parcelable {
     fun getImageUri(): Uri {
         return ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
     }

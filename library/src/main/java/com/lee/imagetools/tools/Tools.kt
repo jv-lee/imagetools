@@ -16,7 +16,7 @@ import com.lee.imagetools.R
  * @date 2020/11/30
  * @description
  */
-object Tools {
+internal object Tools {
 
     fun viewTranslationHide(view: View) {
         view.translationY = (-view.height).toFloat()

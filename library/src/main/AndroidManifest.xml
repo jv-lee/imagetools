@@ -3,8 +3,9 @@
     package="com.lee.imagetools">
 
     <application>
+        <activity android:name=".activity.ImageCropActivity"></activity>
         <activity
-            android:name="com.lee.imagetools.activity.ImageSelectActivity"
+            android:name=".activity.ImageSelectActivity"
             android:theme="@style/ImageSelectActivity" />
     </application>
 
