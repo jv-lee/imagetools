@@ -6,21 +6,22 @@ import androidx.activity.result.contract.ActivityResultContract
 import com.lee.imagetools.activity.ImageSelectActivity
 import com.lee.imagetools.constant.Constants
 import com.lee.imagetools.entity.Image
+import com.lee.imagetools.entity.SelectConfig
 
 /**
  * @author jv.lee
  * @date 2020/12/1
  * @description
  */
-internal class SelectActivityResult : ActivityResultContract<Int, Image>() {
-    override fun createIntent(context: Context, input: Int?): Intent {
+internal class SelectActivityResult : ActivityResultContract<SelectConfig, ArrayList<Image>>() {
+    override fun createIntent(context: Context, input: SelectConfig): Intent {
         return Intent(context, ImageSelectActivity::class.java)
-            .putExtra(Constants.IMAGE_KEY, input)
+            .putExtra(Constants.CONFIG_KEY, input)
     }
 
-    override fun parseResult(resultCode: Int, intent: Intent?): Image? {
-        if (resultCode == Constants.IMAGE_CROP_RESULT_CODE) {
-            return intent?.getParcelableExtra(Constants.IMAGE_KEY)
+    override fun parseResult(resultCode: Int, intent: Intent?): ArrayList<Image>? {
+        if (resultCode == Constants.IMAGE_DATA_RESULT_CODE) {
+            return intent?.getParcelableArrayListExtra<Image>(Constants.IMAGE_DATA_KEY)
         }
         return null
     }

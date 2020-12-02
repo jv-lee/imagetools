@@ -13,8 +13,8 @@ import com.lee.imagetools.tools.Tools
  * @date 2020/11/30
  * @description
  */
-internal class ImageSelectAdapter : SelectAdapter<Image>(arrayListOf()) {
-    override fun getItemLayoutId() = R.layout.item_image
+internal class ImageSingleSelectAdapter : SelectAdapter<Image>(arrayListOf()) {
+    override fun getItemLayoutId() = R.layout.item_image_single
 
     override fun convert(itemView: View, item: Image, position: Int) {
         val ivImage = itemView.findViewById<ImageView>(R.id.iv_image)

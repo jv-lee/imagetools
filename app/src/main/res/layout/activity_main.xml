@@ -6,10 +6,18 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/btn_start_image_select"
+        android:id="@+id/btn_single_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Start Image Select" />
+        android:text="Start Single Image" />
+
+    <Button
+        android:id="@+id/btn_multiple_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="56dp"
+        android:text="Start Multiple Image" />
 
 </FrameLayout>

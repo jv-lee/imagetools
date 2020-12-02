@@ -7,9 +7,10 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,12 +18,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lee.imagetools.R
 import com.lee.imagetools.adapter.AlbumSelectAdapter
-import com.lee.imagetools.adapter.ImageSelectAdapter
+import com.lee.imagetools.adapter.ImageMultipleSelectAdapter
+import com.lee.imagetools.adapter.ImageSingleSelectAdapter
 import com.lee.imagetools.adapter.SelectAdapter
 import com.lee.imagetools.constant.Constants
 import com.lee.imagetools.entity.Album
 import com.lee.imagetools.entity.Image
-import com.lee.imagetools.intent.ImageActivityResult
+import com.lee.imagetools.entity.SelectConfig
+import com.lee.imagetools.intent.CropActivityResult
 import com.lee.imagetools.tools.Tools
 import com.lee.imagetools.viewmodel.ImageViewModel
 import com.lee.imagetools.widget.ImageSelectBar
@@ -35,27 +38,61 @@ import com.lee.imagetools.widget.ImageSelectBar
 internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select) {
 
     private val viewModel by viewModels<ImageViewModel>()
-
-    private val mSelectAdapter by lazy { AlbumSelectAdapter() }
-
-    private val mImagesAdapter by lazy { ImageSelectAdapter() }
+    private val selectConfig by lazy { intent.getParcelableExtra<SelectConfig>(Constants.CONFIG_KEY) }
+    private var animator: ValueAnimator? = null
 
     private val imageSelectBar by lazy { findViewById<ImageSelectBar>(R.id.image_select_bar) }
     private val viewMask by lazy { findViewById<View>(R.id.mask) }
     private val rvSelect by lazy { findViewById<RecyclerView>(R.id.rv_select) }
     private val rvImages by lazy { findViewById<RecyclerView>(R.id.rv_images) }
+    private val tvReview by lazy { findViewById<TextView>(R.id.tv_review) }
+    private val tvDone by lazy { findViewById<TextView>(R.id.tv_done) }
 
-    private var animator: ValueAnimator? = null
+    private val mSelectAdapter by lazy {
+        AlbumSelectAdapter().also {
+            it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Album> {
+                override fun onClickItem(position: Int, item: Album) {
+                    viewModel.getImagesByAlbumId(item.id)
+                    imageSelectBar.setSelectName(item.name)
+                    imageSelectBar.switch()
+                }
+            })
+        }
+    }
 
-    private val imageLaunch =
-        registerForActivityResult(ImageActivityResult(true)) {
+    private val mImagesAdapter by lazy {
+        if (selectConfig.isMultiple)
+            ImageMultipleSelectAdapter().also {
+
+            }
+        else
+            ImageSingleSelectAdapter().also {
+                it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
+                    override fun onClickItem(position: Int, item: Image) {
+                        //裁剪请求
+                        imageLaunch.launch(item)
+                    }
+                })
+            }
+    }
+
+    /**
+     * 单图裁剪后返回
+     */
+    private val imageLaunch by lazy {
+        registerForActivityResult(CropActivityResult(selectConfig.isSquare)) {
             it ?: return@registerForActivityResult
-            setResult(Constants.IMAGE_CROP_RESULT_CODE, Intent().putExtra(Constants.IMAGE_KEY, it))
+            setResult(
+                Constants.IMAGE_DATA_RESULT_CODE,
+                Intent().putParcelableArrayListExtra(Constants.IMAGE_DATA_KEY, arrayListOf(it))
+            )
             finish()
         }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        imageLaunch
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -75,6 +112,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         rvImages.layoutManager = GridLayoutManager(this, 4)
         rvImages.layoutAnimation = Tools.getItemOrderAnimator(this)
         rvImages.adapter = mImagesAdapter
+
+        checkNavigationView(true)
     }
 
     private fun bindListener() {
@@ -92,20 +131,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 return super.onInterceptTouchEvent(rv, e)
             }
         })
-        mSelectAdapter.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Album> {
-            override fun onClickItem(position: Int, item: Album) {
-                viewModel.getImagesByAlbumId(item.id)
-                imageSelectBar.setSelectName(item.name)
-                imageSelectBar.switch()
-            }
-        })
-        mImagesAdapter.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
-            override fun onClickItem(position: Int, item: Image) {
-                imageLaunch.launch(item)
-            }
-
-        })
-
         imageSelectBar.setAnimCallback(object : ImageSelectBar.AnimCallback {
             override fun animCall(enable: Boolean) {
                 animator = Tools.selectViewTranslationAnimator(enable, rvSelect, viewMask)
@@ -138,4 +163,29 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         animator?.cancel()
         animator = null
     }
+
+    private fun selectDoneCount(count: Int) {
+        if (count == 0) {
+            tvDone.setText(R.string.done_text)
+        } else {
+            tvDone.text = getString(R.string.done_format_text, count)
+        }
+    }
+
+    private fun checkNavigationView(enable: Boolean) {
+        val textColor = ContextCompat.getColor(
+            this,
+            if (enable) R.color.colorText else R.color.colorTextPair
+        )
+        val textBackground = ContextCompat.getDrawable(
+            this,
+            if (enable) R.drawable.shape_button_press else R.drawable.shape_button_normal
+        )
+        tvReview.setTextColor(textColor)
+        tvReview.isClickable = enable
+        tvDone.setTextColor(textColor)
+        tvDone.background = textBackground
+        tvDone.isClickable = enable
+    }
+
 }

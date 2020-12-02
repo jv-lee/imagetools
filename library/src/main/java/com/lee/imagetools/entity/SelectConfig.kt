@@ -1,0 +1,17 @@
+package com.lee.imagetools.entity
+
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+/**
+ * @author jv.lee
+ * @date 2020/12/2
+ * @description
+ */
+@Parcelize
+data class SelectConfig(
+    val isMultiple: Boolean = false,
+    val selectCount: Int = 9,
+    val isCompress: Boolean = false,
+    val isSquare: Boolean = false
+) : Parcelable

@@ -15,7 +15,7 @@ import java.io.File
  * @date 2020/12/1
  * @description
  */
-internal class ImageActivityResult(private val isSquare: Boolean) :
+internal class CropActivityResult(private val isSquare: Boolean) :
     ActivityResultContract<Image, Image>() {
 
     private var tempPath: String? = null
