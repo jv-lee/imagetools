@@ -69,6 +69,7 @@ abstract class MonitoredActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         statusBar(getWindow(), false);
+
         super.onCreate(savedInstanceState);
         for (LifeCycleListener listener : listeners) {
             listener.onActivityCreated(this);
@@ -118,6 +119,7 @@ abstract class MonitoredActivity extends Activity {
             visibility |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
             //隐藏虚拟导航栏
 //            visibility |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            visibility |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
             //设置沉浸式 导航栏
             if (navigationBarTranslucent) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);

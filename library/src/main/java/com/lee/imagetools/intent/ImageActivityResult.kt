@@ -15,7 +15,7 @@ import java.io.File
  * @date 2020/12/1
  * @description
  */
-internal class ImageActivityResult :
+internal class ImageActivityResult(private val isSquare: Boolean) :
     ActivityResultContract<Image, Image>() {
 
     private var tempPath: String? = null
@@ -25,7 +25,11 @@ internal class ImageActivityResult :
         tempPath = context.cacheDir.absolutePath + File.separator +
                 System.currentTimeMillis() + ".png"
         image = input
-        return Crop.of(input?.getImageUri(), Uri.fromFile(File(tempPath))).getIntent(context)
+        val crop = Crop.of(input?.getImageUri(), Uri.fromFile(File(tempPath)))
+        if (isSquare) {
+            crop.asSquare()
+        }
+        return crop.getIntent(context)
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?): Image? {

@@ -48,7 +48,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private var animator: ValueAnimator? = null
 
     private val imageLaunch =
-        registerForActivityResult(ImageActivityResult()) {
+        registerForActivityResult(ImageActivityResult(true)) {
             it ?: return@registerForActivityResult
             setResult(Constants.IMAGE_CROP_RESULT_CODE, Intent().putExtra(Constants.IMAGE_KEY, it))
             finish()
