@@ -1,6 +1,8 @@
 package com.lee.imagetools.repository
 
 import android.app.Application
+import android.content.ContentResolver
+import android.os.Bundle
 import android.provider.MediaStore
 import com.lee.imagetools.R
 import com.lee.imagetools.constant.Constants
@@ -69,24 +71,15 @@ internal class ImageRepository(private val application: Application) {
             MediaStore.Images.Media.DATA,
             MediaStore.Images.Media.DATE_ADDED
         )
-        val cursor = if (albumId == Constants.DEFAULT_ALBUM_ID) {
-            application.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                null,
-                null,
-                "${MediaStore.Images.Media.DATE_ADDED} DESC"
-            )
-        } else {
-            application.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                MediaStore.Images.Media.BUCKET_ID + " =?",
-                arrayOf(albumId.toString()),
-//                "${MediaStore.Images.Media.DATE_ADDED} desc limit ${page * Constants.PAGE_COUNT},${Constants.PAGE_COUNT}"
-                "${MediaStore.Images.Media.DATE_ADDED} DESC"
-            )
-        } ?: return images
+        val cursor = application.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            if (albumId == Constants.DEFAULT_ALBUM_ID) null else MediaStore.Images.Media.BUCKET_ID + " =?",
+            if (albumId == Constants.DEFAULT_ALBUM_ID) null else arrayOf(albumId.toString()),
+            "${MediaStore.Images.Media.DATE_ADDED} desc limit ${Constants.PAGE_COUNT} offset $page"
+//            "${MediaStore.Images.Media.DATE_ADDED} DESC"
+        )
+            ?: return images
 
         if (cursor.moveToFirst()) {
             do {
@@ -97,10 +90,38 @@ internal class ImageRepository(private val application: Application) {
                 images.add(Image(id, name, timestamp, path))
             } while (cursor.moveToNext())
         }
+//        application.contentResolver.query(
+//            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//            projection,
+//            createSqlQueryBundle(null, null, null),
+//            null
+//        )
 
         cursor.close()
 
         return images
+    }
+
+    private fun createSqlQueryBundle(
+        selection: String?,
+        selectionArgs: Array<String?>?,
+        sortOrder: String?, limitCount: Int = 0, offset: Int = 0
+    ): Bundle? {
+        if (selection == null && selectionArgs == null && sortOrder == null) {
+            return null
+        }
+        val queryArgs = Bundle()
+        if (selection != null) {
+            queryArgs.putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
+        }
+        if (selectionArgs != null) {
+            queryArgs.putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, selectionArgs)
+        }
+        if (sortOrder != null) {
+            queryArgs.putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, sortOrder)
+        }
+        queryArgs.putString(ContentResolver.QUERY_ARG_SQL_LIMIT, "$limitCount offset $offset")
+        return queryArgs
     }
 
 }

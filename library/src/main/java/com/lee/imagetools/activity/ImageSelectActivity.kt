@@ -47,7 +47,7 @@ import com.lee.imagetools.widget.ImageSelectBar
 internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select) {
 
     private val viewModel by viewModels<ImageViewModel>()
-    private val selectConfig by lazy { intent.getParcelableExtra<SelectConfig>(Constants.CONFIG_KEY) }
+    private val selectConfig by lazy { intent.getParcelableExtra<SelectConfig>(Constants.CONFIG_KEY)?: SelectConfig() }
     private var animator: ValueAnimator? = null
 
     private val imageSelectBar by lazy { findViewById<ImageSelectBar>(R.id.image_select_bar) }
