@@ -4,4 +4,5 @@
     <string name="review_text">REVIEW</string>
     <string name="done_format_text">DONE(%1$d)</string>
     <string name="select_limit_description">You can only select at most %1$d pictures</string>
+    <string name="original_description">Original image</string>
 </resources>

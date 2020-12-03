@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.widget.CheckBox
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -18,6 +19,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.lee.compress.CompressImageManager
+import com.lee.compress.bean.Photo
+import com.lee.compress.config.CompressConfig
+import com.lee.compress.listener.CompressImage
 import com.lee.imagetools.BuildConfig
 import com.lee.imagetools.R
 import com.lee.imagetools.adapter.AlbumSelectAdapter
@@ -25,6 +30,7 @@ import com.lee.imagetools.adapter.ImageMultipleSelectAdapter
 import com.lee.imagetools.adapter.ImageSingleSelectAdapter
 import com.lee.imagetools.adapter.SelectAdapter
 import com.lee.imagetools.constant.Constants
+import com.lee.imagetools.dialog.LoadingDialog
 import com.lee.imagetools.entity.Album
 import com.lee.imagetools.entity.Image
 import com.lee.imagetools.entity.SelectConfig
@@ -48,9 +54,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private val viewMask by lazy { findViewById<View>(R.id.mask) }
     private val rvSelect by lazy { findViewById<RecyclerView>(R.id.rv_select) }
     private val rvImages by lazy { findViewById<RecyclerView>(R.id.rv_images) }
+    private val constNavigation by lazy { findViewById<ConstraintLayout>(R.id.const_navigation) }
     private val tvReview by lazy { findViewById<TextView>(R.id.tv_review) }
     private val tvDone by lazy { findViewById<TextView>(R.id.tv_done) }
-    private val constNavigation by lazy { findViewById<ConstraintLayout>(R.id.const_navigation) }
+    private val cbOriginal by lazy { findViewById<CheckBox>(R.id.cb_original) }
+
+    private val loadingDialog by lazy { LoadingDialog(this) }
 
     private val mSelectAdapter by lazy {
         AlbumSelectAdapter().also {
@@ -105,11 +114,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private val imageLaunch by lazy {
         registerForActivityResult(CropActivityResult(selectConfig.isSquare)) {
             it ?: return@registerForActivityResult
-            setResult(
-                Constants.IMAGE_DATA_RESULT_CODE,
-                Intent().putParcelableArrayListExtra(Constants.IMAGE_DATA_KEY, arrayListOf(it))
-            )
-            finish()
+            finishImagesResult(arrayListOf(it))
         }
     }
 
@@ -141,14 +146,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private fun bindListener() {
         tvDone.setOnClickListener {
-            setResult(
-                Constants.IMAGE_DATA_RESULT_CODE,
-                Intent().putExtra(
-                    Constants.IMAGE_DATA_KEY,
-                    (mImagesAdapter as ImageMultipleSelectAdapter).getSelectList()
-                )
-            )
-            finish()
+            finishImagesResult((mImagesAdapter as ImageMultipleSelectAdapter).getSelectList())
         }
         viewMask.setOnClickListener {
             if (imageSelectBar.getEnable()) {
@@ -241,6 +239,60 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         tvDone.setTextColor(textColor)
         tvDone.background = textBackground
         tvDone.isClickable = enable
+    }
+
+    private fun finishImagesResult(images: ArrayList<Image>) {
+        //不使用自带压缩
+        if (!selectConfig.isCompress) {
+            parseImageResult(images.also {
+                for (image in it) {
+                    image.isCompress = !cbOriginal.isChecked
+                }
+            })
+            return
+        }
+        //使用自带压缩 且 使用原图模式 取消压缩方式
+        if (selectConfig.isCompress && cbOriginal.isChecked) {
+            parseImageResult(images)
+            return
+        }
+        //使用自带压缩
+        loadingDialog.show()
+        CompressImageManager.build(
+            this,
+            CompressConfig.getDefaultConfig(),
+            arrayListOf<Photo>().also {
+                for (image in images) {
+                    it.add(Photo(image.path))
+                }
+            },
+            object : CompressImage.CompressListener {
+                override fun onCompressSuccess(photos: ArrayList<Photo>?) {
+                    photos?.let {
+                        for ((index, image) in images.withIndex()) {
+                            image.path = it[index].compressPath
+                        }
+                    }
+                    parseImageResult(images)
+                }
+
+                override fun onCompressFailed(images: ArrayList<Photo>?, error: String?) {
+
+                }
+
+            }).compress()
+    }
+
+    private fun parseImageResult(images: ArrayList<Image>) {
+        loadingDialog.dismiss()
+        setResult(
+            Constants.IMAGE_DATA_RESULT_CODE,
+            Intent().putParcelableArrayListExtra(
+                Constants.IMAGE_DATA_KEY,
+                images
+            )
+        )
+        finish()
     }
 
 }

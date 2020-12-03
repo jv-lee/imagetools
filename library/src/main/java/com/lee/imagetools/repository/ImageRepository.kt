@@ -48,7 +48,8 @@ internal class ImageRepository(private val application: Application) {
         }
         val tempAlbum = albums[0].copy()
         val defaultAlbumName = application.getString(R.string.default_album_name)
-        albums.add(0,
+        albums.add(
+            0,
             Album(
                 Constants.DEFAULT_ALBUM_ID,
                 defaultAlbumName,
@@ -92,14 +93,7 @@ internal class ImageRepository(private val application: Application) {
                 val name = cursor.getString(cursor.getColumnIndex(projection[1]))
                 val path = cursor.getString(cursor.getColumnIndex(projection[2]))
                 val timestamp = cursor.getLong(cursor.getColumnIndex(projection[3]))
-                images.add(
-                    Image(
-                        id,
-                        name,
-                        path,
-                        timestamp
-                    )
-                )
+                images.add(Image(id, name, timestamp, path))
             } while (cursor.moveToPrevious())
         }
         cursor.close()
