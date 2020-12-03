@@ -75,7 +75,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private val mImagesAdapter by lazy {
         if (selectConfig.isMultiple)
-            ImageMultipleSelectAdapter(selectConfig.selectCount).also {
+            ImageMultipleSelectAdapter(Tools.getScreenWidth(this) / 4,selectConfig.selectCount).also {
                 it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
                     override fun onClickItem(position: Int, item: Image) {
                         it.updateSelected(item)
@@ -98,14 +98,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 })
             }
         else
-            ImageSingleSelectAdapter().also {
-                it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
-                    override fun onClickItem(position: Int, item: Image) {
-                        //裁剪请求
-                        imageLaunch.launch(item)
-                    }
-                })
-            }
+        ImageSingleSelectAdapter(Tools.getScreenWidth(this) / 4).also {
+            it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
+                override fun onClickItem(position: Int, item: Image) {
+                    //裁剪请求
+                    imageLaunch.launch(item)
+                }
+            })
+        }
     }
 
     /**

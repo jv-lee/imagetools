@@ -14,7 +14,7 @@ import com.lee.imagetools.tools.Tools
  * @date 2020/11/30
  * @description
  */
-internal class ImageMultipleSelectAdapter(private val selectLimit: Int) :
+internal class ImageMultipleSelectAdapter(private val childWidth:Int,private val selectLimit: Int) :
     SelectAdapter<Image>(arrayListOf()) {
 
     private val selectList = arrayListOf<Image>()
@@ -29,10 +29,9 @@ internal class ImageMultipleSelectAdapter(private val selectLimit: Int) :
 
         item.itemIndex = position
 
-        val screenWidth = Tools.getScreenWidth(itemView.context)
         ivImage.layoutParams =
             ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT, screenWidth / 4
+                ConstraintLayout.LayoutParams.MATCH_PARENT, childWidth
             )
         Glide.with(itemView).load(item.path).into(ivImage)
 
