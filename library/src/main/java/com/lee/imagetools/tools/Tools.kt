@@ -31,6 +31,7 @@ internal object Tools {
         val animator =
             if (enable) ValueAnimator.ofFloat(-dimen, 0F)
             else ValueAnimator.ofFloat(0F, -dimen)
+        animator.duration = 200
         animator.addUpdateListener {
             maskView.alpha = (dimen - Math.abs(it.animatedValue as Float)) / dimen
             containerView.translationY = it.animatedValue as Float

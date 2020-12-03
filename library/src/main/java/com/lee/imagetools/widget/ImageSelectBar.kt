@@ -53,6 +53,7 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
         val animator =
             ValueAnimator.ofInt(tvAlbumName.width, rect.width() + Tools.dp2px(context, 6).toInt())
         animatorSet.add(animator)
+        animator.duration = 200
         animator.addUpdateListener {
             tvAlbumName.layoutParams =
                 LinearLayout.LayoutParams(it.animatedValue as Int, tvAlbumName.height)
@@ -81,6 +82,7 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
         val animator =
             if (enable) ValueAnimator.ofFloat(180f, 360f) else ValueAnimator.ofFloat(0f, 180f)
         animatorSet.add(animator)
+        animator.duration = 200
         animator.addUpdateListener {
             ivIcon.rotation = it.animatedValue as Float
         }
