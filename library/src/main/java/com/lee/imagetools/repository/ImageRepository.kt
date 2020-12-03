@@ -61,7 +61,7 @@ internal class ImageRepository(private val application: Application) {
         return albums
     }
 
-    fun getImagesByAlbum(albumId: Long): List<Image> {
+    fun getImagesByAlbum(albumId: Long, page: Int = 0): List<Image> {
         val images = arrayListOf<Image>()
         val projection = arrayOf(
             MediaStore.Images.Media._ID,
@@ -75,7 +75,7 @@ internal class ImageRepository(private val application: Application) {
                 projection,
                 null,
                 null,
-                MediaStore.Images.Media.DATE_ADDED
+                "${MediaStore.Images.Media.DATE_ADDED} DESC"
             )
         } else {
             application.contentResolver.query(
@@ -83,19 +83,21 @@ internal class ImageRepository(private val application: Application) {
                 projection,
                 MediaStore.Images.Media.BUCKET_ID + " =?",
                 arrayOf(albumId.toString()),
-                MediaStore.Images.Media.DATE_ADDED
+//                "${MediaStore.Images.Media.DATE_ADDED} desc limit ${page * Constants.PAGE_COUNT},${Constants.PAGE_COUNT}"
+                "${MediaStore.Images.Media.DATE_ADDED} DESC"
             )
         } ?: return images
 
-        if (cursor.moveToLast()) {
+        if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getLong(cursor.getColumnIndex(projection[0]))
                 val name = cursor.getString(cursor.getColumnIndex(projection[1]))
                 val path = cursor.getString(cursor.getColumnIndex(projection[2]))
                 val timestamp = cursor.getLong(cursor.getColumnIndex(projection[3]))
                 images.add(Image(id, name, timestamp, path))
-            } while (cursor.moveToPrevious())
+            } while (cursor.moveToNext())
         }
+
         cursor.close()
 
         return images
