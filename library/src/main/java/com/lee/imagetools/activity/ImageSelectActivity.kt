@@ -1,7 +1,6 @@
 package com.lee.imagetools.activity
 
 import android.Manifest
-import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,12 +13,12 @@ import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.lee.imagetools.BuildConfig
 import com.lee.imagetools.R
 import com.lee.imagetools.adapter.AlbumSelectAdapter
 import com.lee.imagetools.adapter.ImageMultipleSelectAdapter
@@ -167,7 +166,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         })
         imageSelectBar.setAnimCallback(object : ImageSelectBar.AnimCallback {
             override fun animEnd() {
-                mImagesAdapter.notifyDataSetChanged()
+                if (BuildConfig.DEBUG) {
+                    mImagesAdapter.notifyDataSetChanged()
+                }
             }
 
             override fun animCall(enable: Boolean) {
@@ -188,11 +189,16 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 selectDoneCount(0)
             }
             rvImages.layoutAnimation = Tools.getItemOrderAnimator(this)
-            if (mImagesAdapter.getData().isEmpty()) {
-                mImagesAdapter.updateData(it)
+
+            if (BuildConfig.DEBUG) {
+                if (mImagesAdapter.getData().isEmpty()) {
+                    mImagesAdapter.updateData(it)
+                } else {
+                    mImagesAdapter.getData().clear()
+                    mImagesAdapter.getData().addAll(it)
+                }
             } else {
-                mImagesAdapter.getData().clear()
-                mImagesAdapter.getData().addAll(it)
+                mImagesAdapter.updateData(it)
             }
 
         })
