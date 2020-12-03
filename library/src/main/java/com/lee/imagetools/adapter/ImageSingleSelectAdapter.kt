@@ -1,8 +1,10 @@
 package com.lee.imagetools.adapter
 
+import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.lee.imagetools.R
 import com.lee.imagetools.entity.Image
@@ -24,7 +26,9 @@ internal class ImageSingleSelectAdapter(private val childWidth: Int) :
                 ConstraintLayout.LayoutParams.MATCH_PARENT,
                 childWidth
             )
-        Glide.with(itemView).load(item.path).into(ivImage)
+        Glide.with(itemView).load(item.path)
+            .placeholder(ColorDrawable(ContextCompat.getColor(itemView.context, R.color.colorItem)))
+            .into(ivImage)
     }
 
 }
