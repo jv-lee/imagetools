@@ -21,8 +21,18 @@ data class Image(
     var select: Boolean = false,
     var itemIndex: Int = 0
 ) : Parcelable {
+    /**
+     * 根据当前图片获取 ContentProvider 数据库ID
+     */
+    fun getImageId(): Long {
+        return ContentUris.parseId(getImageUri())
+    }
+
+    /**
+     * 获取当前图片Uri地址
+     * 根据ID获取 Uri ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+     */
     fun getImageUri(): Uri {
-//        return Uri.fromFile(File(path))
-        return ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+        return Uri.fromFile(File(path))
     }
 }
