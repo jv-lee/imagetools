@@ -18,7 +18,8 @@ data class Image(
     val name: String,
     val path: String,
     val timestamp: Long,
-    val select: Boolean = false
+    var select: Boolean = false,
+    var itemIndex: Int = 0
 ) : Parcelable {
     fun getImageUri(): Uri {
 //        return Uri.fromFile(File(path))

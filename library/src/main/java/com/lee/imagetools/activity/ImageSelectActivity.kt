@@ -1,6 +1,7 @@
 package com.lee.imagetools.activity
 
 import android.Manifest
+import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -8,7 +9,9 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleObserver
@@ -16,6 +19,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.lee.imagetools.R
 import com.lee.imagetools.adapter.AlbumSelectAdapter
 import com.lee.imagetools.adapter.ImageMultipleSelectAdapter
@@ -47,14 +51,15 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private val rvImages by lazy { findViewById<RecyclerView>(R.id.rv_images) }
     private val tvReview by lazy { findViewById<TextView>(R.id.tv_review) }
     private val tvDone by lazy { findViewById<TextView>(R.id.tv_done) }
+    private val constNavigation by lazy { findViewById<ConstraintLayout>(R.id.const_navigation) }
 
     private val mSelectAdapter by lazy {
         AlbumSelectAdapter().also {
             it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Album> {
                 override fun onClickItem(position: Int, item: Album) {
-                    viewModel.getImagesByAlbumId(item.id)
                     imageSelectBar.setSelectName(item.name)
                     imageSelectBar.switch()
+                    viewModel.getImagesByAlbumId(item.id)
                 }
             })
         }
@@ -62,8 +67,27 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private val mImagesAdapter by lazy {
         if (selectConfig.isMultiple)
-            ImageMultipleSelectAdapter().also {
+            ImageMultipleSelectAdapter(selectConfig.selectCount).also {
+                it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
+                    override fun onClickItem(position: Int, item: Image) {
+                        it.updateSelected(item)
+                    }
 
+                })
+                it.setSelectCallback(object : ImageMultipleSelectAdapter.SelectCallback {
+                    override fun selectEnd(limit: Int) {
+                        Toast.makeText(
+                            this@ImageSelectActivity,
+                            getString(R.string.select_limit_description, limit),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    override fun selectCall(count: Int) {
+                        this@ImageSelectActivity.selectDoneCount(count)
+                    }
+
+                })
             }
         else
             ImageSingleSelectAdapter().also {
@@ -106,17 +130,27 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
 
     private fun bindView() {
+        constNavigation.visibility = if (selectConfig.isMultiple) View.VISIBLE else View.GONE
+
         rvSelect.layoutManager = LinearLayoutManager(this)
         rvSelect.adapter = mSelectAdapter
 
+        (rvImages.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         rvImages.layoutManager = GridLayoutManager(this, 4)
-        rvImages.layoutAnimation = Tools.getItemOrderAnimator(this)
         rvImages.adapter = mImagesAdapter
-
-        checkNavigationView(true)
     }
 
     private fun bindListener() {
+        tvDone.setOnClickListener {
+            setResult(
+                Constants.IMAGE_DATA_RESULT_CODE,
+                Intent().putExtra(
+                    Constants.IMAGE_DATA_KEY,
+                    (mImagesAdapter as ImageMultipleSelectAdapter).getSelectList()
+                )
+            )
+            finish()
+        }
         viewMask.setOnClickListener {
             if (imageSelectBar.getEnable()) {
                 imageSelectBar.switch()
@@ -132,11 +166,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             }
         })
         imageSelectBar.setAnimCallback(object : ImageSelectBar.AnimCallback {
+            override fun animEnd() {
+                mImagesAdapter.notifyDataSetChanged()
+            }
+
             override fun animCall(enable: Boolean) {
                 animator = Tools.selectViewTranslationAnimator(enable, rvSelect, viewMask)
             }
         })
-        (imageSelectBar as LifecycleObserver)
     }
 
     private fun bindObservable() {
@@ -146,7 +183,18 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         })
 
         viewModel.imagesLiveData.observe(this, Observer {
-            mImagesAdapter.updateData(it)
+            if (mImagesAdapter is ImageMultipleSelectAdapter) {
+                (mImagesAdapter as ImageMultipleSelectAdapter).getSelectList().clear()
+                selectDoneCount(0)
+            }
+            rvImages.layoutAnimation = Tools.getItemOrderAnimator(this)
+            if (mImagesAdapter.getData().isEmpty()) {
+                mImagesAdapter.updateData(it)
+            } else {
+                mImagesAdapter.getData().clear()
+                mImagesAdapter.getData().addAll(it)
+            }
+
         })
 
         viewModel.getAlbums()
@@ -170,6 +218,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         } else {
             tvDone.text = getString(R.string.done_format_text, count)
         }
+        checkNavigationView(count > 0)
     }
 
     private fun checkNavigationView(enable: Boolean) {

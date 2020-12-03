@@ -60,7 +60,7 @@ internal object Tools {
         val animController =
             LayoutAnimationController(AnimationUtils.loadAnimation(context, R.anim.item_alpha_in))
         animController.order = LayoutAnimationController.ORDER_NORMAL
-        animController.delay = 0.2f
+        animController.delay = 0.1f
         return animController
     }
 

@@ -50,6 +50,8 @@ internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
         this.mItemClickListener = onItemClickListener
     }
 
+    fun getData() = data
+
     fun updateData(data: List<T>) {
         this.data.clear()
         this.data.addAll(data)

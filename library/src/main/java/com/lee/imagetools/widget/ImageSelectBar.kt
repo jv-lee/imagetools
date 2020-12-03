@@ -62,6 +62,7 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
             }
 
             override fun onAnimationEnd(animation: Animator?) {
+                mAnimCallback?.animEnd()
             }
 
             override fun onAnimationCancel(animation: Animator?) {
@@ -110,6 +111,7 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
     }
 
     interface AnimCallback {
+        fun animEnd()
         fun animCall(enable: Boolean)
     }
 

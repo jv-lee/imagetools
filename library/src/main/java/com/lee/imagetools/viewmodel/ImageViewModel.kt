@@ -8,6 +8,7 @@ import com.lee.imagetools.entity.Album
 import com.lee.imagetools.entity.Image
 import com.lee.imagetools.repository.ImageRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -24,6 +25,8 @@ internal class ImageViewModel(application: Application) : AndroidViewModel(appli
         )
     }
 
+    private var tempId: Long = 0L
+
     val albumsLiveData by lazy { MutableLiveData<List<Album>>() }
     val imagesLiveData by lazy { MutableLiveData<List<Image>>() }
 
@@ -34,6 +37,8 @@ internal class ImageViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun getImagesByAlbumId(id: Long) {
+        if (tempId == id) return
+        tempId = id
         viewModelScope.launch {
             imagesLiveData.value = withContext(Dispatchers.IO) { repository.getImagesByAlbum(id) }
         }
