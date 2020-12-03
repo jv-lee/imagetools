@@ -75,20 +75,21 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private val mImagesAdapter by lazy {
         if (selectConfig.isMultiple)
-            ImageMultipleSelectAdapter(Tools.getScreenWidth(this) / 4,selectConfig.selectCount).also {
+            ImageMultipleSelectAdapter(
+                Tools.getScreenWidth(this) / 4,
+                selectConfig.selectCount
+            ).also {
                 it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
                     override fun onClickItem(position: Int, item: Image) {
+                    }
+                })
+                it.setSelectCallback(object : ImageMultipleSelectAdapter.MultipleSelectCallback {
+                    override fun selectItem(item: Image) {
                         it.updateSelected(item)
                     }
 
-                })
-                it.setSelectCallback(object : ImageMultipleSelectAdapter.SelectCallback {
                     override fun selectEnd(limit: Int) {
-                        Toast.makeText(
-                            this@ImageSelectActivity,
-                            getString(R.string.select_limit_description, limit),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        toast(getString(R.string.select_limit_description, limit))
                     }
 
                     override fun selectCall(count: Int) {
@@ -98,14 +99,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 })
             }
         else
-        ImageSingleSelectAdapter(Tools.getScreenWidth(this) / 4).also {
-            it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
-                override fun onClickItem(position: Int, item: Image) {
-                    //裁剪请求
-                    imageLaunch.launch(item)
-                }
-            })
-        }
+            ImageSingleSelectAdapter(Tools.getScreenWidth(this) / 4).also {
+                it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
+                    override fun onClickItem(position: Int, item: Image) {
+                        //裁剪请求
+                        imageLaunch.launch(item)
+                    }
+                })
+            }
     }
 
     /**

@@ -7,7 +7,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
 import com.lee.imagetools.R
 import com.lee.imagetools.entity.Image
-import com.lee.imagetools.tools.Tools
 
 /**
  * @author jv.lee
@@ -18,7 +17,7 @@ internal class ImageMultipleSelectAdapter(private val childWidth:Int,private val
     SelectAdapter<Image>(arrayListOf()) {
 
     private val selectList = arrayListOf<Image>()
-    private var mSelectCallback: SelectCallback? = null
+    private var mSelectCallback: MultipleSelectCallback? = null
 
     override fun getItemLayoutId() = R.layout.item_image_multiple
 
@@ -46,6 +45,12 @@ internal class ImageMultipleSelectAdapter(private val childWidth:Int,private val
         }
     }
 
+    override fun bindListener(viewHolder: SelectViewHolder) {
+        viewHolder.itemView.findViewById<TextView>(R.id.tv_select_number).setOnClickListener {
+            mSelectCallback?.selectItem(getData()[viewHolder.layoutPosition])
+        }
+    }
+
     fun getSelectList() = selectList
 
     fun updateSelected(item: Image) {
@@ -69,12 +74,13 @@ internal class ImageMultipleSelectAdapter(private val childWidth:Int,private val
         mSelectCallback?.selectCall(selectList.size)
     }
 
-    interface SelectCallback {
+    interface MultipleSelectCallback {
+        fun selectItem(item:Image)
         fun selectEnd(limit: Int)
         fun selectCall(count: Int)
     }
 
-    fun setSelectCallback(selectCallback: SelectCallback) {
+    fun setSelectCallback(selectCallback: MultipleSelectCallback) {
         mSelectCallback = selectCallback
     }
 

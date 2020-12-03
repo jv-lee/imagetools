@@ -24,6 +24,7 @@ internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
             LayoutInflater.from(parent.context).inflate(getItemLayoutId(), parent, false)
         )
         bindItemListener(viewHolder)
+        bindListener(viewHolder)
         return viewHolder
     }
 
@@ -33,6 +34,10 @@ internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
 
     override fun onBindViewHolder(holder: SelectViewHolder, position: Int) {
         holder.bindView(data[position], position)
+    }
+
+    open fun bindListener(viewHolder: SelectViewHolder){
+
     }
 
     private fun bindItemListener(viewHolder: SelectViewHolder) {

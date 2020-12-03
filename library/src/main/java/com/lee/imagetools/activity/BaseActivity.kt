@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 /**
@@ -17,6 +18,10 @@ abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId) {
     override fun onCreate(savedInstanceState: Bundle?) {
         statusBar(window, false)
         super.onCreate(savedInstanceState)
+    }
+
+    fun BaseActivity.toast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     /**
