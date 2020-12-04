@@ -21,21 +21,31 @@
         app:layout_constraintTop_toBottomOf="@id/image_select_bar">
 
 
-        <androidx.core.widget.NestedScrollView
+<!--        <androidx.core.widget.NestedScrollView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            app:layout_constraintBottom_toTopOf="@id/const_navigation"-->
+<!--            app:layout_constraintTop_toTopOf="parent">-->
+
+<!--            <androidx.recyclerview.widget.RecyclerView-->
+<!--                android:id="@+id/rv_images"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:overScrollMode="never"-->
+<!--                android:paddingStart="@dimen/item_padding"-->
+<!--                android:paddingLeft="@dimen/item_padding" />-->
+
+<!--        </androidx.core.widget.NestedScrollView>-->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_images"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:overScrollMode="never"
+            android:paddingStart="@dimen/item_padding"
+            android:paddingLeft="@dimen/item_padding"
             app:layout_constraintBottom_toTopOf="@id/const_navigation"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_images"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:overScrollMode="never"
-                android:paddingStart="@dimen/item_padding"
-                android:paddingLeft="@dimen/item_padding" />
-
-        </androidx.core.widget.NestedScrollView>
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/const_navigation"

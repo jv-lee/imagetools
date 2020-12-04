@@ -1,5 +1,8 @@
 package com.lee.imagetools.adapter
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,9 +18,13 @@ internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
 
     private var mItemClickListener: ItemClickListener<T>? = null
 
+    private var mAutoLoadMoreListener: AutoLoadMoreListener? = null
+
     private var lastClickTime: Long = 0
 
     private val quickEventTimeSpan: Long = 1000
+
+    var hasLoadMore = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectViewHolder {
         val viewHolder = SelectViewHolder(
@@ -34,9 +41,22 @@ internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
 
     override fun onBindViewHolder(holder: SelectViewHolder, position: Int) {
         holder.bindView(data[position], position)
+        if (holder.layoutPosition == 0 || data.size < 10) return
+        if (holder.layoutPosition == data.size / 2 && hasLoadMore) {
+            hasLoadMore = false
+            //防止更新过快导致 RecyclerView 还处于锁定状态 就直接更新数据
+            val value = ValueAnimator.ofInt(0, 1)
+            value.duration = 50
+            value.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    mAutoLoadMoreListener?.loadMore()
+                }
+            })
+            value.start()
+        }
     }
 
-    open fun bindListener(viewHolder: SelectViewHolder){
+    open fun bindListener(viewHolder: SelectViewHolder) {
 
     }
 
@@ -65,6 +85,14 @@ internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
         }
     }
 
+    interface AutoLoadMoreListener {
+        fun loadMore()
+    }
+
+    fun setAutoLoadMoreListener(autoLoadMoreListener: AutoLoadMoreListener) {
+        this.mAutoLoadMoreListener = autoLoadMoreListener
+    }
+
     interface ItemClickListener<T> {
         fun onClickItem(position: Int, item: T)
     }
@@ -78,6 +106,18 @@ internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
     fun updateData(data: List<T>) {
         this.data.clear()
         this.data.addAll(data)
+        notifyDataSetChanged()
+    }
+
+    fun addData(data: List<T>) {
+        this.data.addAll(data)
+//        notifyItemRangeChanged(getData().size - data.size,data.size)
+        notifyItemRangeInserted(getData().size, data.size)
+//        notifyDataSetChanged()
+    }
+
+    fun clearData() {
+        getData().clear()
         notifyDataSetChanged()
     }
 

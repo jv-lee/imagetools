@@ -4,8 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.lee.imagetools.constant.Constants
 import com.lee.imagetools.entity.Album
 import com.lee.imagetools.entity.Image
+import com.lee.imagetools.entity.LoadStatus
+import com.lee.imagetools.entity.PageNumber
 import com.lee.imagetools.repository.ImageRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,7 +28,9 @@ internal class ImageViewModel(application: Application) : AndroidViewModel(appli
         )
     }
 
-    private var tempId: Long = 0L
+    val page = PageNumber(limit = 0)
+    var albumId: Long = Constants.DEFAULT_ALBUM_ID
+    var tempID = 0L
 
     val albumsLiveData by lazy { MutableLiveData<List<Album>>() }
     val imagesLiveData by lazy { MutableLiveData<List<Image>>() }
@@ -36,11 +41,10 @@ internal class ImageViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun getImagesByAlbumId(id: Long) {
-        if (tempId == id) return
-        tempId = id
+    fun getImages(@LoadStatus status: Int) {
+        tempID = albumId
         viewModelScope.launch {
-            imagesLiveData.value = withContext(Dispatchers.IO) { repository.getImagesByAlbum(id) }
+            imagesLiveData.value = repository.getImagesByAlbum(albumId, page.getPage(status))
         }
     }
 
