@@ -2,6 +2,7 @@ package com.imagetools.select
 
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.SelectConfig
 import com.imagetools.select.intent.SelectActivityResult
@@ -14,7 +15,7 @@ import com.imagetools.select.intent.SelectActivityResult
 object ImageTools {
 
     fun selectLaunch(
-        activity: AppCompatActivity,
+        activity: FragmentActivity,
         call: (item: ArrayList<Image>) -> Unit
     ): ActivityResultLauncher<SelectConfig> {
         return activity.registerForActivityResult(SelectActivityResult()) {
