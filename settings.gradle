@@ -1,5 +1,6 @@
+include ':library'
 include ':compress'
 include ':crop'
-include ':core'
+include ':select'
 include ':app'
 rootProject.name = "imagetools"
