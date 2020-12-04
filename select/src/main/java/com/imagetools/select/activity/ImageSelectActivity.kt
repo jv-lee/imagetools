@@ -85,7 +85,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 })
                 it.setAutoLoadMoreListener(object : SelectAdapter.AutoLoadMoreListener {
                     override fun loadMore() {
-//                        viewModel.getImages(LoadStatus.LOAD_MORE)
+                        viewModel.getImages(LoadStatus.LOAD_MORE)
                     }
                 })
                 it.setSelectCallback(object : ImageMultipleSelectAdapter.MultipleSelectCallback {
