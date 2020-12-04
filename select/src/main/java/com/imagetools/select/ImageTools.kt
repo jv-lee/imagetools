@@ -1,7 +1,6 @@
 package com.imagetools.select
 
 import androidx.activity.result.ActivityResultLauncher
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.imagetools.select.entity.Image
