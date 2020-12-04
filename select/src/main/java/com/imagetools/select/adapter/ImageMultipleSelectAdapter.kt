@@ -37,6 +37,7 @@ internal class ImageMultipleSelectAdapter(private val childWidth:Int,private val
         Glide.with(itemView).load(item.path)
             .placeholder(ColorDrawable(ContextCompat.getColor(itemView.context, R.color.colorItem)))
             .dontAnimate()
+            .override(ivImage.width,ivImage.height)
             .into(ivImage)
 
         if (item.select) {

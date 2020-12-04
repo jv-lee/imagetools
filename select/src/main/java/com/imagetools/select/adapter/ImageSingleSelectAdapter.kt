@@ -29,6 +29,7 @@ internal class ImageSingleSelectAdapter(private val childWidth: Int) :
         Glide.with(itemView).load(item.path)
             .placeholder(ColorDrawable(ContextCompat.getColor(itemView.context, R.color.colorItem)))
             .dontAnimate()
+            .override(ivImage.width,ivImage.height)
             .into(ivImage)
     }
 

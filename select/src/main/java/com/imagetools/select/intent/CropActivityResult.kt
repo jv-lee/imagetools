@@ -34,7 +34,7 @@ internal class CropActivityResult(private val isSquare: Boolean) :
     override fun parseResult(resultCode: Int, intent: Intent?): Image? {
         if (resultCode == Activity.RESULT_OK) {
             image?.let {
-                return Image(it.id, it.name, it.timestamp, tempPath ?: return null)
+                return Image(it.id, tempPath ?: return null)
             }
         }
         return null

@@ -66,9 +66,7 @@ internal class ImageRepository(private val application: Application) {
         val images = arrayListOf<Image>()
         val projection = arrayOf(
             MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DISPLAY_NAME,
-            MediaStore.Images.Media.DATA,
-            MediaStore.Images.Media.DATE_ADDED
+            MediaStore.Images.Media.DATA
         )
         val cursor = application.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -83,10 +81,8 @@ internal class ImageRepository(private val application: Application) {
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getLong(cursor.getColumnIndex(projection[0]))
-                val name = cursor.getString(cursor.getColumnIndex(projection[1]))
-                val path = cursor.getString(cursor.getColumnIndex(projection[2]))
-                val timestamp = cursor.getLong(cursor.getColumnIndex(projection[3]))
-                images.add(Image(id, name, timestamp, path))
+                val path = cursor.getString(cursor.getColumnIndex(projection[1]))
+                images.add(Image(id, path))
             } while (cursor.moveToNext())
         }
         cursor.close()
