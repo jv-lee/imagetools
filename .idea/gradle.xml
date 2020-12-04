@@ -12,9 +12,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/lib-compress" />
-            <option value="$PROJECT_DIR$/lib-crop" />
-            <option value="$PROJECT_DIR$/library" />
+            <option value="$PROJECT_DIR$/compress" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/crop" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
