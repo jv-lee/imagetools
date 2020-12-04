@@ -43,7 +43,12 @@ internal class ImageViewModel(application: Application) : AndroidViewModel(appli
     fun getImages(@LoadStatus status: Int) {
         tempID = albumId
         viewModelScope.launch {
-            imagesLiveData.value = repository.getImagesByAlbum(albumId, page.getPage(status))
+            imagesLiveData.value = withContext(Dispatchers.IO) {
+                repository.getImagesByAlbum(
+                    albumId,
+                    page.getPage(status)
+                )
+            }
         }
     }
 

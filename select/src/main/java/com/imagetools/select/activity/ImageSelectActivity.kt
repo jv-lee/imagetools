@@ -13,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -37,6 +38,7 @@ import com.imagetools.select.intent.CropActivityResult
 import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
 import com.imagetools.select.widget.ImageSelectBar
+import kotlinx.android.synthetic.main.activity_image_select.*
 
 /**
  * @author jv.lee
@@ -51,15 +53,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
     private var animator: ValueAnimator? = null
 
-    private val imageSelectBar by lazy { findViewById<ImageSelectBar>(R.id.image_select_bar) }
-    private val viewMask by lazy { findViewById<View>(R.id.mask) }
-    private val rvSelect by lazy { findViewById<RecyclerView>(R.id.rv_select) }
-    private val rvImages by lazy { findViewById<RecyclerView>(R.id.rv_images) }
-    private val constNavigation by lazy { findViewById<ConstraintLayout>(R.id.const_navigation) }
-    private val tvReview by lazy { findViewById<TextView>(R.id.tv_review) }
-    private val tvDone by lazy { findViewById<TextView>(R.id.tv_done) }
-    private val cbOriginal by lazy { findViewById<CheckBox>(R.id.cb_original) }
-
     private val loadingDialog by lazy { LoadingDialog(this) }
 
     private val mSelectAdapter by lazy {
@@ -71,8 +64,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                         (mImagesAdapter as ImageMultipleSelectAdapter).getSelectList().clear()
                         selectDoneCount(0)
                     }
-                    imageSelectBar.setSelectName(item.name)
-                    imageSelectBar.switch()
+                    image_select_bar.setSelectName(item.name)
+                    image_select_bar.switch()
                     viewModel.albumId = item.id
                     viewModel.getImages(LoadStatus.INIT)
                 }
@@ -92,7 +85,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 })
                 it.setAutoLoadMoreListener(object : SelectAdapter.AutoLoadMoreListener {
                     override fun loadMore() {
-                        viewModel.getImages(LoadStatus.LOAD_MORE)
+//                        viewModel.getImages(LoadStatus.LOAD_MORE)
                     }
                 })
                 it.setSelectCallback(object : ImageMultipleSelectAdapter.MultipleSelectCallback {
@@ -152,41 +145,41 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
 
     private fun bindView() {
-        constNavigation.visibility = if (selectConfig.isMultiple) View.VISIBLE else View.GONE
+        const_navigation.visibility = if (selectConfig.isMultiple) View.VISIBLE else View.GONE
 
-        rvSelect.layoutManager = LinearLayoutManager(this)
-        rvSelect.adapter = mSelectAdapter
+        rv_select.layoutManager = LinearLayoutManager(this)
+        rv_select.adapter = mSelectAdapter
 
-        rvImages.layoutManager = GridLayoutManager(this, 4)
-        rvImages.layoutAnimation = Tools.getItemOrderAnimator(this)
-        (rvImages.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-        rvImages.adapter = mImagesAdapter
+        rv_images.layoutManager = GridLayoutManager(this, 4)
+        rv_images.layoutAnimation = Tools.getItemOrderAnimator(this)
+        (rv_images.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        rv_images.adapter = mImagesAdapter
     }
 
     private fun bindListener() {
-        tvDone.setOnClickListener {
+        tv_done.setOnClickListener {
             finishImagesResult((mImagesAdapter as ImageMultipleSelectAdapter).getSelectList())
         }
-        viewMask.setOnClickListener {
-            if (imageSelectBar.getEnable()) {
-                imageSelectBar.switch()
+        mask.setOnClickListener {
+            if (image_select_bar.getEnable()) {
+                image_select_bar.switch()
             }
         }
-        rvSelect.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
+        rv_select.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                 val view = rv.findChildViewUnder(e.x, e.y)
-                if (view == null && imageSelectBar.getEnable()) {
-                    imageSelectBar.switch()
+                if (view == null && image_select_bar.getEnable()) {
+                    image_select_bar.switch()
                 }
                 return super.onInterceptTouchEvent(rv, e)
             }
         })
-        imageSelectBar.setAnimCallback(object : ImageSelectBar.AnimCallback {
+        image_select_bar.setAnimCallback(object : ImageSelectBar.AnimCallback {
             override fun animEnd() {
             }
 
             override fun animCall(enable: Boolean) {
-                animator = Tools.selectViewTranslationAnimator(enable, rvSelect, viewMask)
+                animator = Tools.selectViewTranslationAnimator(enable, rv_select, mask)
             }
         })
     }
@@ -194,7 +187,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private fun bindObservable() {
         viewModel.albumsLiveData.observe(this, Observer {
             mSelectAdapter.updateData(it)
-            Tools.viewTranslationHide(rvSelect)
+            Tools.viewTranslationHide(rv_select)
         })
 
         viewModel.imagesLiveData.observe(this, Observer {
@@ -219,9 +212,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private fun selectDoneCount(count: Int) {
         if (count == 0) {
-            tvDone.setText(R.string.done_text)
+            tv_done.setText(R.string.done_text)
         } else {
-            tvDone.text = getString(R.string.done_format_text, count)
+            tv_done.text = getString(R.string.done_format_text, count)
         }
         checkNavigationView(count > 0)
     }
@@ -235,11 +228,11 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             this,
             if (enable) R.drawable.shape_button_press else R.drawable.shape_button_normal
         )
-        tvReview.setTextColor(textColor)
-        tvReview.isClickable = enable
-        tvDone.setTextColor(textColor)
-        tvDone.background = textBackground
-        tvDone.isClickable = enable
+        tv_review.setTextColor(textColor)
+        tv_review.isClickable = enable
+        tv_done.setTextColor(textColor)
+        tv_done.background = textBackground
+        tv_done.isClickable = enable
     }
 
     private fun finishImagesResult(images: ArrayList<Image>) {
@@ -247,13 +240,13 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         if (!selectConfig.isCompress) {
             parseImageResult(images.also {
                 for (image in it) {
-                    image.isCompress = !cbOriginal.isChecked
+                    image.isCompress = !cb_original.isChecked
                 }
             })
             return
         }
         //使用自带压缩 且 使用原图模式 取消压缩方式
-        if (selectConfig.isCompress && cbOriginal.isChecked) {
+        if (selectConfig.isCompress && cb_original.isChecked) {
             parseImageResult(images)
             return
         }

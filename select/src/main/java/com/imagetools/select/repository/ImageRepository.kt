@@ -63,7 +63,6 @@ internal class ImageRepository(private val application: Application) {
     }
 
     fun getImagesByAlbum(albumId: Long, page: Int = 0): List<Image> {
-        Log.i("jv.lee", "getImagesByAlbum: loadMore page:$page")
         val images = arrayListOf<Image>()
         val projection = arrayOf(
             MediaStore.Images.Media._ID,
@@ -76,7 +75,8 @@ internal class ImageRepository(private val application: Application) {
             projection,
             if (albumId == Constants.DEFAULT_ALBUM_ID) null else MediaStore.Images.Media.BUCKET_ID + " =?",
             if (albumId == Constants.DEFAULT_ALBUM_ID) null else arrayOf(albumId.toString()),
-            "${MediaStore.Images.Media.DATE_ADDED} desc limit ${page * Constants.PAGE_COUNT},${Constants.PAGE_COUNT}"
+            "${MediaStore.Images.Media.DATE_ADDED} desc"
+//            "${MediaStore.Images.Media.DATE_ADDED} desc limit ${page * Constants.PAGE_COUNT},${Constants.PAGE_COUNT}"
         )
             ?: return images
 
@@ -90,8 +90,6 @@ internal class ImageRepository(private val application: Application) {
             } while (cursor.moveToNext())
         }
         cursor.close()
-
-        Log.i("jv.lee", "getImagesByAlbum: dataSize:${images.size}")
         return images
     }
 

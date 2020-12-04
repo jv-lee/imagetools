@@ -111,9 +111,8 @@ internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
 
     fun addData(data: List<T>) {
         this.data.addAll(data)
-//        notifyItemRangeChanged(getData().size - data.size,data.size)
-        notifyItemRangeInserted(getData().size, data.size)
-//        notifyDataSetChanged()
+        val startIndex = getData().size
+        notifyItemRangeInserted(startIndex, data.size)
     }
 
     fun clearData() {
