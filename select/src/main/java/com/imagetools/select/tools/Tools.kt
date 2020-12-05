@@ -72,15 +72,13 @@ internal object Tools {
         )
     }
 
-    fun getScreenWidth(context: Context): Int {
+    fun getImageSize(context: Context): Int {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val point = Point()
         windowManager.defaultDisplay.getSize(point)
         val widthDp = px2dp(context, point.x)
-        return dp2px(
-            context,
-            (widthDp - (context.resources.getDimension(R.dimen.item_padding) * 4)).toInt()
-        ).toInt()
+        val widthDimen = widthDp - (context.resources.getDimension(R.dimen.item_padding) * 5)
+        return (widthDimen / 4).toInt()
     }
 
     /**

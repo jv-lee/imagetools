@@ -7,13 +7,9 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
-import android.widget.CheckBox
-import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -76,7 +72,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private val mImagesAdapter by lazy {
         if (selectConfig.isMultiple)
             ImageMultipleSelectAdapter(
-                Tools.getScreenWidth(this) / 4,
+                Tools.getImageSize(this) / 4,
                 selectConfig.selectCount
             ).also {
                 it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
@@ -104,7 +100,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 })
             }
         else
-            ImageSingleSelectAdapter(Tools.getScreenWidth(this) / 4).also {
+            ImageSingleSelectAdapter(Tools.getImageSize(this) / 4).also {
                 it.setOnItemClickListener(object : SelectAdapter.ItemClickListener<Image> {
                     override fun onClickItem(position: Int, item: Image) {
                         //裁剪请求
