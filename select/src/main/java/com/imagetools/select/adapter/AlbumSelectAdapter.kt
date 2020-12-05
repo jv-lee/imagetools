@@ -1,10 +1,12 @@
 package com.imagetools.select.adapter
 
+import android.content.Context
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.imagetools.select.R
+import com.imagetools.select.adapter.base.BaseAdapter
 import com.imagetools.select.entity.Album
 
 /**
@@ -12,7 +14,7 @@ import com.imagetools.select.entity.Album
  * @date 2020/11/30
  * @description
  */
-internal class AlbumSelectAdapter : SelectAdapter<Album>(arrayListOf()) {
+internal class AlbumSelectAdapter(context: Context) : BaseAdapter<Album>(context, arrayListOf()) {
 
     override fun getItemLayoutId() = R.layout.item_select
 

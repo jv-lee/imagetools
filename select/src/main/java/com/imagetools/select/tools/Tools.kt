@@ -72,13 +72,13 @@ internal object Tools {
         )
     }
 
-    fun getImageSize(context: Context): Int {
+    fun getImageSize(context: Context, columnCount: Int = 4): Int {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val point = Point()
         windowManager.defaultDisplay.getSize(point)
-        val widthDp = px2dp(context, point.x)
-        val widthDimen = widthDp - (context.resources.getDimension(R.dimen.item_padding) * 5)
-        return (widthDimen / 4).toInt()
+        val padding = context.resources.getDimension(R.dimen.item_padding).toInt()
+        val width = point.x - (padding * columnCount.plus(1))
+        return width / columnCount
     }
 
     /**

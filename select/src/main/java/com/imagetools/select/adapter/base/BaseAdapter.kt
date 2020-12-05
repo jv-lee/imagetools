@@ -1,8 +1,9 @@
-package com.imagetools.select.adapter
+package com.imagetools.select.adapter.base
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
  * @date 2020/11/30
  * @description
  */
-internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
-    RecyclerView.Adapter<SelectAdapter<T>.SelectViewHolder>() {
+internal abstract class BaseAdapter<T>(val context: Context, private val data: MutableList<T>) :
+    RecyclerView.Adapter<BaseAdapter<T>.SelectViewHolder>() {
 
     private var mItemClickListener: ItemClickListener<T>? = null
 
@@ -110,8 +111,8 @@ internal abstract class SelectAdapter<T>(private val data: MutableList<T>) :
     }
 
     fun addData(data: List<T>) {
-        this.data.addAll(data)
         val startIndex = getData().size
+        this.data.addAll(data)
         notifyItemRangeInserted(startIndex, data.size)
     }
 
