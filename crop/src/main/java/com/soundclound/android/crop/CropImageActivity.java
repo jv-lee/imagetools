@@ -16,7 +16,6 @@
 
 package com.soundclound.android.crop;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,13 +25,10 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.opengl.GLES10;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,7 +67,6 @@ public class CropImageActivity extends MonitoredActivity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setupWindowFlags();
         setupViews();
 
         loadInput();
@@ -80,14 +75,6 @@ public class CropImageActivity extends MonitoredActivity {
             return;
         }
         startCrop();
-    }
-
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void setupWindowFlags() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
     }
 
     private void setupViews() {
@@ -104,6 +91,7 @@ public class CropImageActivity extends MonitoredActivity {
         });
 
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 setResult(RESULT_CANCELED);
                 finish();
@@ -111,6 +99,7 @@ public class CropImageActivity extends MonitoredActivity {
         });
 
         findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 onSaveClicked();
             }
@@ -195,9 +184,11 @@ public class CropImageActivity extends MonitoredActivity {
         imageView.setImageRotateBitmapResetBase(rotateBitmap, true);
         CropUtil.startBackgroundJob(this, null, getResources().getString(R.string.crop__wait),
                 new Runnable() {
+                    @Override
                     public void run() {
                         final CountDownLatch latch = new CountDownLatch(1);
                         handler.post(new Runnable() {
+                            @Override
                             public void run() {
                                 if (imageView.getScale() == 1F) {
                                     imageView.center();
@@ -252,6 +243,7 @@ public class CropImageActivity extends MonitoredActivity {
 
         public void crop() {
             handler.post(new Runnable() {
+                @Override
                 public void run() {
                     makeDefault();
                     imageView.invalidate();
@@ -309,6 +301,7 @@ public class CropImageActivity extends MonitoredActivity {
             final Bitmap b = croppedImage;
             CropUtil.startBackgroundJob(this, null, getResources().getString(R.string.crop__saving),
                     new Runnable() {
+                        @Override
                         public void run() {
                             saveOutput(b);
                         }
@@ -404,6 +397,7 @@ public class CropImageActivity extends MonitoredActivity {
 
         final Bitmap b = croppedImage;
         handler.post(new Runnable() {
+            @Override
             public void run() {
                 imageView.clear();
                 b.recycle();
