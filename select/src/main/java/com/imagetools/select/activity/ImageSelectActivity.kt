@@ -101,6 +101,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private fun bindView() {
         const_navigation.visibility = if (selectConfig.isMultiple) View.VISIBLE else View.GONE
 
+        streamer_view.setColumnCount(selectConfig.columnCount)
+
         lv_select.adapter = mAlbumAdapter
         gv_images.layoutAnimation = Tools.getItemOrderAnimator(this)
     }
@@ -166,6 +168,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             if (gv_images.adapter == null) {
                 gv_images.adapter = mImageAdapter
                 gv_images.numColumns = selectConfig.columnCount
+                gv_images.visibility = View.VISIBLE
+                streamer_view.loadComplete()
             } else {
                 mImageAdapter.notifyDataSetChanged()
             }

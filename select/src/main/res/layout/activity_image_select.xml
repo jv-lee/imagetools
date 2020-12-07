@@ -31,6 +31,15 @@
             android:paddingRight="0dp"
             android:stretchMode="columnWidth"
             android:verticalSpacing="@dimen/item_padding"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/const_navigation"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.imagetools.select.widget.StreamerView
+            android:id="@+id/streamer_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="visible"
             app:layout_constraintBottom_toTopOf="@id/const_navigation"
             app:layout_constraintTop_toTopOf="parent" />
 
