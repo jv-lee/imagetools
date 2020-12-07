@@ -6,7 +6,7 @@ import com.imagetools.select.tools.Tools
 
 /**
  * @author jv.lee
- * @date 2020/12/5
+ * @date 2020/12/7
  * @description
  */
 internal abstract class BaseSelectAdapter<T>(
@@ -32,4 +32,5 @@ internal abstract class BaseSelectAdapter<T>(
     fun setSelectCallback(selectCallback: MultipleSelectCallback) {
         mSelectCallback = selectCallback
     }
+
 }

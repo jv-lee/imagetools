@@ -19,8 +19,7 @@ data class Image(
     val id: Long,
     var path: String,
     var select: Boolean = false,
-    var isCompress: Boolean = false, // 是否需要压缩， 不使用选择器压缩方式 ，在上传时根据该字段压缩图片 提高用户体验
-    var itemIndex: Int = 0
+    var isCompress: Boolean = false // 是否需要压缩， 不使用选择器压缩方式 ，在上传时根据该字段压缩图片 提高用户体验
 ) : Parcelable {
     /**
      * 根据当前图片获取 ContentProvider 数据库ID

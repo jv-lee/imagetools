@@ -2,95 +2,25 @@ package com.imagetools.select.adapter.base
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.BaseAdapter
 
 /**
  * @author jv.lee
- * @date 2020/11/30
+ * @date 2020/12/7
  * @description
  */
-internal abstract class BaseAdapter<T>(val context: Context, private val data: MutableList<T>) :
-    RecyclerView.Adapter<BaseAdapter<T>.SelectViewHolder>() {
+internal abstract class BaseAdapter<T>(
+    protected val context: Context,
+    private val data: MutableList<T>
+) : BaseAdapter() {
 
-    private var mItemClickListener: ItemClickListener<T>? = null
+    protected val layoutInflater: LayoutInflater = LayoutInflater.from(context)
 
-    private var mAutoLoadMoreListener: AutoLoadMoreListener? = null
+    override fun getCount() = data.size
 
-    private var lastClickTime: Long = 0
+    override fun getItem(position: Int) = data[position]
 
-    private val quickEventTimeSpan: Long = 1000
-
-    private var hasLoadMore = true
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectViewHolder {
-        val viewHolder = SelectViewHolder(
-            LayoutInflater.from(parent.context).inflate(getItemLayoutId(), parent, false)
-        )
-        bindItemListener(viewHolder)
-        bindListener(viewHolder)
-        return viewHolder
-    }
-
-    override fun getItemCount(): Int {
-        return data.size
-    }
-
-    override fun onBindViewHolder(holder: SelectViewHolder, position: Int) {
-        holder.bindView(data[position], position)
-        if (holder.layoutPosition == 0 || data.size < 10) return
-        if (holder.layoutPosition == data.size / 2 && hasLoadMore) {
-            hasLoadMore = false
-            mAutoLoadMoreListener?.loadMore()
-            return
-        }
-    }
-
-    open fun bindListener(viewHolder: SelectViewHolder) {
-
-    }
-
-    private fun bindItemListener(viewHolder: SelectViewHolder) {
-        viewHolder.itemView.setOnClickListener {
-            //设置防抖控制
-            val timeSpan = System.currentTimeMillis() - lastClickTime
-            if (timeSpan < quickEventTimeSpan) {
-                return@setOnClickListener
-            }
-            lastClickTime = System.currentTimeMillis()
-            mItemClickListener?.onClickItem(
-                viewHolder.layoutPosition,
-                data[viewHolder.layoutPosition]
-            )
-        }
-    }
-
-    abstract fun getItemLayoutId(): Int
-
-    abstract fun convert(itemView: View, item: T, position: Int)
-
-    inner class SelectViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bindView(item: T, position: Int) {
-            convert(itemView, item, position)
-        }
-    }
-
-    interface AutoLoadMoreListener {
-        fun loadMore()
-    }
-
-    fun setAutoLoadMoreListener(autoLoadMoreListener: AutoLoadMoreListener) {
-        this.mAutoLoadMoreListener = autoLoadMoreListener
-    }
-
-    interface ItemClickListener<T> {
-        fun onClickItem(position: Int, item: T)
-    }
-
-    fun setOnItemClickListener(onItemClickListener: ItemClickListener<T>) {
-        this.mItemClickListener = onItemClickListener
-    }
+    override fun getItemId(position: Int) = position.toLong()
 
     fun getData() = data
 
@@ -100,19 +30,9 @@ internal abstract class BaseAdapter<T>(val context: Context, private val data: M
         notifyDataSetChanged()
     }
 
-    fun addData(data: List<T>) {
-        val startIndex = getData().size
-        this.data.addAll(data)
-        notifyItemRangeInserted(startIndex, data.size)
-    }
-
     fun clearData() {
         getData().clear()
         notifyDataSetChanged()
-    }
-
-    fun openLoadMore() {
-        hasLoadMore = true
     }
 
 }
