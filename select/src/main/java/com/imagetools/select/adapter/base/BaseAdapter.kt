@@ -1,8 +1,5 @@
 package com.imagetools.select.adapter.base
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +22,7 @@ internal abstract class BaseAdapter<T>(val context: Context, private val data: M
 
     private val quickEventTimeSpan: Long = 1000
 
-    var hasLoadMore = true
+    private var hasLoadMore = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectViewHolder {
         val viewHolder = SelectViewHolder(
@@ -45,15 +42,8 @@ internal abstract class BaseAdapter<T>(val context: Context, private val data: M
         if (holder.layoutPosition == 0 || data.size < 10) return
         if (holder.layoutPosition == data.size / 2 && hasLoadMore) {
             hasLoadMore = false
-            //防止更新过快导致 RecyclerView 还处于锁定状态 就直接更新数据
-            val value = ValueAnimator.ofInt(0, 1)
-            value.duration = 50
-            value.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    mAutoLoadMoreListener?.loadMore()
-                }
-            })
-            value.start()
+            mAutoLoadMoreListener?.loadMore()
+            return
         }
     }
 
@@ -119,6 +109,10 @@ internal abstract class BaseAdapter<T>(val context: Context, private val data: M
     fun clearData() {
         getData().clear()
         notifyDataSetChanged()
+    }
+
+    fun openLoadMore() {
+        hasLoadMore = true
     }
 
 }

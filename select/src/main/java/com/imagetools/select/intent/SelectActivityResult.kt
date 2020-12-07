@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import com.imagetools.select.activity.ImageSelectActivity
+import com.imagetools.select.activity.ImageSelectActivity2
 import com.imagetools.select.constant.Constants
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.SelectConfig
@@ -15,7 +16,7 @@ import com.imagetools.select.entity.SelectConfig
  */
 internal class SelectActivityResult : ActivityResultContract<SelectConfig, ArrayList<Image>>() {
     override fun createIntent(context: Context, input: SelectConfig): Intent {
-        return Intent(context, ImageSelectActivity::class.java)
+        return Intent(context, ImageSelectActivity2::class.java)
             .putExtra(Constants.CONFIG_KEY, input)
     }
 

@@ -73,8 +73,8 @@ internal class ImageRepository(private val application: Application) {
             projection,
             if (albumId == Constants.DEFAULT_ALBUM_ID) null else MediaStore.Images.Media.BUCKET_ID + " =?",
             if (albumId == Constants.DEFAULT_ALBUM_ID) null else arrayOf(albumId.toString()),
-//            "${MediaStore.Images.Media.DATE_ADDED} desc"
-            "${MediaStore.Images.Media.DATE_ADDED} desc limit ${page * Constants.PAGE_COUNT},${Constants.PAGE_COUNT}"
+            "${MediaStore.Images.Media.DATE_ADDED} desc"
+//            "${MediaStore.Images.Media.DATE_ADDED} desc limit ${page * Constants.PAGE_COUNT},${Constants.PAGE_COUNT}"
         )
             ?: return images
 

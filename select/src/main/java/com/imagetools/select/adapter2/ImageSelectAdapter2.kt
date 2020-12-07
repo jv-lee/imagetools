@@ -1,9 +1,10 @@
-package com.imagetools.select.adapter
+package com.imagetools.select.adapter2
 
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,35 +16,45 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.imagetools.select.R
-import com.imagetools.select.adapter.base.BaseSelectAdapter
+import com.imagetools.select.adapter2.base.BaseAdapter2
+import com.imagetools.select.adapter2.base.BaseSelectAdapter2
 import com.imagetools.select.entity.Image
 
 /**
  * @author jv.lee
- * @date 2020/11/30
+ * @date 2020/12/7
  * @description
  */
-internal class ImageSelectAdapter(
+internal class ImageSelectAdapter2(
     context: Context,
     isMultiple: Boolean = false,
     selectLimit: Int = 9,
     columnCount: Int = 4
 ) :
-    BaseSelectAdapter<Image>(context, arrayListOf(), isMultiple, selectLimit, columnCount) {
+    BaseSelectAdapter2<Image>(context, arrayListOf(), isMultiple, selectLimit, columnCount) {
 
+    override fun getView(position: Int, converView: View?, parent: ViewGroup?): View {
+        val itemView: View
+        val viewHolder: ViewHolder
+        if (converView == null) {
+            itemView = layoutInflater.inflate(R.layout.item_image, parent, false)
+            viewHolder = ViewHolder(
+                itemView.findViewById(R.id.iv_image),
+                itemView.findViewById(R.id.iv_mask),
+                itemView.findViewById(R.id.frame_select),
+                itemView.findViewById(R.id.tv_select_number)
+            )
+            itemView.tag = viewHolder
+        } else {
+            itemView = converView
+            viewHolder = itemView.tag as ViewHolder
+        }
 
-    override fun getItemLayoutId() = R.layout.item_image
-
-    override fun convert(itemView: View, item: Image, position: Int) {
-        val ivImage = itemView.findViewById<ImageView>(R.id.iv_image)
-        val ivMask = itemView.findViewById<ImageView>(R.id.iv_mask)
-        val frameSelect = itemView.findViewById<FrameLayout>(R.id.frame_select)
-        val tvSelectNumber = itemView.findViewById<TextView>(R.id.tv_select_number)
-
+        val item = getItem(position)
         item.itemIndex = position
-        frameSelect.visibility = View.GONE
+        viewHolder.frameSelect.visibility = View.GONE
 
-        ivImage.layoutParams = ConstraintLayout.LayoutParams(size, size)
+        viewHolder.ivImage.layoutParams = ConstraintLayout.LayoutParams(size, size)
         Glide.with(context).load(item.path)
             .placeholder(ColorDrawable(ContextCompat.getColor(context, R.color.colorSelect)))
             .listener(object : RequestListener<Drawable> {
@@ -63,35 +74,41 @@ internal class ImageSelectAdapter(
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    ivImage.setImageDrawable(resource)
+                    viewHolder.ivImage.setImageDrawable(resource)
                     if (isMultiple) {
-                        frameSelect.visibility = View.VISIBLE
+                        viewHolder.frameSelect.visibility = View.VISIBLE
                     }
                     return true
                 }
 
             })
-            .into(ivImage)
+            .into(viewHolder.ivImage)
 
         if (isMultiple) {
             if (item.select) {
-                ivMask.visibility = View.VISIBLE
-                tvSelectNumber.text = selectList.indexOf(item).plus(1).toString()
-                tvSelectNumber.setBackgroundResource(R.drawable.shape_select_number_press)
+                viewHolder.ivMask.visibility = View.VISIBLE
+                viewHolder.tvSelectNumber.text = selectList.indexOf(item).plus(1).toString()
+                viewHolder.tvSelectNumber.setBackgroundResource(R.drawable.shape_select_number_press)
             } else {
-                ivMask.visibility = View.GONE
-                tvSelectNumber.text = ""
-                tvSelectNumber.setBackgroundResource(R.drawable.shape_select_number_normal)
+                viewHolder.ivMask.visibility = View.GONE
+                viewHolder.tvSelectNumber.text = ""
+                viewHolder.tvSelectNumber.setBackgroundResource(R.drawable.shape_select_number_normal)
+            }
+
+            viewHolder.frameSelect.setOnClickListener {
+                updateSelected(getItem(position))
             }
         }
+
+        return itemView
     }
 
-    override fun bindListener(viewHolder: SelectViewHolder) {
-        if (!isMultiple) return
-        viewHolder.itemView.findViewById<FrameLayout>(R.id.frame_select).setOnClickListener {
-            mSelectCallback?.selectItem(getData()[viewHolder.layoutPosition])
-        }
-    }
+    class ViewHolder(
+        val ivImage: ImageView,
+        val ivMask: ImageView,
+        val frameSelect: FrameLayout,
+        val tvSelectNumber: TextView
+    )
 
     fun updateSelected(item: Image) {
         if (!item.select && selectList.size == selectLimit) {
@@ -102,15 +119,13 @@ internal class ImageSelectAdapter(
         if (item.select) {
             item.select = false
             selectList.remove(item)
-            notifyItemChanged(item.itemIndex)
+            notifyDataSetChanged()
         } else {
             item.select = true
             selectList.add(item)
         }
 
-        for (image in selectList) {
-            notifyItemChanged(image.itemIndex)
-        }
+        notifyDataSetChanged()
         mSelectCallback?.selectCall(selectList.size)
     }
 

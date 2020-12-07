@@ -6,6 +6,9 @@
         <activity
             android:name="com.imagetools.select.activity.ImageSelectActivity"
             android:theme="@style/ImageSelectActivity" />
+        <activity
+            android:name="com.imagetools.select.activity.ImageSelectActivity2"
+            android:theme="@style/ImageSelectActivity" />
     </application>
 
 </manifest>

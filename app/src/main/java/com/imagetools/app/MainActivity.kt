@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         findViewById<Button>(R.id.btn_multiple_image).setOnClickListener {
             requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
                 selectLaunch.launch(
-                    SelectConfig(isMultiple = true, isSquare = true, isCompress = true)
+                    SelectConfig(isMultiple = true, isSquare = true, isCompress = true,columnCount = 3)
                 )
             }
         }

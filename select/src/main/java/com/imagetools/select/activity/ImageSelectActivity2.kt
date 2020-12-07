@@ -5,28 +5,21 @@ import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.MotionEvent
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
 import com.imagetools.compress.CompressImageManager
 import com.imagetools.compress.bean.Photo
 import com.imagetools.compress.config.CompressConfig
 import com.imagetools.compress.listener.CompressImage
 import com.imagetools.select.R
-import com.imagetools.select.adapter.AlbumSelectAdapter
-import com.imagetools.select.adapter.ImageSelectAdapter
-import com.imagetools.select.adapter.base.BaseAdapter
-import com.imagetools.select.adapter.base.BaseSelectAdapter
+import com.imagetools.select.adapter2.AlbumSelectAdapter2
+import com.imagetools.select.adapter2.ImageSelectAdapter2
+import com.imagetools.select.adapter2.base.BaseSelectAdapter2
 import com.imagetools.select.constant.Constants
 import com.imagetools.select.dialog.LoadingDialog
-import com.imagetools.select.entity.Album
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.LoadStatus
 import com.imagetools.select.entity.SelectConfig
@@ -34,14 +27,14 @@ import com.imagetools.select.intent.CropActivityResult
 import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
 import com.imagetools.select.widget.ImageSelectBar
-import kotlinx.android.synthetic.main.activity_image_select.*
+import kotlinx.android.synthetic.main.activity_image_select2.*
 
 /**
  * @author jv.lee
  * @date 2020/12/1
  * @description
  */
-internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select) {
+internal class ImageSelectActivity2 : BaseActivity(R.layout.activity_image_select2) {
 
     private val viewModel by viewModels<ImageViewModel>()
     private val selectConfig by lazy {
@@ -51,47 +44,17 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private val loadingDialog by lazy { LoadingDialog(this) }
 
-    private val mAlbumAdapter by lazy {
-        AlbumSelectAdapter(this).also {
-            it.setOnItemClickListener(object : BaseAdapter.ItemClickListener<Album> {
-                override fun onClickItem(position: Int, item: Album) {
-                    mImageAdapter.clearData()
-                    if (mImageAdapter.isMultiple) {
-                        mImageAdapter.selectList.clear()
-                        selectDoneCount(0)
-                    }
-                    image_select_bar.setSelectName(item.name)
-                    image_select_bar.switch()
-                    viewModel.albumId = item.id
-                    viewModel.getImages(LoadStatus.INIT)
-                }
-            })
-        }
-    }
+    private val mAlbumAdapter by lazy { AlbumSelectAdapter2(this) }
 
     private val mImageAdapter by lazy {
-        ImageSelectAdapter(
+        ImageSelectAdapter2(
             this,
             isMultiple = selectConfig.isMultiple,
             selectLimit = selectConfig.selectLimit,
             columnCount = selectConfig.columnCount
         ).also {
-            it.setOnItemClickListener(object : BaseAdapter.ItemClickListener<Image> {
-                override fun onClickItem(position: Int, item: Image) {
-                    if (it.isMultiple) {
-                        toast("item click")
-                    } else {
-                        imageLaunch.launch(item)
-                    }
-                }
-            })
-            it.setAutoLoadMoreListener(object : BaseAdapter.AutoLoadMoreListener {
-                override fun loadMore() {
-                    viewModel.getImages(LoadStatus.LOAD_MORE)
-                }
-            })
             if (it.isMultiple) {
-                it.setSelectCallback(object : BaseSelectAdapter.MultipleSelectCallback {
+                it.setSelectCallback(object : BaseSelectAdapter2.MultipleSelectCallback {
                     override fun selectItem(item: Image) {
                         it.updateSelected(item)
                     }
@@ -101,7 +64,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                     }
 
                     override fun selectCall(count: Int) {
-                        this@ImageSelectActivity.selectDoneCount(count)
+                        this@ImageSelectActivity2.selectDoneCount(count)
                     }
                 })
             }
@@ -136,13 +99,27 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private fun bindView() {
         const_navigation.visibility = if (selectConfig.isMultiple) View.VISIBLE else View.GONE
 
-        rv_select.layoutManager = LinearLayoutManager(this)
-        rv_select.adapter = mAlbumAdapter
+        lv_select.adapter = mAlbumAdapter
+        lv_select.setOnItemClickListener { adapterView, view, position, id ->
+            mImageAdapter.clearData()
+            if (mImageAdapter.isMultiple) {
+                mImageAdapter.selectList.clear()
+                selectDoneCount(0)
+            }
+            val item = mAlbumAdapter.getItem(position)
+            image_select_bar.setSelectName(item.name)
+            image_select_bar.switch()
+            viewModel.albumId = item.id
+            viewModel.getImages(LoadStatus.INIT)
+        }
 
-        rv_images.layoutManager = GridLayoutManager(this, selectConfig.columnCount)
-        rv_images.layoutAnimation = Tools.getItemOrderAnimator(this)
-        (rv_images.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-        rv_images.adapter = mImageAdapter
+        gv_images.setOnItemClickListener { adapterView, view, position, id ->
+            if (mImageAdapter.isMultiple) {
+                toast("item click")
+            } else {
+                imageLaunch.launch(mImageAdapter.getItem(position))
+            }
+        }
     }
 
     private fun bindListener() {
@@ -154,21 +131,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 image_select_bar.switch()
             }
         }
-        rv_select.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                val view = rv.findChildViewUnder(e.x, e.y)
-                if (view == null && image_select_bar.getEnable()) {
-                    image_select_bar.switch()
-                }
-                return super.onInterceptTouchEvent(rv, e)
-            }
-        })
         image_select_bar.setAnimCallback(object : ImageSelectBar.AnimCallback {
             override fun animEnd() {
             }
 
             override fun animCall(enable: Boolean) {
-                animator = Tools.selectViewTranslationAnimator(enable, rv_select, mask)
+                animator = Tools.selectViewTranslationAnimator(enable, lv_select, mask)
             }
         })
     }
@@ -176,12 +144,15 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private fun bindObservable() {
         viewModel.albumsLiveData.observe(this, Observer {
             mAlbumAdapter.updateData(it)
-            Tools.viewTranslationHide(rv_select)
+            Tools.viewTranslationHide(lv_select)
         })
 
         viewModel.imagesLiveData.observe(this, Observer {
-            if (it.isNotEmpty()) mImageAdapter.openLoadMore()
-            mImageAdapter.addData(it)
+            mImageAdapter.updateData(it)
+            if (gv_images.adapter == null) {
+                gv_images.adapter = mImageAdapter
+                gv_images.numColumns = selectConfig.columnCount
+            }
         })
 
         viewModel.getAlbums()
