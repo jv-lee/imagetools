@@ -5,6 +5,7 @@ import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.graphics.Point
+import android.util.DisplayMetrics
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.AnimationUtils
@@ -73,7 +74,8 @@ internal object Tools {
     }
 
     fun getImageSize(context: Context, columnCount: Int = 4): Int {
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val windowManager =
+            context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val point = Point()
         windowManager.defaultDisplay.getSize(point)
         val padding = context.resources.getDimension(R.dimen.item_padding).toInt()

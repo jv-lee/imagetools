@@ -17,7 +17,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.request.transition.ViewPropertyTransition
 import com.imagetools.select.R
 import com.imagetools.select.adapter.base.BaseSelectAdapter
 import com.imagetools.select.constant.Constants
@@ -103,9 +102,6 @@ internal class ImageSelectAdapter(
         if (position == getData().size - (Constants.PAGE_COUNT / 2) && hasLoadMore) {
             hasLoadMore = false
             mAutoLoadCallback?.loadMore()
-        }
-        if (position != 0) {
-            Log.i("jv.lee", "getView: $position")
         }
         return itemView
     }

@@ -2,10 +2,12 @@ package com.imagetools.select.activity
 
 import android.Manifest
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.widget.ListView
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -100,6 +102,36 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         const_navigation.visibility = if (selectConfig.isMultiple) View.VISIBLE else View.GONE
 
         lv_select.adapter = mAlbumAdapter
+        gv_images.layoutAnimation = Tools.getItemOrderAnimator(this)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun bindListener() {
+        tv_done.setOnClickListener {
+            finishImagesResult((mImageAdapter).selectList)
+        }
+        mask.setOnClickListener {
+            if (image_select_bar.getEnable()) {
+                image_select_bar.switch()
+            }
+        }
+        lv_select.setOnTouchListener { view, motionEvent ->
+            if (mAlbumAdapter.getData().isNotEmpty() &&
+                motionEvent.y > ((view as ListView).getChildAt(0).height * mAlbumAdapter.count) &&
+                image_select_bar.getEnable()
+            ) {
+                image_select_bar.switch()
+            }
+            super.onTouchEvent(motionEvent)
+        }
+        image_select_bar.setAnimCallback(object : ImageSelectBar.AnimCallback {
+            override fun animEnd() {
+            }
+
+            override fun animCall(enable: Boolean) {
+                animator = Tools.selectViewTranslationAnimator(enable, lv_select, mask)
+            }
+        })
         lv_select.setOnItemClickListener { adapterView, view, position, id ->
             mImageAdapter.clearData()
             if (mImageAdapter.isMultiple) {
@@ -112,8 +144,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             viewModel.albumId = item.id
             viewModel.getImages(LoadStatus.INIT)
         }
-
-        gv_images.layoutAnimation = Tools.getItemOrderAnimator(this)
         gv_images.setOnItemClickListener { adapterView, view, position, id ->
             if (mImageAdapter.isMultiple) {
                 toast("item click")
@@ -121,25 +151,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 imageLaunch.launch(mImageAdapter.getItem(position))
             }
         }
-    }
-
-    private fun bindListener() {
-        tv_done.setOnClickListener {
-            finishImagesResult((mImageAdapter).selectList)
-        }
-        mask.setOnClickListener {
-            if (image_select_bar.getEnable()) {
-                image_select_bar.switch()
-            }
-        }
-        image_select_bar.setAnimCallback(object : ImageSelectBar.AnimCallback {
-            override fun animEnd() {
-            }
-
-            override fun animCall(enable: Boolean) {
-                animator = Tools.selectViewTranslationAnimator(enable, lv_select, mask)
-            }
-        })
     }
 
     private fun bindObservable() {

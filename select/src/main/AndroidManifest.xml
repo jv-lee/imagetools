@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.imagetools.select">
 
-    <application>
+    <application
+        android:requestLegacyExternalStorage="true"
+        tools:targetApi="q">
         <activity
             android:name="com.imagetools.select.activity.ImageSelectActivity"
             android:theme="@style/ImageSelectActivity" />
     </application>
-
 </manifest>
