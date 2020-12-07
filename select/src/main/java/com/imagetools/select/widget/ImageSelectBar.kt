@@ -34,6 +34,7 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
 
     init {
         LayoutInflater.from(context).inflate(R.layout.layout_image_select_bar, this, true)
+        setPadding(0, getStatusBarHeight(context), 0, 0)
         findViewById<ImageView>(R.id.iv_close).setOnClickListener { (context as Activity).finish() }
         tvAlbumName = findViewById(R.id.tv_album_name)
         ivIcon = findViewById(R.id.iv_icon)
@@ -127,6 +128,20 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
             valueAnimator.cancel()
         }
         animatorSet.clear()
+    }
+
+    /**
+     * 获取状态栏高度
+     *
+     * @param context
+     * @return
+     */
+    fun getStatusBarHeight(context: Context): Int {
+        val resId =
+            context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resId > 0) {
+            context.resources.getDimensionPixelSize(resId)
+        } else 0
     }
 
 }
