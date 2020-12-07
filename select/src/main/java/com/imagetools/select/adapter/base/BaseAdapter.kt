@@ -27,7 +27,10 @@ internal abstract class BaseAdapter<T>(
     fun updateData(data: List<T>) {
         this.data.clear()
         this.data.addAll(data)
-        notifyDataSetChanged()
+    }
+
+    fun addData(data: List<T>) {
+        this.data.addAll(data)
     }
 
     fun clearData() {

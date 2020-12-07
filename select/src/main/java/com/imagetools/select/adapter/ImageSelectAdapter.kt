@@ -3,6 +3,7 @@ package com.imagetools.select.adapter
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -19,6 +20,7 @@ import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.ViewPropertyTransition
 import com.imagetools.select.R
 import com.imagetools.select.adapter.base.BaseSelectAdapter
+import com.imagetools.select.constant.Constants
 import com.imagetools.select.entity.Image
 
 /**
@@ -98,6 +100,13 @@ internal class ImageSelectAdapter(
             }
         }
 
+        if (position == getData().size - (Constants.PAGE_COUNT / 2) && hasLoadMore) {
+            hasLoadMore = false
+            mAutoLoadCallback?.loadMore()
+        }
+        if (position != 0) {
+            Log.i("jv.lee", "getView: $position")
+        }
         return itemView
     }
 

@@ -10,5 +10,5 @@ internal object Constants {
     const val CONFIG_KEY = "config_key"
     const val IMAGE_DATA_KEY = "image_data"
     const val IMAGE_DATA_RESULT_CODE = 0x30
-    const val PAGE_COUNT = 50
+    const val PAGE_COUNT = 200
 }

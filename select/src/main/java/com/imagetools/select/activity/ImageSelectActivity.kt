@@ -54,7 +54,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             columnCount = selectConfig.columnCount
         ).also {
             if (it.isMultiple) {
-                it.setSelectCallback(object : BaseSelectAdapter.MultipleSelectCallback {
+                it.setSelectCallback(object : BaseSelectAdapter.ItemSelectCallback {
                     override fun selectItem(item: Image) {
                         it.updateSelected(item)
                     }
@@ -144,15 +144,19 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private fun bindObservable() {
         viewModel.albumsLiveData.observe(this, Observer {
-            mAlbumAdapter.updateData(it)
+            mAlbumAdapter.addData(it)
+            mAlbumAdapter.notifyDataSetChanged()
             Tools.viewTranslationHide(lv_select)
         })
 
         viewModel.imagesLiveData.observe(this, Observer {
-            mImageAdapter.updateData(it)
+            mImageAdapter.addData(it)
+
             if (gv_images.adapter == null) {
                 gv_images.adapter = mImageAdapter
                 gv_images.numColumns = selectConfig.columnCount
+            } else {
+                mImageAdapter.notifyDataSetChanged()
             }
         })
 
