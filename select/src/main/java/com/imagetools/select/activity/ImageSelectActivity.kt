@@ -118,8 +118,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             }
         }
         lv_select.setOnTouchListener { view, motionEvent ->
-            if (mAlbumAdapter.getData().isNotEmpty() &&
-                motionEvent.y > ((view as ListView).getChildAt(0).height * mAlbumAdapter.count) &&
+            if ((view as ListView).childCount != 0 &&
+                motionEvent.y > (view.getChildAt(0).height * mAlbumAdapter.count) &&
                 image_select_bar.getEnable()
             ) {
                 image_select_bar.switch()
