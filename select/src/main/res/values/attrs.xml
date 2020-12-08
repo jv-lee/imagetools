@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="StreamerView">
+        <attr name="streamer_columnCount" format="integer" />
+        <attr name="streamer_itemLineColor" format="color" />
+        <attr name="streamer_itemColor" format="color" />
+        <attr name="streamer_streamerColor" format="color" />
+    </declare-styleable>
+</resources>

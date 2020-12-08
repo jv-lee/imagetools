@@ -17,6 +17,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
 
     private val mPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mStreamerPatin = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private var columnCount = 4
     private var rowCount = 0
@@ -43,6 +44,10 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         mLinePaint.style = Paint.Style.STROKE
         mLinePaint.color = itemLineColor
         mLinePaint.strokeWidth = itemPadding
+
+        mStreamerPatin.style = Paint.Style.FILL
+        mStreamerPatin.color = streamerColor
+        mStreamerPatin.strokeWidth = itemPadding
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -56,54 +61,47 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        drawContentView(canvas)
+        drawGrid(canvas)
+        drawLine(canvas)
         if (!completeFlag) {
-            postInvalidate()
+            invalidate()
         }
     }
 
-    private fun drawContentView(canvas: Canvas) {
+    private fun drawGrid(canvas: Canvas) {
         //绘制填充
-        mPaint.shader = buildGradient(0f, 0f, mWidth, mHeight)
+        mPaint.shader = buildGradientStreamer(0f, 0f, mWidth, mHeight)
         canvas.drawRect(0f, 0f, mWidth, mHeight, mPaint)
+    }
 
-        //绘制边框间距
-        canvas.drawRect(
-            itemPadding,
-            itemPadding,
-            mWidth - itemPadding,
-            mHeight + itemPadding,
-            mLinePaint
-        )
-
+    private fun drawLine(canvas: Canvas) {
         //绘制水平间距
         for (rowIndex in 1..rowCount) {
             canvas.drawLine(
-                itemPadding,
-                itemPadding + (itemPadding * rowIndex) + (size * rowIndex),
-                mWidth - itemPadding,
-                itemPadding + (itemPadding * rowIndex) + (size * rowIndex)
+                0f,
+                (itemPadding * rowIndex) + (size * rowIndex),
+                mWidth,
+                (itemPadding * rowIndex) + (size * rowIndex)
                 , mLinePaint
             )
         }
 
         //绘制垂直间距
-        for (columnIndex in 1..columnCount) {
+        for (columnIndex in 0..columnCount) {
             canvas.drawLine(
-                itemPadding + (itemPadding * columnIndex) + (size * columnIndex),
-                itemPadding,
-                itemPadding + (itemPadding * columnIndex) + (size * columnIndex),
-                mHeight - itemPadding
+                (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
+                0F,
+                (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
+                mHeight
                 , mLinePaint
             )
         }
-
     }
 
     private fun drawChildView(canvas: Canvas) {
         for (rowIndex in 0..rowCount) {
             for (columnIndex in 0..columnCount) {
-                mPaint.shader = buildGradient(
+                mPaint.shader = buildGradientStreamer(
                     itemPadding + (columnIndex * itemPadding) + (columnIndex * size),
                     itemPadding + (rowIndex * itemPadding) + (rowIndex * size),
                     size + itemPadding + (columnIndex * itemPadding) + (columnIndex * size),
@@ -120,7 +118,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         }
     }
 
-    private fun buildGradient(
+    private fun buildGradientStreamer(
         left: Float,
         top: Float,
         right: Float,
@@ -130,7 +128,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
             LinearGradient(
                 left,
                 top,
-                -right,
+                -(right / 2),
                 top,
                 intArrayOf(itemColor, streamerColor, itemColor),
                 floatArrayOf(0.1f, 0.3f, 0.6f),

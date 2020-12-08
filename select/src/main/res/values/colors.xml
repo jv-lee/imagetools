@@ -7,6 +7,7 @@
     <color name="colorBackground">#323232</color>
     <color name="colorItem">#2F2F2F</color>
     <color name="colorSelect">#4C4C4C</color>
+    <color name="colorPlaceholder">#4C4C4C</color>
     <color name="colorCircle">#B1B1B1</color>
     <color name="colorLine">#3F3F3F</color>
     <color name="colorText">#E8E8E8</color>

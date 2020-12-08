@@ -58,7 +58,7 @@ internal class ImageSelectAdapter(
         viewHolder.ivImage.layoutParams = ConstraintLayout.LayoutParams(size, size)
 
         Glide.with(context).load(item.path)
-            .placeholder(ColorDrawable(ContextCompat.getColor(context, R.color.colorSelect)))
+            .placeholder(ColorDrawable(ContextCompat.getColor(context, R.color.colorPlaceholder)))
             .transition(DrawableTransitionOptions.withCrossFade())
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(

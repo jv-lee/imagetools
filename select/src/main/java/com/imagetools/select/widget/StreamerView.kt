@@ -18,7 +18,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     private val mPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private var columnCount = 4
+    private var columnCount: Int
     private var rowCount = 0
 
     private var mWidth: Float = 0f
@@ -27,13 +27,28 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     private var itemPadding: Float = 0F
     private var streamerValue: Float = 0f
 
-    private var itemLineColor = Color.parseColor("#ffffff")
-    private var itemColor = Color.parseColor("#4C4C4C")
-    private var streamerColor = Color.parseColor("#323232")
+    private var itemLineColor: Int
+    private var itemColor: Int
+    private var streamerColor: Int
 
     private var completeFlag = false
 
     init {
+        context.obtainStyledAttributes(attributeSet, R.styleable.StreamerView).run {
+            columnCount = getInt(R.styleable.StreamerView_streamer_columnCount, 4)
+            itemLineColor = getColor(
+                R.styleable.StreamerView_streamer_itemLineColor,
+                Color.parseColor("#ffffff")
+            )
+            itemColor =
+                getColor(R.styleable.StreamerView_streamer_itemColor, Color.parseColor("#4C4C4C"))
+            streamerColor = getColor(
+                R.styleable.StreamerView_streamer_streamerColor,
+                Color.parseColor("#323232")
+            )
+
+            recycle()
+        }
         itemPadding = context.resources.getDimension(R.dimen.item_padding)
 
         mPaint.style = Paint.Style.FILL
@@ -56,54 +71,47 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        drawContentView(canvas)
+        drawGrid(canvas)
+        drawLine(canvas)
         if (!completeFlag) {
-            postInvalidate()
+            invalidate()
         }
     }
 
-    private fun drawContentView(canvas: Canvas) {
+    private fun drawGrid(canvas: Canvas) {
         //绘制填充
-        mPaint.shader = buildGradient(0f, 0f, mWidth, mHeight)
+        mPaint.shader = buildGradientStreamer(0f, 0f, mWidth, mHeight)
         canvas.drawRect(0f, 0f, mWidth, mHeight, mPaint)
+    }
 
-        //绘制边框间距
-        canvas.drawRect(
-            itemPadding,
-            itemPadding,
-            mWidth - itemPadding,
-            mHeight + itemPadding,
-            mLinePaint
-        )
-
+    private fun drawLine(canvas: Canvas) {
         //绘制水平间距
         for (rowIndex in 1..rowCount) {
             canvas.drawLine(
-                itemPadding,
-                itemPadding + (itemPadding * rowIndex) + (size * rowIndex),
-                mWidth - itemPadding,
-                itemPadding + (itemPadding * rowIndex) + (size * rowIndex)
+                0f,
+                (itemPadding * rowIndex) + (size * rowIndex),
+                mWidth,
+                (itemPadding * rowIndex) + (size * rowIndex)
                 , mLinePaint
             )
         }
 
         //绘制垂直间距
-        for (columnIndex in 1..columnCount) {
+        for (columnIndex in 0..columnCount) {
             canvas.drawLine(
-                itemPadding + (itemPadding * columnIndex) + (size * columnIndex),
-                itemPadding,
-                itemPadding + (itemPadding * columnIndex) + (size * columnIndex),
-                mHeight - itemPadding
+                (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
+                0F,
+                (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
+                mHeight
                 , mLinePaint
             )
         }
-
     }
 
     private fun drawChildView(canvas: Canvas) {
         for (rowIndex in 0..rowCount) {
             for (columnIndex in 0..columnCount) {
-                mPaint.shader = buildGradient(
+                mPaint.shader = buildGradientStreamer(
                     itemPadding + (columnIndex * itemPadding) + (columnIndex * size),
                     itemPadding + (rowIndex * itemPadding) + (rowIndex * size),
                     size + itemPadding + (columnIndex * itemPadding) + (columnIndex * size),
@@ -120,7 +128,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         }
     }
 
-    private fun buildGradient(
+    private fun buildGradientStreamer(
         left: Float,
         top: Float,
         right: Float,
@@ -130,7 +138,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
             LinearGradient(
                 left,
                 top,
-                -right,
+                -(right / 2),
                 top,
                 intArrayOf(itemColor, streamerColor, itemColor),
                 floatArrayOf(0.1f, 0.3f, 0.6f),
@@ -151,8 +159,17 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     }
 
     fun loadComplete() {
+        if (completeFlag) return
         completeFlag = true
         visibility = GONE
+    }
+
+    fun loadCompleteDelay() {
+        if (completeFlag) return
+        postDelayed({
+            completeFlag = true
+            visibility = GONE
+        }, 100)
     }
 
 }

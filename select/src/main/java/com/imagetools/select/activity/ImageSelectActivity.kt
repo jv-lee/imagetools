@@ -163,13 +163,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         })
 
         viewModel.imagesLiveData.observe(this, Observer {
+            if (it.isNotEmpty() && it.size < 50) streamer_view.loadComplete()
             mImageAdapter.addData(it)
 
             if (gv_images.adapter == null) {
                 gv_images.adapter = mImageAdapter
                 gv_images.numColumns = selectConfig.columnCount
                 gv_images.visibility = View.VISIBLE
-                streamer_view.loadComplete()
+                streamer_view.loadCompleteDelay()
             } else {
                 mImageAdapter.notifyDataSetChanged()
             }

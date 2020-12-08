@@ -20,6 +20,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/image_select_bar">
 
+        <com.imagetools.select.widget.StreamerView
+            android:id="@+id/streamer_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/const_navigation"
+            app:layout_constraintTop_toTopOf="parent"
+            app:streamer_columnCount="4"
+            app:streamer_itemColor="@color/colorPlaceholder"
+            app:streamer_itemLineColor="@color/colorBackground"
+            app:streamer_streamerColor="@color/colorItem" />
+
         <GridView
             android:id="@+id/gv_images"
             android:layout_width="match_parent"
@@ -34,15 +46,6 @@
             android:visibility="invisible"
             app:layout_constraintBottom_toTopOf="@id/const_navigation"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <com.imagetools.select.widget.StreamerView
-            android:id="@+id/streamer_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@id/const_navigation"
-            app:layout_constraintTop_toTopOf="parent" />
-
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/const_navigation"
