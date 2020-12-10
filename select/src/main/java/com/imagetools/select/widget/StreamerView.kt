@@ -30,6 +30,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     private var itemLineColor: Int
     private var itemColor: Int
     private var streamerColor: Int
+    private var mode: Int = 0
 
     private var completeFlag = false
 
@@ -71,12 +72,16 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-//        drawGrid(canvas)
-//        drawLine(canvas)
-        drawChildView(canvas)
-//        if (!completeFlag) {
-//            invalidate()
-//        }
+        if (mode == 0) {
+            drawChildView(canvas)
+            return
+        }
+
+        drawGrid(canvas)
+        drawLine(canvas)
+        if (!completeFlag) {
+            invalidate()
+        }
     }
 
     private fun drawGrid(canvas: Canvas) {
@@ -90,7 +95,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         for (rowIndex in 1..rowCount) {
             canvas.drawLine(
                 0f,
-                (itemPadding * rowIndex) + (size * rowIndex)  - itemPadding,
+                (itemPadding * rowIndex) + (size * rowIndex) - itemPadding,
                 mWidth,
                 (itemPadding * rowIndex) + (size * rowIndex)
                 , mLinePaint
@@ -100,7 +105,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         //绘制垂直间距
         for (columnIndex in 0..columnCount) {
             canvas.drawLine(
-                 (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
+                (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
                 0F,
                 (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
                 mHeight

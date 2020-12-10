@@ -6,13 +6,6 @@
     android:layout_height="match_parent"
     tools:context="com.imagetools.select.activity.ImageSelectActivity">
 
-    <com.imagetools.select.widget.ImageSelectBar
-        android:id="@+id/image_select_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorBackground"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <GridView
         android:id="@+id/gv_images"
         android:layout_width="match_parent"
@@ -27,7 +20,6 @@
         android:stretchMode="columnWidth"
         android:verticalSpacing="@dimen/item_padding"
         android:visibility="invisible"
-        android:background="@color/colorBackground"
         app:layout_constraintBottom_toTopOf="@id/const_navigation"
         app:layout_constraintTop_toBottomOf="@id/image_select_bar" />
 
@@ -96,34 +88,34 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <View
+        android:id="@+id/mask"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:alpha="0"
+        android:visibility="invisible"
+        android:background="@color/colorMask"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/image_select_bar">
+        app:layout_constraintTop_toBottomOf="@id/image_select_bar" />
 
-        <View
-            android:id="@+id/mask"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:alpha="0"
-            android:background="@color/colorMask"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ListView
+        android:id="@+id/lv_select"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0"
+        android:divider="@null"
+        android:visibility="invisible"
+        android:dividerHeight="0dp"
+        android:footerDividersEnabled="false"
+        android:maxHeight="260dp"
+        android:overScrollMode="never"
+        app:layout_constraintTop_toBottomOf="@id/image_select_bar" />
 
-        <ListView
-            android:id="@+id/lv_select"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginBottom="100dp"
-            android:divider="@null"
-            android:dividerHeight="0dp"
-            android:footerDividersEnabled="false"
-            android:overScrollMode="never"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <com.imagetools.select.widget.ImageSelectBar
+        android:id="@+id/image_select_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorBackground"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

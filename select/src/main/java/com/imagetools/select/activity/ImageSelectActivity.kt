@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
-import android.widget.ListView
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -113,18 +112,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             finishImagesResult((mImageAdapter).selectList)
         }
         mask.setOnClickListener {
-            if (image_select_bar.getEnable()) {
+            if (image_select_bar.isExpansion()) {
                 image_select_bar.switch()
             }
-        }
-        lv_select.setOnTouchListener { view, motionEvent ->
-            if ((view as ListView).childCount != 0 &&
-                motionEvent.y > (view.getChildAt(0).height * mAlbumAdapter.count) &&
-                image_select_bar.getEnable()
-            ) {
-                image_select_bar.switch()
-            }
-            super.onTouchEvent(motionEvent)
         }
         image_select_bar.setAnimCallback(object : ImageSelectBar.AnimCallback {
             override fun animEnd() {
@@ -135,16 +125,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             }
         })
         lv_select.setOnItemClickListener { adapterView, view, position, id ->
-            mImageAdapter.clearData()
-            if (mImageAdapter.isMultiple) {
-                mImageAdapter.selectList.clear()
-                selectDoneCount(0)
-            }
             val item = mAlbumAdapter.getItem(position)
-            image_select_bar.setSelectName(item.name)
-            image_select_bar.switch()
             viewModel.albumId = item.id
-            viewModel.getImages(LoadStatus.INIT)
+            viewModel.albumName = item.name
+            if (viewModel.isCurrentAlbum()) {
+                image_select_bar.switch()
+            } else {
+                viewModel.getImages(LoadStatus.INIT)
+            }
         }
         gv_images.setOnItemClickListener { adapterView, view, position, id ->
             if (mImageAdapter.isMultiple) {
@@ -159,20 +147,29 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         viewModel.albumsLiveData.observe(this, Observer {
             mAlbumAdapter.addData(it)
             mAlbumAdapter.notifyDataSetChanged()
-            Tools.viewTranslationHide(lv_select)
         })
 
         viewModel.imagesLiveData.observe(this, Observer {
+            mImageAdapter.clearData()
+            if (mImageAdapter.isMultiple) {
+                mImageAdapter.selectList.clear()
+                selectDoneCount(0)
+            }
+
             mImageAdapter.addData(it)
 
             if (gv_images.adapter == null) {
                 gv_images.adapter = mImageAdapter
                 gv_images.numColumns = selectConfig.columnCount
                 gv_images.visibility = View.VISIBLE
-//                streamer_view.loadComplete()
                 streamer_view.loadCompleteDelay()
             } else {
                 mImageAdapter.notifyDataSetChanged()
+            }
+
+            if (image_select_bar.isExpansion()) {
+                image_select_bar.setSelectName(viewModel.albumName)
+                image_select_bar.switch()
             }
         })
 

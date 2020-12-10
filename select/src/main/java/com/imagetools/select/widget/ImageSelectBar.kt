@@ -27,7 +27,7 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
     private var linearSelect: LinearLayout
     private var ivIcon: ImageView
     private var tvAlbumName: TextView
-    private var enable = false
+    private var expansion = false
     private var switchTag = false
     private var mAnimCallback: AnimCallback? = null
     private val animatorSet = HashSet<ValueAnimator>()
@@ -44,7 +44,7 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
         bindLifecycle(context)
     }
 
-    fun getEnable() = enable
+    fun isExpansion() = expansion
 
     fun setSelectName(text: String) {
         tvAlbumName.text = text
@@ -81,7 +81,7 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
     fun switch() {
         if (switchTag) return
         val animator =
-            if (enable) ValueAnimator.ofFloat(180f, 360f) else ValueAnimator.ofFloat(0f, 180f)
+            if (expansion) ValueAnimator.ofFloat(180f, 360f) else ValueAnimator.ofFloat(0f, 180f)
         animatorSet.add(animator)
         animator.duration = 200
         animator.addUpdateListener {
@@ -98,14 +98,14 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
             }
 
             override fun onAnimationCancel(animation: Animator?) {
-                ivIcon.rotation = if (enable) 180f else 0f
+                ivIcon.rotation = if (expansion) 180f else 0f
                 linearSelect.isClickable = true
             }
 
             override fun onAnimationStart(animation: Animator?) {
                 switchTag = true
-                enable = !enable
-                mAnimCallback?.animCall(enable)
+                expansion = !expansion
+                mAnimCallback?.animCall(expansion)
                 linearSelect.isClickable = false
             }
 

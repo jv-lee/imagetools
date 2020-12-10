@@ -35,6 +35,7 @@ internal object Tools {
         animator.duration = 200
         animator.addUpdateListener {
             maskView.alpha = (dimen - Math.abs(it.animatedValue as Float)) / dimen
+            containerView.alpha = (dimen - Math.abs(it.animatedValue as Float)) / dimen
             containerView.translationY = it.animatedValue as Float
         }
         animator.addListener(object : Animator.AnimatorListener {
@@ -43,14 +44,18 @@ internal object Tools {
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-                if (!enable) maskView.visibility = View.GONE
+                if (enable) return
+                maskView.visibility = View.GONE
+                containerView.visibility = View.GONE
             }
 
             override fun onAnimationCancel(animation: Animator?) {
             }
 
             override fun onAnimationStart(animation: Animator?) {
-                if (enable) maskView.visibility = View.VISIBLE
+                if (!enable) return
+                maskView.visibility = View.VISIBLE
+                containerView.visibility = View.VISIBLE
             }
 
         })
