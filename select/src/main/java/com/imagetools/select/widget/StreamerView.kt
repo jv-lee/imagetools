@@ -6,6 +6,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import com.imagetools.select.R
+import com.imagetools.select.tools.Tools
 
 
 /**
@@ -65,7 +66,8 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         super.onSizeChanged(w, h, oldw, oldh)
         mWidth = width.toFloat()
         mHeight = height.toFloat()
-        size = (mWidth - (itemPadding * columnCount.plus(1))) / columnCount
+//        size = (mWidth - (itemPadding * columnCount.plus(1))) / columnCount
+        size = Tools.getImageSize(context, columnCount).toFloat()
         rowCount = (mHeight / size).toInt()
     }
 
@@ -87,7 +89,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     private fun drawGrid(canvas: Canvas) {
         //绘制填充
         mPaint.shader = buildGradientStreamer(0f, 0f, mWidth, mHeight)
-        canvas.drawRect(0f, 0f, mWidth, mHeight, mPaint)
+        canvas.drawRect(0f, 0f, itemPadding * columnCount.plus(1) + size * columnCount, mHeight, mPaint)
     }
 
     private fun drawLine(canvas: Canvas) {
@@ -95,7 +97,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         for (rowIndex in 1..rowCount) {
             canvas.drawLine(
                 0f,
-                (itemPadding * rowIndex) + (size * rowIndex) - itemPadding,
+                (itemPadding * rowIndex) + (size * rowIndex),
                 mWidth,
                 (itemPadding * rowIndex) + (size * rowIndex)
                 , mLinePaint
@@ -117,7 +119,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     private fun drawChildView(canvas: Canvas) {
         setBackgroundColor(itemLineColor)
         for (rowIndex in 0..rowCount) {
-            for (columnIndex in 0..columnCount) {
+            for (columnIndex in 0 until columnCount) {
                 canvas.drawRect(
                     itemPadding + (columnIndex * itemPadding) + (columnIndex * size),
                     (rowIndex * itemPadding) + (rowIndex * size),
