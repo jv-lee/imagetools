@@ -71,11 +71,12 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        drawGrid(canvas)
-        drawLine(canvas)
-        if (!completeFlag) {
-            invalidate()
-        }
+//        drawGrid(canvas)
+//        drawLine(canvas)
+        drawChildView(canvas)
+//        if (!completeFlag) {
+//            invalidate()
+//        }
     }
 
     private fun drawGrid(canvas: Canvas) {
@@ -89,7 +90,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         for (rowIndex in 1..rowCount) {
             canvas.drawLine(
                 0f,
-                (itemPadding * rowIndex) + (size * rowIndex),
+                (itemPadding * rowIndex) + (size * rowIndex)  - itemPadding,
                 mWidth,
                 (itemPadding * rowIndex) + (size * rowIndex)
                 , mLinePaint
@@ -99,7 +100,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         //绘制垂直间距
         for (columnIndex in 0..columnCount) {
             canvas.drawLine(
-                (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
+                 (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
                 0F,
                 (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),
                 mHeight
@@ -109,19 +110,14 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     }
 
     private fun drawChildView(canvas: Canvas) {
+        setBackgroundColor(itemLineColor)
         for (rowIndex in 0..rowCount) {
             for (columnIndex in 0..columnCount) {
-                mPaint.shader = buildGradientStreamer(
-                    itemPadding + (columnIndex * itemPadding) + (columnIndex * size),
-                    itemPadding + (rowIndex * itemPadding) + (rowIndex * size),
-                    size + itemPadding + (columnIndex * itemPadding) + (columnIndex * size),
-                    size + itemPadding + (rowIndex * itemPadding) + (rowIndex * size)
-                )
                 canvas.drawRect(
                     itemPadding + (columnIndex * itemPadding) + (columnIndex * size),
-                    itemPadding + (rowIndex * itemPadding) + (rowIndex * size),
+                    (rowIndex * itemPadding) + (rowIndex * size),
                     size + itemPadding + (columnIndex * itemPadding) + (columnIndex * size),
-                    size + itemPadding + (rowIndex * itemPadding) + (rowIndex * size),
+                    size + (rowIndex * itemPadding) + (rowIndex * size),
                     mPaint
                 )
             }
@@ -169,7 +165,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         postDelayed({
             completeFlag = true
             visibility = GONE
-        }, 100)
+        }, 50)
     }
 
 }

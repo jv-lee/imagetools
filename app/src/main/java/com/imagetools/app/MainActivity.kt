@@ -24,7 +24,13 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
         findViewById<Button>(R.id.btn_single_image).setOnClickListener {
             requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
-                selectLaunch.launch(SelectConfig(isMultiple = false, isSquare = true))
+                selectLaunch.launch(
+                    SelectConfig(
+                        isMultiple = false,
+                        isSquare = true,
+                        columnCount = 3
+                    )
+                )
             }
         }
 
@@ -34,8 +40,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     SelectConfig(
                         isMultiple = true,
                         isSquare = true,
-                        isCompress = true,
-                        columnCount = 3
+                        isCompress = true
                     )
                 )
             }

@@ -57,10 +57,11 @@ internal class ImageSelectAdapter(
 
         viewHolder.ivImage.layoutParams = ConstraintLayout.LayoutParams(size, size)
 
-        Glide.with(context).load(item.path)
+        var glide = Glide.with(context).load(item.path)
             .placeholder(ColorDrawable(ContextCompat.getColor(context, R.color.colorPlaceholder)))
             .transition(DrawableTransitionOptions.withCrossFade())
-            .listener(object : RequestListener<Drawable> {
+        if (isMultiple) {
+            glide = glide.listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
@@ -81,7 +82,8 @@ internal class ImageSelectAdapter(
                     return false
                 }
             })
-            .into(viewHolder.ivImage)
+        }
+        glide.into(viewHolder.ivImage)
 
         if (isMultiple) {
             if (item.select) {

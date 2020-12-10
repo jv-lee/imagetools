@@ -78,9 +78,9 @@ internal object Tools {
             context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val point = Point()
         windowManager.defaultDisplay.getSize(point)
-        val padding = context.resources.getDimension(R.dimen.item_padding).toInt()
-        val width = point.x - (padding * columnCount.plus(1))
-        return width / columnCount
+        val padding = context.resources.getDimension(R.dimen.item_padding)
+        val width = point.x.toFloat() - (padding * columnCount.plus(1))
+        return (width / columnCount).toInt()
     }
 
     /**
