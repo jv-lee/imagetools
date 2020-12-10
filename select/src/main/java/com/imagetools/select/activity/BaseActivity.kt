@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
  * @date 2020/12/1
  * @description
  */
-abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId) {
+internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId) {
     override fun onCreate(savedInstanceState: Bundle?) {
         statusBar(window, false)
         super.onCreate(savedInstanceState)

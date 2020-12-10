@@ -16,3 +16,10 @@ data class SelectConfig(
     val isSquare: Boolean = false,
     val columnCount: Int = 4
 ) : Parcelable
+
+@Parcelize
+data class TakeConfig(
+    val isCrop: Boolean = false,
+    val isSquare: Boolean = false,
+    val isCompress: Boolean = false
+) : Parcelable

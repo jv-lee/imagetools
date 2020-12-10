@@ -25,7 +25,7 @@ import com.imagetools.select.dialog.LoadingDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.LoadStatus
 import com.imagetools.select.entity.SelectConfig
-import com.imagetools.select.intent.CropActivityResult
+import com.imagetools.select.result.ActivityResultContracts
 import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
 import com.imagetools.select.widget.ImageSelectBar
@@ -77,7 +77,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
      * 单图裁剪后返回
      */
     private val imageLaunch by lazy {
-        registerForActivityResult(CropActivityResult(selectConfig.isSquare)) {
+        registerForActivityResult(ActivityResultContracts.CropActivityResult(selectConfig.isSquare)) {
             it ?: return@registerForActivityResult
             finishImagesResult(arrayListOf(it))
         }

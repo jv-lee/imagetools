@@ -9,5 +9,14 @@
         <activity
             android:name="com.imagetools.select.activity.ImageSelectActivity"
             android:theme="@style/ImageSelectActivity" />
+        <provider
+            android:name=".provider.ImageProvider"
+            android:authorities="com.imagetools.select.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/image_provider_paths" />
+        </provider>
     </application>
 </manifest>
