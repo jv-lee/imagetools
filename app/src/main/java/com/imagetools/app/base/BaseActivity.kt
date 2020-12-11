@@ -1,5 +1,6 @@
 package com.imagetools.app.base
 
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 
@@ -25,6 +26,10 @@ open class BaseActivity(resLayout: Int) : AppCompatActivity(resLayout) {
     override fun onDestroy() {
         super.onDestroy()
         permissionLaunch.unregister()
+    }
+
+    fun BaseActivity.toast(msg: Any) {
+        Toast.makeText(this@BaseActivity, msg.toString(), Toast.LENGTH_SHORT).show()
     }
 
 }
