@@ -11,7 +11,7 @@
             android:theme="@style/ImageSelectActivity" />
         <provider
             android:name=".provider.ImageProvider"
-            android:authorities="com.imagetools.select.fileprovider"
+            android:authorities="${applicationId}.select.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

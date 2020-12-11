@@ -27,7 +27,7 @@ internal object UriTools {
 
     fun fileToUri(context: Context, file: File): Uri {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            FileProvider.getUriForFile(context, "com.imagetools.select.fileprovider", file)
+            FileProvider.getUriForFile(context, "${context.packageName}.select.fileprovider", file)
         } else {
             Uri.fromFile(file)
         }
