@@ -16,7 +16,6 @@
 
 package com.soundclound.android.crop;
 
-import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -162,28 +161,22 @@ class CropUtil {
             String title, String message, Runnable job, Handler handler) {
         // Make the progress dialog uncancelable, so that we can guarantee
         // the thread will be done before the activity getting destroyed
-        ProgressDialog dialog = ProgressDialog.show(
-                activity, title, message, true, false);
-        new Thread(new BackgroundJob(activity, job, dialog, handler)).start();
+        new Thread(new BackgroundJob(activity, job, handler)).start();
     }
 
     private static class BackgroundJob extends MonitoredActivity.LifeCycleAdapter implements Runnable {
 
         private final MonitoredActivity activity;
-        private final ProgressDialog dialog;
         private final Runnable job;
         private final Handler handler;
         private final Runnable cleanupRunner = new Runnable() {
             public void run() {
                 activity.removeLifeCycleListener(BackgroundJob.this);
-                if (dialog.getWindow() != null) dialog.dismiss();
             }
         };
 
-        public BackgroundJob(MonitoredActivity activity, Runnable job,
-                             ProgressDialog dialog, Handler handler) {
+        public BackgroundJob(MonitoredActivity activity, Runnable job, Handler handler) {
             this.activity = activity;
-            this.dialog = dialog;
             this.job = job;
             this.activity.addLifeCycleListener(this);
             this.handler = handler;
@@ -207,12 +200,10 @@ class CropUtil {
 
         @Override
         public void onActivityStopped(MonitoredActivity activity) {
-            dialog.hide();
         }
 
         @Override
         public void onActivityStarted(MonitoredActivity activity) {
-            dialog.show();
         }
     }
 

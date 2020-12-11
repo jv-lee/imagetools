@@ -1,6 +1,5 @@
 package com.imagetools.select
 
-import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -40,13 +39,17 @@ object ImageTools {
     ): ActivityResultLauncher<TakeConfig> {
         val takePicture = ActivityResultContracts.TakePicture()
         val cropLauncher = activity.registerForActivityResult(
-            ActivityResultContracts.CropActivityResult(
-                takePicture.getTakeConfig()?.isSquare ?: true
-            )
+            ActivityResultContracts.CropActivityResult()
         ) {
             it?.let(call)
         }
         return activity.registerForActivityResult(takePicture) {
+            takePicture.getTakeConfig()?.let { takeConfig->
+                it?.let { image->
+                    image.isCompress = takeConfig.isCompress
+                    image.isSquare = takeConfig.isSquare
+                }
+            }
             if (takePicture.getTakeConfig()?.isCrop == true) {
                 cropLauncher.launch(it)
             } else {
@@ -54,14 +57,5 @@ object ImageTools {
             }
         }
     }
-
-//    fun takeLaunch(
-//        activity: Fragment,
-//        call: (uri: Uri) -> Unit
-//    ): ActivityResultLauncher<TakeConfig> {
-//        return activity.registerForActivityResult(ActivityResultContracts.TakePicture()) {
-//            it?.let(call)
-//        }
-//    }
 
 }

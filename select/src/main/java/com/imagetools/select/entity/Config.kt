@@ -20,6 +20,6 @@ data class SelectConfig(
 @Parcelize
 data class TakeConfig(
     val isCrop: Boolean = false,
-    val isSquare: Boolean = false,
+    var isSquare: Boolean = false,
     val isCompress: Boolean = false
 ) : Parcelable

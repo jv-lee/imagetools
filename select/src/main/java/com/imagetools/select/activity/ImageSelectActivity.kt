@@ -78,7 +78,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
      * 单图裁剪后返回
      */
     private val imageLaunch by lazy {
-        registerForActivityResult(ActivityResultContracts.CropActivityResult(selectConfig.isSquare)) {
+        registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
             it ?: return@registerForActivityResult
             finishImagesResult(arrayListOf(it))
         }
@@ -140,7 +140,10 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             if (mImageAdapter.isMultiple) {
                 toast("item click")
             } else {
-                imageLaunch.launch(mImageAdapter.getItem(position))
+                imageLaunch.launch(mImageAdapter.getItem(position).also {
+                    it.isSquare = selectConfig.isSquare
+                    it.isCompress = selectConfig.isCompress
+                })
             }
         }
         gv_images.setOnScrollListener(mImageAdapter)

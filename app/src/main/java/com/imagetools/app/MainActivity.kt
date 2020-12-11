@@ -55,7 +55,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 
         findViewById<Button>(R.id.btn_take_image).setOnClickListener {
             requestPermission(Manifest.permission.CAMERA) {
-                takeLaunch.launch(TakeConfig(isCrop = true))
+                takeLaunch.launch(TakeConfig(isCrop = true,isCompress = true,isSquare = false))
             }
         }
 

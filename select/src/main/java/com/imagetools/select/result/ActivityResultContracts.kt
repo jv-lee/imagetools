@@ -21,7 +21,7 @@ import java.io.File
  */
 internal class ActivityResultContracts {
 
-    internal class CropActivityResult(private val isSquare: Boolean) :
+    internal class CropActivityResult :
         ActivityResultContract<Image, Image>() {
 
         private var tempPath: String? = null
@@ -34,8 +34,11 @@ internal class ActivityResultContracts {
                 UriTools.pathToUri(context, image?.path!!),
                 UriTools.pathToUri(context, tempPath!!)
             )
-            if (isSquare) {
+            if (input?.isSquare == true) {
                 crop.asSquare()
+            }
+            if (input?.isCompress == true) {
+                crop.asCompress()
             }
             return crop.getIntent(context)
         }
@@ -73,11 +76,13 @@ internal class ActivityResultContracts {
         private var image: Image? = null
 
         override fun createIntent(context: Context, input: TakeConfig): Intent {
-            takeConfig = input
-            val tempPath = UriTools.getImageFilePath(context)
-            image = Image(-1, tempPath, isCompress = input.isCompress)
+            val path = UriTools.getImageFilePath(context)
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, UriTools.pathToUri(context, image?.path!!))
+
+            takeConfig = input
+            image = Image(-1, path, isCompress = input.isCompress,isSquare = input.isSquare)
+
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, UriTools.pathToUri(context, path))
             intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             return intent
         }

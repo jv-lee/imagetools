@@ -30,9 +30,16 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.View;
 
+import com.imagetools.compress.CompressImageManager;
+import com.imagetools.compress.bean.Photo;
+import com.imagetools.compress.config.CompressConfig;
+import com.imagetools.compress.listener.CompressImage;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /*
@@ -53,6 +60,7 @@ public class CropImageActivity extends MonitoredActivity {
     private int maxY;
     private int exifRotation;
     private boolean saveAsPng;
+    private boolean asCompress;
 
     private Uri sourceUri;
     private Uri saveUri;
@@ -116,6 +124,7 @@ public class CropImageActivity extends MonitoredActivity {
             maxX = extras.getInt(Crop.Extra.MAX_X);
             maxY = extras.getInt(Crop.Extra.MAX_Y);
             saveAsPng = extras.getBoolean(Crop.Extra.AS_PNG, false);
+            asCompress = extras.getBoolean(Crop.Extra.COMPRESS, false);
             saveUri = extras.getParcelable(MediaStore.EXTRA_OUTPUT);
         }
 
@@ -288,11 +297,6 @@ public class CropImageActivity extends MonitoredActivity {
             return;
         }
 
-        if (croppedImage != null) {
-            imageView.setImageRotateBitmapResetBase(new RotateBitmap(croppedImage, exifRotation), true);
-            imageView.center();
-            imageView.highlightViews.clear();
-        }
         saveImage(croppedImage);
     }
 
@@ -314,8 +318,6 @@ public class CropImageActivity extends MonitoredActivity {
 
     private Bitmap decodeRegionCrop(Rect rect, int outWidth, int outHeight) {
         // Release memory now
-        clearImageView();
-
         InputStream is = null;
         Bitmap croppedImage = null;
         try {
@@ -362,6 +364,79 @@ public class CropImageActivity extends MonitoredActivity {
         return croppedImage;
     }
 
+    private void saveOutput(final Bitmap croppedImage) {
+        if (saveUri == null) {
+            finishActivity(croppedImage);
+            return;
+        }
+
+        OutputStream outputStream = null;
+        try {
+            outputStream = getContentResolver().openOutputStream(saveUri);
+            if (outputStream != null) {
+                croppedImage.compress(saveAsPng ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG,
+                        90,     // note: quality is ignored when using PNG
+                        outputStream);
+            }
+        } catch (IOException e) {
+            setResultException(e);
+            Log.e("Cannot open file: " + saveUri, e);
+        } finally {
+            CropUtil.closeSilently(outputStream);
+        }
+
+        CropUtil.copyExifRotation(
+                CropUtil.getFromMediaUri(this, getContentResolver(), sourceUri),
+                CropUtil.getFromMediaUri(this, getContentResolver(), saveUri)
+        );
+        if (!asCompress) {
+            setResultUri(saveUri);
+            finishActivity(croppedImage);
+            return;
+        }
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<Photo> data = new ArrayList<Photo>();
+                data.add(new Photo(saveUri.getPath()));
+                CompressImageManager.build(CropImageActivity.this, CompressConfig.getDefaultConfig(), data,
+                        new CompressImage.CompressListener() {
+                            @Override
+                            public void onCompressSuccess(ArrayList<Photo> images) {
+                                if (images != null && !images.isEmpty()) {
+                                    setResultUri(Uri.fromFile(new File(images.get(0).getCompressPath())));
+                                } else {
+                                    setResultUri(saveUri);
+                                }
+                                finishActivity(croppedImage);
+                            }
+
+                            @Override
+                            public void onCompressFailed(ArrayList<Photo> images, String error) {
+                                setResultUri(saveUri);
+                                finishActivity(croppedImage);
+                            }
+
+                            @Override
+                            public void onCompressProgress(int progress) {
+
+                            }
+                        }).compress();
+            }
+        });
+    }
+
+    private void finishActivity(final Bitmap bitmap) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                bitmap.recycle();
+                finish();
+            }
+        });
+    }
+
     private void clearImageView() {
         imageView.clear();
         if (rotateBitmap != null) {
@@ -370,49 +445,10 @@ public class CropImageActivity extends MonitoredActivity {
         System.gc();
     }
 
-    private void saveOutput(Bitmap croppedImage) {
-        if (saveUri != null) {
-            OutputStream outputStream = null;
-            try {
-                outputStream = getContentResolver().openOutputStream(saveUri);
-                if (outputStream != null) {
-                    croppedImage.compress(saveAsPng ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG,
-                            90,     // note: quality is ignored when using PNG
-                            outputStream);
-                }
-            } catch (IOException e) {
-                setResultException(e);
-                Log.e("Cannot open file: " + saveUri, e);
-            } finally {
-                CropUtil.closeSilently(outputStream);
-            }
-
-            CropUtil.copyExifRotation(
-                    CropUtil.getFromMediaUri(this, getContentResolver(), sourceUri),
-                    CropUtil.getFromMediaUri(this, getContentResolver(), saveUri)
-            );
-
-            setResultUri(saveUri);
-        }
-
-        final Bitmap b = croppedImage;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                imageView.clear();
-                b.recycle();
-            }
-        });
-
-        finish();
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (rotateBitmap != null) {
-            rotateBitmap.recycle();
-        }
+        clearImageView();
     }
 
     @Override
