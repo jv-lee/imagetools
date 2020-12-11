@@ -35,11 +35,19 @@ class ImageLaunch private constructor() : LifecycleObserver {
         this.activity?.lifecycle?.addObserver(this)
         this.selectLaunch =
             activity.registerForActivityResult(ActivityResultContracts.SelectActivityResult()) {
-                it?.let(imagesCall!!)
+                if (it.isNullOrEmpty()) {
+                    imagesFailedCall?.invoke()
+                } else {
+                    imagesCall?.invoke(it)
+                }
             }
         this.cropLaunch =
             activity.registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
-                it?.let(imageCall!!)
+                if (it == null) {
+                    imageFailedCall?.invoke()
+                } else {
+                    imageCall?.invoke(it)
+                }
             }
         val takePicture = ActivityResultContracts.TakePicture()
         this.takeLaunch =
@@ -52,8 +60,13 @@ class ImageLaunch private constructor() : LifecycleObserver {
                 }
                 if (takePicture.getTakeConfig()?.isCrop == true) {
                     cropLaunch.launch(it)
+                    return@registerForActivityResult
+                }
+
+                if (it == null) {
+                    imageFailedCall?.invoke()
                 } else {
-                    it?.let(imageCall!!)
+                    imageCall?.invoke(it)
                 }
             }
     }
