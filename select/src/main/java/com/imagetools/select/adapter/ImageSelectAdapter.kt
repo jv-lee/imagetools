@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AbsListView
+import android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -33,7 +35,8 @@ internal class ImageSelectAdapter(
     selectLimit: Int = 9,
     columnCount: Int = 4
 ) :
-    BaseSelectAdapter<Image>(context, arrayListOf(), isMultiple, selectLimit, columnCount) {
+    BaseSelectAdapter<Image>(context, arrayListOf(), isMultiple, selectLimit, columnCount),
+    AbsListView.OnScrollListener {
 
     override fun getView(position: Int, converView: View?, parent: ViewGroup?): View {
         val itemView: View
@@ -60,6 +63,7 @@ internal class ImageSelectAdapter(
         var glide = Glide.with(context).load(item.path)
             .placeholder(ColorDrawable(ContextCompat.getColor(context, R.color.colorPlaceholder)))
             .transition(DrawableTransitionOptions.withCrossFade())
+            .override((size * 0.8).toInt(), (size * 0.8).toInt())
         if (isMultiple) {
             glide = glide.listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
@@ -132,6 +136,25 @@ internal class ImageSelectAdapter(
 
         notifyDataSetChanged()
         mSelectCallback?.selectCall(selectList.size)
+    }
+
+    override fun onScroll(
+        view: AbsListView?,
+        firstVisibleItem: Int,
+        visibleItemCount: Int,
+        totalItemCount: Int
+    ) {
+
+    }
+
+    override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
+        return
+        view?.context ?: return
+        if (scrollState == SCROLL_STATE_IDLE) {
+            Glide.with(view.context).resumeRequests()
+        } else {
+            Glide.with(view.context).pauseRequests()
+        }
     }
 
 }

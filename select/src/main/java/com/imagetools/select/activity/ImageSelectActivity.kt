@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
 import com.imagetools.compress.CompressImageManager
 import com.imagetools.compress.bean.Photo
 import com.imagetools.compress.config.CompressConfig
@@ -41,6 +42,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private val selectConfig by lazy {
         intent.getParcelableExtra(Constants.CONFIG_KEY) ?: SelectConfig()
     }
+
     private var animator: ValueAnimator? = null
 
     private val loadingDialog by lazy { LoadingDialog(this) }
@@ -141,6 +143,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 imageLaunch.launch(mImageAdapter.getItem(position))
             }
         }
+        gv_images.setOnScrollListener(mImageAdapter)
+        Glide.with(gv_images).resumeRequests()
     }
 
     private fun bindObservable() {
@@ -171,6 +175,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 image_select_bar.setSelectName(viewModel.albumName)
                 image_select_bar.switch()
             }
+
         })
 
         viewModel.getAlbums()

@@ -66,8 +66,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
         super.onSizeChanged(w, h, oldw, oldh)
         mWidth = width.toFloat()
         mHeight = height.toFloat()
-//        size = (mWidth - (itemPadding * columnCount.plus(1))) / columnCount
-        size = Tools.getImageSize(context, columnCount).toFloat()
+        size = (mWidth - (itemPadding * columnCount.plus(1))) / columnCount
         rowCount = (mHeight / size).toInt()
     }
 
