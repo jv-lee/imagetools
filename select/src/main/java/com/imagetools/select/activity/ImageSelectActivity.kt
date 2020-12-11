@@ -21,7 +21,7 @@ import com.imagetools.select.adapter.AlbumSelectAdapter
 import com.imagetools.select.adapter.ImageSelectAdapter
 import com.imagetools.select.adapter.base.BaseSelectAdapter
 import com.imagetools.select.constant.Constants
-import com.imagetools.select.dialog.LoadingDialog
+import com.imagetools.select.dialog.CompressProgresDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.LoadStatus
 import com.imagetools.select.entity.SelectConfig
@@ -45,7 +45,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private var animator: ValueAnimator? = null
 
-    private val loadingDialog by lazy { LoadingDialog(this) }
+    private val loadingDialog by lazy { CompressProgresDialog(this) }
 
     private val mAlbumAdapter by lazy { AlbumSelectAdapter(this) }
 
@@ -253,8 +253,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                     parseImageResult(images)
                 }
 
-                override fun onCompressFailed(images: ArrayList<Photo>?, error: String?) {
+                override fun onCompressProgress(progress: Int) {
+                    loadingDialog.setProgress(progress)
+                }
 
+                override fun onCompressFailed(images: ArrayList<Photo>?, error: String?) {
+                    parseImageResult(arrayListOf())
                 }
 
             }).compress()

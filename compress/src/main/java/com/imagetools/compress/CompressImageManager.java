@@ -105,6 +105,14 @@ public class CompressImageManager implements CompressImage {
                 //压缩失败
                 continueCompress(image, false, error);
             }
+
+            @Override
+            public void onCompressProgress(int progress) {
+                float val = ((float) progress / (float) images.size()) * 100;
+                for (int i = 1; i <= (int) val; i++) {
+                    listener.onCompressProgress(1);
+                }
+            }
         });
     }
 

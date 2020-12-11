@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.imagetools.compress.config.CompressConfig;
@@ -107,6 +106,7 @@ public class CompressImageUtil {
                     baos.close();
                     bitmap.recycle();
                     sendMsg(true, thumbnailFile.getPath(), null, listener);
+                    sendProgress(1,listener);
 
                 } catch (Exception e) {
                     sendMsg(false, imgPath, "quality compress failed,bitmap is null.", listener);
@@ -166,6 +166,7 @@ public class CompressImageUtil {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(thumbnailFile));
 
             listener.onCompressSuccess(thumbnailFile.getPath());
+            listener.onCompressProgress(1);
         }
     }
 
@@ -177,10 +178,7 @@ public class CompressImageUtil {
     }
 
     private File getPhotoCacheDir(File file) {
-        if (TextUtils.isEmpty(config.getCacheDir())) {
-            config.setCacheDir(Constants.COMPRESS_CACHE);
-        }
-        File mCacheDir = new File(context.getCacheDir() + "/compress", config.getCacheDir());
+        File mCacheDir = new File(context.getCacheDir() ,Constants.COMPRESS_CACHE);
         Log.e("compress >>> ", mCacheDir.getAbsolutePath());
         if (!mCacheDir.mkdirs() && (!mCacheDir.exists() || !mCacheDir.isDirectory())) {
             return file;
@@ -203,6 +201,15 @@ public class CompressImageUtil {
                 } else {
                     listener.onCompressFailed(imagePath, message);
                 }
+            }
+        });
+    }
+
+    private void sendProgress(final int progress,final CompressResultListener listener) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                listener.onCompressProgress(progress);
             }
         });
     }

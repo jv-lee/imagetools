@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 /**
  * 图片集合的压缩监听
+ *
  * @author jv.lee
  */
 public interface CompressImage {
@@ -15,18 +16,22 @@ public interface CompressImage {
      */
     void compress();
 
-    interface CompressListener{
+    interface CompressListener {
         /**
          * 成功
+         *
          * @param images
          */
         void onCompressSuccess(ArrayList<Photo> images);
 
         /**
          * 失败
+         *
          * @param images
          * @param error
          */
         void onCompressFailed(ArrayList<Photo> images, String error);
+
+        void onCompressProgress(int progress);
     }
 }

@@ -34,10 +34,6 @@ public class CompressConfig {
      */
     private boolean enableReserveRaw = true;
     /**
-     * 压缩后缓存图片目录，非文件路径
-     */
-    private String cacheDir;
-    /**
      * 是否显示压缩进度条
      */
     private boolean showCompressDialog;
@@ -105,14 +101,6 @@ public class CompressConfig {
         this.enableReserveRaw = enableReserveRaw;
     }
 
-    public String getCacheDir() {
-        return cacheDir;
-    }
-
-    public void setCacheDir(String cacheDir) {
-        this.cacheDir = cacheDir;
-    }
-
     public boolean isShowCompressDialog() {
         return showCompressDialog;
     }
@@ -165,11 +153,6 @@ public class CompressConfig {
 
         public Builder enableReserveRaw(boolean enableReserveRaw) {
             config.setEnableReserveRaw(enableReserveRaw);
-            return this;
-        }
-
-        public Builder setCacheDir(String cacheDir) {
-            config.setCacheDir(cacheDir);
             return this;
         }
 

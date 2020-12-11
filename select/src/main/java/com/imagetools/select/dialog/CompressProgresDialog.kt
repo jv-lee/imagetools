@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.view.KeyEvent
+import android.widget.ProgressBar
 import com.imagetools.select.R
 
 /**
@@ -11,12 +12,15 @@ import com.imagetools.select.R
  * @date 2020/12/3
  * @description
  */
-class LoadingDialog(context: Context) : Dialog(context, R.style.TranslucentDialog) {
+class CompressProgresDialog(context: Context) : Dialog(context, R.style.TranslucentDialog) {
+
+    private val progressView: ProgressBar
 
     init {
-        setContentView(R.layout.layout_loading)
+        setContentView(R.layout.dialog_compress_progress)
         setCanceledOnTouchOutside(false)
         setOnKeyListener { _, keyCode, _ -> keyCode == KeyEvent.KEYCODE_BACK }
+        progressView = findViewById(R.id.progress)
     }
 
     override fun show() {
@@ -43,6 +47,10 @@ class LoadingDialog(context: Context) : Dialog(context, R.style.TranslucentDialo
             return
         }
         super.onBackPressed()
+    }
+
+    fun setProgress(progress: Int) {
+        progressView.progress = progressView.progress + progress
     }
 
 }
