@@ -13,6 +13,10 @@ import com.imagetools.select.entity.TakeConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
+/**
+ * @author jv.lee
+ * @date 2020.12.12
+ */
 class MainActivity : BaseActivity(R.layout.activity_main) {
 
     private val imageLaunch = ImageLaunch(this)
