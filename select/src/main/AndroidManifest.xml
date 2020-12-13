@@ -7,7 +7,7 @@
         android:requestLegacyExternalStorage="true"
         tools:targetApi="q">
         <activity
-            android:name="com.imagetools.select.activity.ImageSelectActivity"
+            android:name="com.imagetools.select.ui.activity.ImageSelectActivity"
             android:theme="@style/ImageSelectActivity" />
         <provider
             android:name=".provider.ImageProvider"

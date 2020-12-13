@@ -1,4 +1,4 @@
-package com.imagetools.select.activity
+package com.imagetools.select.ui.fragment
 
 import androidx.fragment.app.Fragment
 

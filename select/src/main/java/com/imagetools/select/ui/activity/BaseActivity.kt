@@ -1,4 +1,4 @@
-package com.imagetools.select.activity
+package com.imagetools.select.ui.activity
 
 import android.graphics.Color
 import android.os.Build

@@ -5,14 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
-import com.imagetools.select.activity.ImageSelectActivity
+import com.imagetools.select.ui.activity.ImageSelectActivity
 import com.imagetools.select.constant.Constants
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.SelectConfig
 import com.imagetools.select.entity.TakeConfig
 import com.imagetools.select.tools.UriTools
 import com.soundclound.android.crop.Crop
-import java.io.File
 
 /**
  * @author jv.lee
