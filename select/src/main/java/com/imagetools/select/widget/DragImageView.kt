@@ -3,9 +3,8 @@ package com.imagetools.select.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
-import android.view.VelocityTracker
+import android.view.ViewConfiguration
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import androidx.appcompat.widget.AppCompatImageView
@@ -20,16 +19,15 @@ import com.imagetools.select.lifecycle.ViewLifecycle
 class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     AppCompatImageView(context, attributeSet), ViewLifecycle {
 
-    private val maxVelocity = 5000
-
     private var mStartY = 0f
     private var mStartX = 0f
     private var mEndX = 0
     private var mEndY = 0
+    private var mTouchSlop = 0
+    private var moveTime = 0L
 
     private var isParentTouch = false
     private var isChildTouch = false
-    private var isClose = false
 
     private val mAnimation = ReIndexAnimation()
     private var mCallback: Callback? = null
@@ -37,6 +35,7 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     init {
         bindLifecycle(context)
         setOnClickListener { mCallback?.onClose() }
+        mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }
 
     override fun onLifecycleCancel() {
@@ -96,13 +95,10 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         super.onTouchEvent(event)
-        val velocity = VelocityTracker.obtain()
-        velocity.addMovement(event)
         val x = event.rawX.toInt()
         val y = event.rawY.toInt()
         when (event.action) {
             MotionEvent.ACTION_MOVE -> {
-                velocity.computeCurrentVelocity(1000)
                 //计算距离上次移动了多远
                 val currX: Int = x - mEndX
                 val currY: Int = y - mEndY
@@ -112,15 +108,16 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
                 if (currX != 0 && currY != 0) {
                     isClickable = false
                 }
-                //根据拖动速度 设置是否回调关闭.
-                if (velocity.yVelocity > maxVelocity) {
-                    isClose = true
+
+                //记录最后移动时间
+                if (currY > mTouchSlop) {
+                    moveTime = System.currentTimeMillis()
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 isClickable = true
-                velocity.recycle()
-                if (isClose) {
+                //获取当前时间减最后移动时间 如果超过500毫秒 代表用户悬停 onReIndex  否则直接关闭.
+                if ((System.currentTimeMillis() - moveTime) < 500 && translationY > 0) {
                     mCallback?.onClose()
                 } else {
                     onReIndex()
