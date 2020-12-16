@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.imagetools.app.R
-import com.imagetools.app.widget.DragImageView
+import com.imagetools.select.widget.DragImageView
 
 /**
  * @author jv.lee
@@ -33,7 +33,10 @@ class ImagePagerAdapter(private val data: MutableList<Int>) :
     class ImagePagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val moveImage by lazy { itemView.findViewById<DragImageView>(R.id.move_image) }
         fun bindView(resId: Int) {
-            ViewCompat.setTransitionName(moveImage,moveImage.context.getString(R.string.transitionName))
+            ViewCompat.setTransitionName(
+                moveImage,
+                moveImage.context.getString(R.string.transitionName)
+            )
             moveImage.setImageResource(resId)
         }
     }

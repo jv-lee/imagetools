@@ -1,9 +1,12 @@
-package com.imagetools.app.widget
+package com.imagetools.select.widget
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.animation.Animation
+import android.view.animation.Transformation
 import androidx.appcompat.widget.AppCompatImageView
+import com.imagetools.select.lifecycle.ViewLifecycle
 
 /**
  * @author jv.lee
@@ -12,7 +15,7 @@ import androidx.appcompat.widget.AppCompatImageView
  * 当前实现为向下拖拽进入拖拽模式 ， 横向 向上不进入拖拽模式.
  */
 class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
-    AppCompatImageView(context, attributeSet) {
+    AppCompatImageView(context, attributeSet), ViewLifecycle {
 
     private var startY = 0f
     private var startX = 0f
@@ -25,6 +28,12 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
      */
     private var isParentTouch = false
     private var isChildTouch = false
+
+    private val reIndexAnimation = ReIndexAnimation()
+
+    init {
+        bindLifecycle(context)
+    }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         when (ev.action) {
@@ -106,8 +115,49 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
      */
     private fun onReIndex() {
         //平移回到该view水平方向的初始点
-        this.translationX = 0f
-        this.translationY = 0f
+        reIndexAnimation.setTranslationDimensions(translationX, translationY)
+        reIndexAnimation.duration = 100
+        startAnimation(reIndexAnimation)
+    }
+
+    private inner class ReIndexAnimation : Animation() {
+
+        private var targetTranslationX = 0F
+        private var targetTranslationY = 0F
+        private var currentTranslationX = 0F
+        private var currentTranslationY = 0F
+        private var translationXChange = 0F
+        private var translationYChange = 0F
+
+        fun setTranslationDimensions(currentTranslationX: Float, currentTranslationY: Float) {
+            this.currentTranslationX = currentTranslationX
+            this.currentTranslationY = currentTranslationY
+            translationXChange = targetTranslationX - currentTranslationX
+            translationYChange = targetTranslationY - currentTranslationY
+        }
+
+
+        override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
+            if (interpolatedTime >= 1) {
+                translationX = targetTranslationX
+                translationY = targetTranslationY
+            } else {
+                val stepX = (translationXChange * interpolatedTime)
+                val stepY = (translationYChange * interpolatedTime)
+
+                translationX = currentTranslationX + stepX
+                translationY = currentTranslationY + stepY
+            }
+        }
+
+        override fun willChangeBounds(): Boolean {
+            return true
+        }
+    }
+
+    override fun onLifecycleCancel() {
+        unBindLifecycle(context)
+        clearAnimation()
     }
 
 }
