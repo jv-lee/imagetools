@@ -1,5 +1,7 @@
 package com.imagetools.app.adapter
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +40,11 @@ class ImagePagerAdapter(private val data: MutableList<Int>) :
             moveImage.setCallback(object : DragImageView.Callback {
                 override fun onClose() {
                     if ((itemView.context is FragmentActivity)) {
+                        //设置选中坐标 修改回调时共享元素坐标
+                        (itemView.context as FragmentActivity).setResult(
+                            RESULT_OK,
+                            Intent().putExtra("position", position)
+                        )
                         (itemView.context as FragmentActivity).supportFinishAfterTransition()
                     }
                 }

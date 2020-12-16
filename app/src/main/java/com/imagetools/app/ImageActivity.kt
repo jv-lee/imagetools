@@ -1,8 +1,11 @@
 package com.imagetools.app
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.app.SharedElementCallback
 import com.imagetools.app.base.BaseActivity
 import kotlinx.android.synthetic.main.activity_image.*
 
@@ -12,6 +15,8 @@ import kotlinx.android.synthetic.main.activity_image.*
  * @description
  */
 class ImageActivity : BaseActivity(R.layout.activity_image) {
+
+    private var bundle: Bundle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +60,30 @@ class ImageActivity : BaseActivity(R.layout.activity_image) {
             )
         }
 
+        setExitSharedElementCallback(object : SharedElementCallback() {
+            override fun onMapSharedElements(
+                names: MutableList<String>,
+                sharedElements: MutableMap<String, View>
+            ) {
+                bundle?.let {
+                    val position = it.getInt("position", 0)
+                    val view = when (position) {
+                        0 -> iv_image1
+                        1 -> iv_image2
+                        2 -> iv_image3
+                        else -> iv_image1
+                    }
+                    sharedElements.put(position.toString(), view)
+                }
+            }
+        })
+    }
+
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            bundle = data.extras
+        }
+        super.onActivityReenter(resultCode, data)
     }
 
 }

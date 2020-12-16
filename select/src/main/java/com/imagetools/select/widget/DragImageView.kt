@@ -3,8 +3,8 @@ package com.imagetools.select.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
-import android.view.ViewConfiguration
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import androidx.appcompat.widget.AppCompatImageView
@@ -23,7 +23,7 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     private var mStartX = 0f
     private var mEndX = 0
     private var mEndY = 0
-    private var mTouchSlop = 0
+    private var mTouchSlop = 5
     private var moveTime = 0L
 
     private var isParentTouch = false
@@ -35,7 +35,6 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     init {
         bindLifecycle(context)
         setOnClickListener { mCallback?.onClose() }
-        mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }
 
     override fun onLifecycleCancel() {

@@ -2,10 +2,13 @@ package com.imagetools.app
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import android.view.ViewTreeObserver
+import androidx.core.app.SharedElementCallback
 import androidx.core.view.ViewCompat
 import com.imagetools.app.adapter.ImagePagerAdapter
 import com.imagetools.app.base.BaseActivity
+import kotlinx.android.synthetic.main.activity_image.*
 import kotlinx.android.synthetic.main.activity_image_details.*
 
 /**
@@ -43,6 +46,20 @@ class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details) {
             )
         )
         vp_container.setCurrentItem(intent.getIntExtra("position", 0), false)
+
+
+        //设置回调共享元素通信
+        setEnterSharedElementCallback(object : SharedElementCallback() {
+            override fun onMapSharedElements(
+                names: MutableList<String>,
+                sharedElements: MutableMap<String, View>
+            ) {
+                sharedElements.put(
+                    vp_container.currentItem.toString(),
+                    vp_container.findViewById(R.id.move_image)
+                )
+            }
+        })
     }
 
 }
