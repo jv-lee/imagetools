@@ -3,12 +3,13 @@ package com.imagetools.select.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
+import android.view.VelocityTracker
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import androidx.appcompat.widget.AppCompatImageView
 import com.imagetools.select.lifecycle.ViewLifecycle
-import com.imagetools.select.tools.Tools
 
 /**
  * @author jv.lee
@@ -19,7 +20,7 @@ import com.imagetools.select.tools.Tools
 class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     AppCompatImageView(context, attributeSet), ViewLifecycle {
 
-    private val reIndexDimension = 100
+    private val maxVelocity = 5000
 
     private var mStartY = 0f
     private var mStartX = 0f
@@ -28,8 +29,9 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
 
     private var isParentTouch = false
     private var isChildTouch = false
+    private var isClose = false
 
-    private val reIndexAnimation = ReIndexAnimation()
+    private val mAnimation = ReIndexAnimation()
     private var mCallback: Callback? = null
 
     init {
@@ -94,10 +96,13 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         super.onTouchEvent(event)
+        val velocity = VelocityTracker.obtain()
+        velocity.addMovement(event)
         val x = event.rawX.toInt()
         val y = event.rawY.toInt()
         when (event.action) {
             MotionEvent.ACTION_MOVE -> {
+                velocity.computeCurrentVelocity(1000)
                 //计算距离上次移动了多远
                 val currX: Int = x - mEndX
                 val currY: Int = y - mEndY
@@ -107,13 +112,18 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
                 if (currX != 0 && currY != 0) {
                     isClickable = false
                 }
+                //根据拖动速度 设置是否回调关闭.
+                if (velocity.yVelocity > maxVelocity) {
+                    isClose = true
+                }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 isClickable = true
-                if (translationY < Tools.dp2px(context, reIndexDimension)) {
-                    onReIndex()
-                } else {
+                velocity.recycle()
+                if (isClose) {
                     mCallback?.onClose()
+                } else {
+                    onReIndex()
                 }
             }
         }
@@ -153,8 +163,8 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
      */
     private fun onReIndex() {
         //平移回到该view水平方向的初始点
-        reIndexAnimation.initValue()
-        startAnimation(reIndexAnimation)
+        mAnimation.initValue()
+        startAnimation(mAnimation)
     }
 
     fun setCallback(callback: Callback) {
@@ -184,7 +194,7 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
             translationYChange = targetTranslationY - currentTranslationY
             scaleChange = targetScale - currentScaleX
 
-            duration = 100
+            duration = 200
         }
 
 
