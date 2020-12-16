@@ -28,16 +28,12 @@ class ImagePagerAdapter(private val data: MutableList<Int>) :
     }
 
     override fun onBindViewHolder(holder: ImagePagerViewHolder, position: Int) {
-        holder.bindView(data[position])
+        holder.bindView(data[position], position)
     }
 
     class ImagePagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val moveImage by lazy { itemView.findViewById<DragImageView>(R.id.move_image) }
-        fun bindView(resId: Int) {
-            ViewCompat.setTransitionName(
-                moveImage,
-                moveImage.context.getString(R.string.transitionName)
-            )
+        fun bindView(resId: Int, position: Int) {
             moveImage.setImageResource(resId)
             moveImage.setCallback(object : DragImageView.Callback {
                 override fun onClose() {
@@ -56,6 +52,8 @@ class ImagePagerAdapter(private val data: MutableList<Int>) :
                 }
 
             })
+
+            ViewCompat.setTransitionName(moveImage, position.toString())
         }
 
         fun setBackgroundAlphaCompat(view: View?, alpha: Int) {

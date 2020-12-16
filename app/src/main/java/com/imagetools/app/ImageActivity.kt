@@ -16,10 +16,43 @@ class ImageActivity : BaseActivity(R.layout.activity_image) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        iv_image.setOnClickListener {
+        iv_image1.setOnClickListener {
             val optionsCompat =
-                ActivityOptionsCompat.makeSceneTransitionAnimation(this, iv_image, "basic")
-            startActivity(Intent(this, ImageDetailsActivity::class.java), optionsCompat.toBundle())
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this,
+                    iv_image1,
+                    "0"
+                )
+            startActivity(
+                Intent(this, ImageDetailsActivity::class.java).putExtra("position", 0),
+                optionsCompat.toBundle()
+            )
+        }
+
+        iv_image2.setOnClickListener {
+            val optionsCompat =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this,
+                    iv_image2,
+                    "1"
+                )
+            startActivity(
+                Intent(this, ImageDetailsActivity::class.java).putExtra("position", 1),
+                optionsCompat.toBundle()
+            )
+        }
+
+        iv_image3.setOnClickListener {
+            val optionsCompat =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this,
+                    iv_image3,
+                    "2"
+                )
+            startActivity(
+                Intent(this, ImageDetailsActivity::class.java).putExtra("position", 2),
+                optionsCompat.toBundle()
+            )
         }
 
     }

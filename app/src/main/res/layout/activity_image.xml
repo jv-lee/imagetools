@@ -5,14 +5,36 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/iv_image"
+        android:id="@+id/iv_image1"
         android:layout_width="78dp"
         android:layout_height="78dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/wallhaven"
+        android:src="@drawable/one"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/iv_image2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_image2"
+        android:layout_width="78dp"
+        android:layout_height="78dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/two"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/iv_image3"
+        app:layout_constraintStart_toEndOf="@id/iv_image1"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_image3"
+        android:layout_width="78dp"
+        android:layout_height="78dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/thre"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_image2"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

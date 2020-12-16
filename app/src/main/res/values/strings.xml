@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">ImageTools</string>
     <string name="transitionName">basic</string>
+    <string name="transitionName1">basic1</string>
+    <string name="transitionName2">basic2</string>
+    <string name="transitionName3">basic3</string>
 </resources>
