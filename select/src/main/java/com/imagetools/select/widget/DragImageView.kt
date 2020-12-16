@@ -1,5 +1,6 @@
 package com.imagetools.select.widget
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -7,6 +8,7 @@ import android.view.animation.Animation
 import android.view.animation.Transformation
 import androidx.appcompat.widget.AppCompatImageView
 import com.imagetools.select.lifecycle.ViewLifecycle
+import com.imagetools.select.tools.Tools
 
 /**
  * @author jv.lee
@@ -17,30 +19,35 @@ import com.imagetools.select.lifecycle.ViewLifecycle
 class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     AppCompatImageView(context, attributeSet), ViewLifecycle {
 
-    private var startY = 0f
-    private var startX = 0f
+    private val reIndexDimension = 100
 
+    private var mStartY = 0f
+    private var mStartX = 0f
     private var mEndX = 0
     private var mEndY = 0
 
-    /**
-     * 记录HorizontalView是否拖拽的标记
-     */
     private var isParentTouch = false
     private var isChildTouch = false
 
     private val reIndexAnimation = ReIndexAnimation()
+    private var mCallback: Callback? = null
 
     init {
         bindLifecycle(context)
+        setOnClickListener { mCallback?.onClose() }
+    }
+
+    override fun onLifecycleCancel() {
+        unBindLifecycle(context)
+        clearAnimation()
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
                 // 记录手指按下的位置
-                startY = ev.y
-                startX = ev.x
+                mStartY = ev.y
+                mStartX = ev.x
                 // 初始化标记
                 isParentTouch = false
                 isChildTouch = false
@@ -53,20 +60,20 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
                 // 获取当前手指位置
                 val endY: Float = ev.y
                 val endX: Float = ev.x
-                val distanceX: Float = Math.abs(endX - startX)
-                val distanceY: Float = Math.abs(endY - startY)
+                val distanceX: Float = Math.abs(endX - mStartX)
+                val distanceY: Float = Math.abs(endY - mStartY)
                 // 当前子view不可消费事件 且为横向拖动 则返回false 子view不处理 直接返回父容器处理事件
                 if (!isChildTouch && distanceX > distanceY) {
                     isParentTouch = true
                     return false
                 }
                 // 当前子view不可消费事件 且滑动为向上滑动 则返回false 直接返回父亲容器处理事件
-                if (!isChildTouch && endY < startY) {
+                if (!isChildTouch && endY < mStartY) {
                     isParentTouch = true
                     return false
                 }
                 // 滑动为向下滑动 关闭父容器处理事件 打开子容器处理事件
-                if (endY > startY) {
+                if (endY > mStartY) {
                     isChildTouch = true
                     isParentTouch = false
                     parent.requestDisallowInterceptTouchEvent(true)
@@ -84,6 +91,7 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
         return super.dispatchTouchEvent(ev)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         super.onTouchEvent(event)
         val x = event.rawX.toInt()
@@ -94,15 +102,19 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
                 val currX: Int = x - mEndX
                 val currY: Int = y - mEndY
                 //设置当前偏移量实现拖动
-                this.translationX = this.translationX + currX
-                this.translationY = this.translationY + currY
+                setDragTranslation(currX, currY)
+                setDragScale(mEndY - y)
                 if (currX != 0 && currY != 0) {
                     isClickable = false
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 isClickable = true
-                onReIndex()
+                if (translationY < Tools.dp2px(context, reIndexDimension)) {
+                    onReIndex()
+                } else {
+                    mCallback?.onClose()
+                }
             }
         }
         mEndX = x
@@ -110,30 +122,69 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
         return true
     }
 
+    private fun setDragTranslation(x: Int, y: Int) {
+        this.translationX = this.translationX + x
+        this.translationY = this.translationY + y
+    }
+
+    private fun setDragScale(y: Int) {
+        val scaleValue = scaleX + (y * 0.001F)
+        when {
+            scaleValue >= 1 -> {
+                this.scaleX = 1f
+                this.scaleY = 1f
+                mCallback?.changeAlpha(1f)
+            }
+            scaleValue <= 0.5F -> {
+                this.scaleX = 0.5f
+                this.scaleY = 0.5f
+                mCallback?.changeAlpha(0.5f)
+            }
+            else -> {
+                this.scaleX = scaleValue
+                this.scaleY = scaleValue
+                mCallback?.changeAlpha(scaleValue)
+            }
+        }
+    }
+
     /**
      * 位置重置
      */
     private fun onReIndex() {
         //平移回到该view水平方向的初始点
-        reIndexAnimation.setTranslationDimensions(translationX, translationY)
-        reIndexAnimation.duration = 100
+        reIndexAnimation.initValue()
         startAnimation(reIndexAnimation)
+    }
+
+    fun setCallback(callback: Callback) {
+        this.mCallback = callback
     }
 
     private inner class ReIndexAnimation : Animation() {
 
         private var targetTranslationX = 0F
         private var targetTranslationY = 0F
+        private var targetScale = 1F
+
         private var currentTranslationX = 0F
         private var currentTranslationY = 0F
+        private var currentScaleX = 0F
+
         private var translationXChange = 0F
         private var translationYChange = 0F
+        private var scaleChange = 0F
 
-        fun setTranslationDimensions(currentTranslationX: Float, currentTranslationY: Float) {
-            this.currentTranslationX = currentTranslationX
-            this.currentTranslationY = currentTranslationY
+        fun initValue() {
+            this.currentTranslationX = translationX
+            this.currentTranslationY = translationY
+            this.currentScaleX = scaleX
+
             translationXChange = targetTranslationX - currentTranslationX
             translationYChange = targetTranslationY - currentTranslationY
+            scaleChange = targetScale - currentScaleX
+
+            duration = 100
         }
 
 
@@ -141,13 +192,19 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
             if (interpolatedTime >= 1) {
                 translationX = targetTranslationX
                 translationY = targetTranslationY
+                scaleX = targetScale
+                scaleY = targetScale
             } else {
                 val stepX = (translationXChange * interpolatedTime)
                 val stepY = (translationYChange * interpolatedTime)
+                val stepScale = (scaleChange * interpolatedTime)
 
                 translationX = currentTranslationX + stepX
                 translationY = currentTranslationY + stepY
+                scaleX = currentScaleX + stepScale
+                scaleY = currentScaleX + stepScale
             }
+            mCallback?.changeAlpha(scaleX)
         }
 
         override fun willChangeBounds(): Boolean {
@@ -155,9 +212,9 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
         }
     }
 
-    override fun onLifecycleCancel() {
-        unBindLifecycle(context)
-        clearAnimation()
+    interface Callback {
+        fun onClose()
+        fun changeAlpha(alpha: Float)
     }
 
 }

@@ -2,6 +2,7 @@ package com.imagetools.app
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.viewpager.widget.ViewPager
@@ -23,6 +24,7 @@ class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details) {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        findViewById<ConstraintLayout>(R.id.const_root).background.alpha = 255
 
         ViewCompat.setTransitionName(vp_container, getString(R.string.transitionName))
         vp_container.adapter = ImagePagerAdapter(

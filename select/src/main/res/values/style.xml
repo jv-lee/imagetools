@@ -11,6 +11,14 @@
         <item name="android:windowBackground">@color/colorBackground</item>
     </style>
 
+    <style name="ImagePagerActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
     <style name="Bottom.Animation" parent="@android:style/Animation.Activity">
         <item name="android:activityOpenEnterAnimation">@anim/slide_bottom_in</item>
         <item name="android:activityOpenExitAnimation">@anim/default_in_out</item>
