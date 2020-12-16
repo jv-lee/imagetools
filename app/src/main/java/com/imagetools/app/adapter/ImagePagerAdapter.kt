@@ -1,11 +1,8 @@
 package com.imagetools.app.adapter
 
-import android.app.Activity
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -52,9 +49,8 @@ class ImagePagerAdapter(private val data: MutableList<Int>) :
                 override fun changeAlpha(alpha: Float) {
                     if (itemView.context is FragmentActivity) {
                         setBackgroundAlphaCompat(
-                            (itemView.context as FragmentActivity).findViewById<ConstraintLayout>(
-                                R.id.const_root
-                            ), (255 * alpha).toInt()
+                            (itemView.context as FragmentActivity).window.decorView,
+                            (255 * alpha).toInt()
                         )
                     }
                 }
