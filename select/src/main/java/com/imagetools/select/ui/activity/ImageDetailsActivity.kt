@@ -76,10 +76,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 names: MutableList<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                sharedElements.put(
-                    vp_container.currentItem.toString(),
-                    vp_container.findViewById(R.id.move_image)
-                )
+                val position = vp_container.currentItem
+                sharedElements.put(position.toString(), vp_container.findViewById(R.id.move_image))
             }
         })
 
