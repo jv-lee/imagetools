@@ -2,10 +2,12 @@ package com.imagetools.app
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
+import androidx.core.view.ViewCompat
 import com.imagetools.app.base.BaseActivity
 import kotlinx.android.synthetic.main.activity_image.*
 
@@ -77,6 +79,11 @@ class ImageActivity : BaseActivity(R.layout.activity_image) {
                 }
             }
         })
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.sharedElementEnterTransition.duration = 200
+            window.sharedElementExitTransition.duration = 200
+        }
     }
 
     override fun onActivityReenter(resultCode: Int, data: Intent?) {

@@ -1,14 +1,13 @@
 package com.imagetools.app
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.app.SharedElementCallback
-import androidx.core.view.ViewCompat
 import com.imagetools.app.adapter.ImagePagerAdapter
 import com.imagetools.app.base.BaseActivity
-import kotlinx.android.synthetic.main.activity_image.*
 import kotlinx.android.synthetic.main.activity_image_details.*
 
 /**
@@ -60,6 +59,11 @@ class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details) {
                 )
             }
         })
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.sharedElementEnterTransition.duration = 200
+            window.sharedElementExitTransition.duration = 200
+        }
     }
 
 }

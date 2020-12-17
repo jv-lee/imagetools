@@ -114,7 +114,7 @@ internal class ImageSelectAdapter(
 
     class ViewHolder(
         val ivImage: ImageView,
-        val ivMask: ImageView,
+        val ivMask: View,
         val frameSelect: FrameLayout,
         val tvSelectNumber: TextView
     )

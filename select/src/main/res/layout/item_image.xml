@@ -7,14 +7,14 @@
     android:layout_marginRight="@dimen/item_padding"
     android:layout_marginBottom="@dimen/item_padding">
 
-    <ImageView
+    <com.imagetools.select.widget.NoAlphaImageView
         android:id="@+id/iv_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <View
         android:id="@+id/iv_mask"
         android:layout_width="0dp"
         android:layout_height="0dp"
