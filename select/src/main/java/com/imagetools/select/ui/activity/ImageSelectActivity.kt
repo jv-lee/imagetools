@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
@@ -48,6 +49,10 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private var animator: ValueAnimator? = null
     private var bundle: Bundle? = null
+
+    //共享元素动画使用
+    private var mPosition = 0
+    private var isBack = false
 
     private val loadingDialog by lazy { CompressProgresDialog(this) }
 
@@ -142,6 +147,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         }
         gv_images.setOnItemClickListener { adapterView, view, position, id ->
             if (mImageAdapter.isMultiple) {
+                mPosition = position
                 ImageDetailsActivity.startActivity(
                     this,
                     position,
@@ -163,11 +169,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 sharedElements: MutableMap<String, View>
             ) {
                 bundle?.let {
-                    val position = it.getInt(ImageDetailsActivity.KEY_POSITION, 0)
+                    val position =
+                        if (isBack) it.getInt(ImageDetailsActivity.KEY_POSITION, 0) else mPosition
+                    isBack = false
                     sharedElements.put(
                         position.toString(),
                         gv_images.getChildAt(position).findViewById(R.id.iv_image)
                     )
+                    Log.i(ImageDetailsActivity.TAG, "onMapSharedElements: $position")
                 }
 
             }
@@ -310,6 +319,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     override fun onActivityReenter(resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK && data != null) {
+            isBack = true
             bundle = data.extras
         }
         super.onActivityReenter(resultCode, data)
