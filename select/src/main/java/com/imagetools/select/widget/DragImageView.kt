@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.Animation
 import android.view.animation.Transformation
@@ -19,12 +20,21 @@ import com.imagetools.select.lifecycle.ViewLifecycle
 class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     AppCompatImageView(context, attributeSet), ViewLifecycle {
 
+    private val TAG = DragImageView::class.java.simpleName
+
+    //事件分发记录初始化位置
     private var mStartY = 0f
     private var mStartX = 0f
+
+    //滑动事件 touch 记录移动位置
     private var mEndX = 0
     private var mEndY = 0
+
+    //有效滑动距离阈值
     private var mTouchSlop = 5
-    private var moveTime = 0L
+
+    //实时移动时间戳
+    private var mMoveMillis = 0L
 
     private var isParentTouch = false
     private var isChildTouch = false
@@ -32,12 +42,27 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     private val mAnimation = ReIndexAnimation()
     private var mCallback: Callback? = null
 
+    private val mSingleTapRunnable = Runnable { mCallback?.onClose() }
+
+    private val mGesture =
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDoubleTap(e: MotionEvent?): Boolean {
+                removeCallbacks(mSingleTapRunnable)
+                return false
+            }
+
+            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+                postDelayed(mSingleTapRunnable, 200)
+                return false
+            }
+        })
+
     init {
         bindLifecycle(context)
-        setOnClickListener { mCallback?.onClose() }
     }
 
     override fun onLifecycleCancel() {
+        System.currentTimeMillis()
         unBindLifecycle(context)
         clearAnimation()
     }
@@ -110,13 +135,13 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
 
                 //记录最后移动时间
                 if (currY > mTouchSlop) {
-                    moveTime = System.currentTimeMillis()
+                    mMoveMillis = System.currentTimeMillis()
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 isClickable = true
                 //获取当前时间减最后移动时间 如果超过500毫秒 代表用户悬停 onReIndex  否则直接关闭.
-                if ((System.currentTimeMillis() - moveTime) < 500 && translationY > 0) {
+                if ((System.currentTimeMillis() - mMoveMillis) < 500 && translationY > 0) {
                     mCallback?.onClose()
                 } else {
                     onReIndex()
@@ -125,6 +150,7 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
         }
         mEndX = x
         mEndY = y
+        mGesture.onTouchEvent(event)
         return true
     }
 
