@@ -3,12 +3,15 @@ package com.imagetools.select.ui.activity
 import android.Manifest
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
+import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
@@ -44,6 +47,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
 
     private var animator: ValueAnimator? = null
+    private var bundle: Bundle? = null
 
     private val loadingDialog by lazy { CompressProgresDialog(this) }
 
@@ -138,7 +142,11 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         }
         gv_images.setOnItemClickListener { adapterView, view, position, id ->
             if (mImageAdapter.isMultiple) {
-                toast("item click")
+                ImageDetailsActivity.startActivity(
+                    this,
+                    position,
+                    view.findViewById(R.id.iv_image),
+                    arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) })
             } else {
                 imageLaunch.launch(mImageAdapter.getItem(position).also {
                     it.isSquare = selectConfig.isSquare
@@ -148,6 +156,27 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         }
         gv_images.setOnScrollListener(mImageAdapter)
         Glide.with(gv_images).resumeRequests()
+
+        setExitSharedElementCallback(object : SharedElementCallback() {
+            override fun onMapSharedElements(
+                names: MutableList<String>,
+                sharedElements: MutableMap<String, View>
+            ) {
+                bundle?.let {
+                    val position = it.getInt(ImageDetailsActivity.KEY_POSITION, 0)
+                    sharedElements.put(
+                        position.toString(),
+                        gv_images.getChildAt(position).findViewById(R.id.iv_image)
+                    )
+                }
+
+            }
+        })
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.sharedElementEnterTransition.duration = 200
+            window.sharedElementExitTransition.duration = 200
+        }
     }
 
     private fun bindObservable() {
@@ -277,6 +306,13 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             )
         )
         finish()
+    }
+
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            bundle = data.extras
+        }
+        super.onActivityReenter(resultCode, data)
     }
 
 }

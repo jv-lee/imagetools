@@ -9,6 +9,10 @@
         <activity
             android:name="com.imagetools.select.ui.activity.ImageSelectActivity"
             android:theme="@style/ImageSelectActivity" />
+        <activity
+            android:name=".ui.activity.ImageDetailsActivity"
+            android:theme="@style/ImagePagerActivity" />
+
         <provider
             android:name=".provider.ImageProvider"
             android:authorities="${applicationId}.select.fileprovider"
