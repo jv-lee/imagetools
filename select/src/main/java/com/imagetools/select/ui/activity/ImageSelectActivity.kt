@@ -10,6 +10,9 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewTreeObserver
+import android.widget.AbsListView
+import android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.app.SharedElementCallback
@@ -50,9 +53,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private var animator: ValueAnimator? = null
     private var bundle: Bundle? = null
 
-    //共享元素动画使用
-    private var mPosition = 0
-    private var isBack = false
+    //共享元素动画使用 取消重复修改元素
+    private var isReset = false
+    private var position = 0
 
     private val loadingDialog by lazy { CompressProgresDialog(this) }
 
@@ -147,7 +150,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         }
         gv_images.setOnItemClickListener { adapterView, view, position, id ->
             if (mImageAdapter.isMultiple) {
-                mPosition = position
                 ImageDetailsActivity.startActivity(
                     this,
                     position,
@@ -169,16 +171,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 sharedElements: MutableMap<String, View>
             ) {
                 bundle?.let {
-                    val position =
-                        if (isBack) it.getInt(ImageDetailsActivity.KEY_POSITION, 0) else mPosition
-                    isBack = false
+                    if (!isReset) return
+                    isReset = false
                     sharedElements.put(
                         position.toString(),
                         gv_images.getChildAt(position).findViewById(R.id.iv_image)
                     )
                     Log.i(ImageDetailsActivity.TAG, "onMapSharedElements: $position")
                 }
-
             }
         })
 
@@ -319,8 +319,13 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     override fun onActivityReenter(resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK && data != null) {
-            isBack = true
-            bundle = data.extras
+            data.extras?.let {
+                isReset = true
+                position = it.getInt(ImageDetailsActivity.KEY_POSITION, 0)
+                if (gv_images.getChildAt(position) == null) {
+                    gv_images.smoothScrollToPosition(position)
+                }
+            }
         }
         super.onActivityReenter(resultCode, data)
     }
