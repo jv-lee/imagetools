@@ -8,11 +8,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.view.ViewTreeObserver
 import android.widget.AbsListView
 import android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+import android.widget.ScrollView
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.app.SharedElementCallback
@@ -50,12 +49,11 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         intent.getParcelableExtra(Constants.CONFIG_KEY) ?: SelectConfig()
     }
 
-    private var animator: ValueAnimator? = null
-    private var bundle: Bundle? = null
-
     //共享元素动画使用 取消重复修改元素
     private var isReset = false
     private var position = 0
+
+    private var animator: ValueAnimator? = null
 
     private val loadingDialog by lazy { CompressProgresDialog(this) }
 
@@ -170,14 +168,11 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 names: MutableList<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                bundle?.let {
-                    if (!isReset) return
-                    isReset = false
-                    sharedElements.put(
-                        position.toString(),
-                        gv_images.getChildAt(position).findViewById(R.id.iv_image)
-                    )
-                    Log.i(ImageDetailsActivity.TAG, "onMapSharedElements: $position")
+                if (!isReset) return
+                isReset = false
+                val itemView = gv_images.getChildAt(position)
+                itemView?.let {
+                    sharedElements.put(position.toString(), it.findViewById(R.id.iv_image))
                 }
             }
         })
@@ -322,9 +317,27 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             data.extras?.let {
                 isReset = true
                 position = it.getInt(ImageDetailsActivity.KEY_POSITION, 0)
-                if (gv_images.getChildAt(position) == null) {
-                    gv_images.smoothScrollToPosition(position)
-                }
+//                if (gv_images.getChildAt(position) == null) {
+//                    supportPostponeEnterTransition()
+//                    gv_images.smoothScrollToPosition(position)
+//                    gv_images.setOnScrollListener(object : AbsListView.OnScrollListener {
+//                        override fun onScroll(
+//                            view: AbsListView?,
+//                            firstVisibleItem: Int,
+//                            visibleItemCount: Int,
+//                            totalItemCount: Int
+//                        ) {
+//                        }
+//
+//                        override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
+//                            if (scrollState == SCROLL_STATE_IDLE) {
+//                                gv_images.setOnScrollListener(null)
+//                                supportStartPostponedEnterTransition()
+//                            }
+//                        }
+//
+//                    })
+//                }
             }
         }
         super.onActivityReenter(resultCode, data)
