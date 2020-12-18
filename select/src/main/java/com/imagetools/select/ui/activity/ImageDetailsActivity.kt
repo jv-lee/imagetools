@@ -47,7 +47,9 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
     }
 
-    //    private val data by lazy { intent.getParcelableArrayListExtra(KEY_DATA)?: arrayListOf() }
+    private val data by lazy<ArrayList<Image>> {
+        intent.getParcelableArrayListExtra(KEY_DATA) ?: arrayListOf()
+    }
     private val position by lazy { intent.getIntExtra(KEY_POSITION, 0) }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -55,6 +57,9 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         super.onCreate(savedInstanceState)
         //暂时阻止共享元素过渡
         supportPostponeEnterTransition()
+
+        vp_container.adapter = ImagePagerAdapter(data)
+        vp_container.setCurrentItem(position, false)
 
         vp_container.viewTreeObserver.addOnGlobalLayoutListener(object :
             ViewTreeObserver.OnGlobalLayoutListener {
@@ -65,10 +70,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             }
 
         })
-
-        vp_container.adapter =
-            ImagePagerAdapter(intent.getParcelableArrayListExtra(KEY_DATA) ?: arrayListOf())
-        vp_container.setCurrentItem(position, false)
 
         //设置回调共享元素通信
         setEnterSharedElementCallback(object : SharedElementCallback() {
