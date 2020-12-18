@@ -11,7 +11,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AbsListView
 import android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+import android.widget.ImageView
 import android.widget.ScrollView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.app.SharedElementCallback
@@ -170,7 +172,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             ) {
                 if (!isReset) return
                 isReset = false
-                val itemView = gv_images.getChildAt(position)
+                val itemView = gv_images.getChildAt(position - gv_images.firstVisiblePosition)
                 itemView?.let {
                     sharedElements.put(position.toString(), it.findViewById(R.id.iv_image))
                 }
@@ -317,27 +319,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             data.extras?.let {
                 isReset = true
                 position = it.getInt(ImageDetailsActivity.KEY_POSITION, 0)
-//                if (gv_images.getChildAt(position) == null) {
-//                    supportPostponeEnterTransition()
-//                    gv_images.smoothScrollToPosition(position)
-//                    gv_images.setOnScrollListener(object : AbsListView.OnScrollListener {
-//                        override fun onScroll(
-//                            view: AbsListView?,
-//                            firstVisibleItem: Int,
-//                            visibleItemCount: Int,
-//                            totalItemCount: Int
-//                        ) {
-//                        }
-//
-//                        override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
-//                            if (scrollState == SCROLL_STATE_IDLE) {
-//                                gv_images.setOnScrollListener(null)
-//                                supportStartPostponedEnterTransition()
-//                            }
-//                        }
-//
-//                    })
-//                }
             }
         }
         super.onActivityReenter(resultCode, data)
