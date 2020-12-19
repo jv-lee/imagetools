@@ -65,8 +65,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 vp_container.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                //view绘制完成后 打开共享元素 达到更平滑的动画效果.
-                supportStartPostponedEnterTransition()
+                //view绘制完成后 打开共享元素 达到更平滑的动画效果. 该方法移动到 Glide加载图片成功后调用.
+//                supportStartPostponedEnterTransition()
             }
 
         })

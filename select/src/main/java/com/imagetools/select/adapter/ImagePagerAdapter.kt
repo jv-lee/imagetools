@@ -2,6 +2,7 @@ package com.imagetools.select.adapter
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,10 @@ import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.widget.DragImageView
@@ -38,7 +43,28 @@ internal class ImagePagerAdapter(private val data: MutableList<Image>) :
     class ImagePagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val moveImage by lazy { itemView.findViewById<DragImageView>(R.id.move_image) }
         fun bindView(item: Image, position: Int) {
-            Glide.with(moveImage).load(item.path).into(moveImage)
+            Glide.with(moveImage).load(item.path).listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    (itemView.context as FragmentActivity).supportStartPostponedEnterTransition()
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    (itemView.context as FragmentActivity).supportStartPostponedEnterTransition()
+                    return false
+                }
+            }).into(moveImage)
             moveImage.setCallback(object : DragImageView.Callback {
                 override fun onClose() {
                     if ((itemView.context is FragmentActivity)) {
