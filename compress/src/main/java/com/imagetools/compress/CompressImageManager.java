@@ -86,6 +86,8 @@ public class CompressImageManager implements CompressImage {
 
         // <= 200KB
         if (file.length() < config.getMaxSize()) {
+            //不满足压缩条件直接将原地址设置为压缩地址 方便调用.
+            image.setCompressPath(image.getOriginalPath());
             continueCompress(image, true);
             return;
         }
