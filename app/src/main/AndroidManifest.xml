@@ -22,14 +22,6 @@
         <activity android:name=".StreamerActivity">
 
         </activity>
-        <activity android:name=".ImageActivity">
-
-        </activity>
-
-        <activity
-            android:name=".ImageDetailsActivity"
-            android:theme="@style/ImagePagerActivity" />
-
         <provider
             android:name=".provider.MyProvider"
             android:authorities="${applicationId}.fileprovider"

@@ -2,11 +2,11 @@ package com.imagetools.select.adapter
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -23,8 +23,14 @@ import com.imagetools.select.widget.DragImageView
  * @date 2020/12/16
  * @description
  */
-internal class ImagePagerAdapter(private val data: MutableList<Image>) :
+internal class ImagePagerAdapter(
+    private val data: MutableList<Image>,
+    val toPosition: Int,
+    var bitmap: Bitmap?
+) :
     RecyclerView.Adapter<ImagePagerAdapter.ImagePagerViewHolder>() {
+
+    private var firstLoad = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImagePagerViewHolder {
         return ImagePagerViewHolder(
@@ -40,9 +46,14 @@ internal class ImagePagerAdapter(private val data: MutableList<Image>) :
         holder.bindView(data[position], position)
     }
 
-    class ImagePagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    internal inner class ImagePagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val moveImage by lazy { itemView.findViewById<DragImageView>(R.id.move_image) }
         fun bindView(item: Image, position: Int) {
+            //预加载
+            if (firstLoad && position == toPosition) {
+                firstLoad = false
+                moveImage.setImageBitmap(bitmap)
+            }
             Glide.with(moveImage).load(item.path).listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
@@ -50,6 +61,8 @@ internal class ImagePagerAdapter(private val data: MutableList<Image>) :
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
+                    bitmap?.recycle()
+                    bitmap = null
                     (itemView.context as FragmentActivity).supportStartPostponedEnterTransition()
                     return false
                 }
@@ -61,6 +74,8 @@ internal class ImagePagerAdapter(private val data: MutableList<Image>) :
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
+                    bitmap?.recycle()
+                    bitmap = null
                     (itemView.context as FragmentActivity).supportStartPostponedEnterTransition()
                     return false
                 }
@@ -69,7 +84,10 @@ internal class ImagePagerAdapter(private val data: MutableList<Image>) :
                 override fun onClose() {
                     if ((itemView.context is FragmentActivity)) {
                         //设置选中坐标 修改回调时共享元素坐标
-                        (itemView.context as FragmentActivity).setResult(RESULT_OK, Intent().putExtra("position", position))
+                        (itemView.context as FragmentActivity).setResult(
+                            RESULT_OK,
+                            Intent().putExtra("position", position)
+                        )
                         (itemView.context as FragmentActivity).supportFinishAfterTransition()
                     }
                 }
@@ -85,7 +103,7 @@ internal class ImagePagerAdapter(private val data: MutableList<Image>) :
 
             })
 
-            ViewCompat.setTransitionName(moveImage, position.toString())
+//            ViewCompat.setTransitionName(moveImage, position.toString())
         }
 
         fun setBackgroundAlphaCompat(view: View?, alpha: Int) {

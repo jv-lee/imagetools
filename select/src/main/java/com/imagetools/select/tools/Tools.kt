@@ -4,13 +4,15 @@ import android.animation.Animator
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Point
-import android.util.DisplayMetrics
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import com.imagetools.select.R
+import java.io.ByteArrayOutputStream
+
 
 /**
  * @author jv.lee
@@ -122,5 +124,17 @@ internal object Tools {
     fun sp2px(context: Context, spValue: Int): Float {
         val fontScale = context.resources.displayMetrics.scaledDensity
         return (spValue * fontScale + 0.5f)
+    }
+
+
+    /**
+     * bitmap转化成byte数组
+     * @param bm 需要转换的Bitmap
+     * @return
+     */
+    fun bitmap2Bytes(bm: Bitmap): ByteArray {
+        val baoStream = ByteArrayOutputStream()
+        bm.compress(Bitmap.CompressFormat.PNG, 100, baoStream)
+        return baoStream.toByteArray()
     }
 }

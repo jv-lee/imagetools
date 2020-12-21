@@ -2,16 +2,20 @@ package com.imagetools.select.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
+import android.widget.ImageView
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
+import androidx.core.view.drawToBitmap
 import androidx.fragment.app.FragmentActivity
 import com.imagetools.select.R
 import com.imagetools.select.adapter.ImagePagerAdapter
 import com.imagetools.select.entity.Image
+import com.imagetools.select.tools.Tools
 import kotlinx.android.synthetic.main.activity_image_details.*
 
 /**
@@ -25,11 +29,12 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         const val TAG = "IMAGE_DETAILS"
         const val KEY_POSITION = "position"
         const val KEY_DATA = "data"
+        const val KEY_BITMAP = "bitmapBytes"
 
         fun startActivity(
             activity: FragmentActivity,
             position: Int,
-            view: View,
+            view: ImageView,
             data: ArrayList<Image>
         ) {
             val optionsCompat =
@@ -40,6 +45,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 )
             activity.startActivity(
                 Intent(activity, ImageDetailsActivity::class.java)
+                    .putExtra(KEY_BITMAP, Tools.bitmap2Bytes(view.drawToBitmap()))
                     .putExtra(KEY_POSITION, position)
                     .putExtra(KEY_DATA, data), optionsCompat.toBundle()
             )
@@ -47,18 +53,27 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
     }
 
+    private val position by lazy { intent.getIntExtra(KEY_POSITION, 0) }
+
     private val data by lazy<ArrayList<Image>> {
         intent.getParcelableArrayListExtra(KEY_DATA) ?: arrayListOf()
     }
-    private val position by lazy { intent.getIntExtra(KEY_POSITION, 0) }
+
+    private val bitmap by lazy {
+        val bitmapBytes = intent.getByteArrayExtra(KEY_BITMAP)
+        bitmapBytes?.let {
+            return@let BitmapFactory.decodeByteArray(it, 0, it.size)
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_image_details)
         //暂时阻止共享元素过渡
         supportPostponeEnterTransition()
 
-        vp_container.adapter = ImagePagerAdapter(data)
+        vp_container.adapter = ImagePagerAdapter(data, position, bitmap)
         vp_container.setCurrentItem(position, false)
 
         vp_container.viewTreeObserver.addOnGlobalLayoutListener(object :
@@ -78,7 +93,10 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 sharedElements: MutableMap<String, View>
             ) {
                 val position = vp_container.currentItem
-                sharedElements.put(position.toString(), vp_container.findViewById(R.id.move_image))
+                val view = vp_container.findViewById<View>(R.id.move_image)
+                view?.run {
+                    sharedElements.put(position.toString(), this)
+                }
             }
         })
 

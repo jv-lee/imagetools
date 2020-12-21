@@ -9,11 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.AbsListView
-import android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE
 import android.widget.ImageView
-import android.widget.ScrollView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.app.SharedElementCallback
@@ -150,10 +146,11 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         }
         gv_images.setOnItemClickListener { adapterView, view, position, id ->
             if (mImageAdapter.isMultiple) {
+                val imageView = view.findViewById<ImageView>(R.id.iv_image)
                 ImageDetailsActivity.startActivity(
                     this,
                     position,
-                    view.findViewById(R.id.iv_image),
+                    imageView,
                     arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) })
             } else {
                 imageLaunch.launch(mImageAdapter.getItem(position).also {
