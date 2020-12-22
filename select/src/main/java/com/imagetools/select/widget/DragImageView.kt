@@ -7,6 +7,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.Animation
 import android.view.animation.Transformation
+import androidx.appcompat.widget.AppCompatImageView
 import com.imagetools.select.lifecycle.ViewLifecycle
 
 /**
@@ -16,7 +17,7 @@ import com.imagetools.select.lifecycle.ViewLifecycle
  * 当前实现为向下拖拽进入拖拽模式 ， 横向 向上不进入拖拽模式.
  */
 class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
-    ZoomImageView(context, attributeSet), ViewLifecycle {
+    AppCompatImageView(context, attributeSet), ViewLifecycle {
 
     private val TAG = DragImageView::class.java.simpleName
 
@@ -87,7 +88,7 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
                 val distanceY: Float = Math.abs(endY - mStartY)
 
                 //判断当前View是否可以拖动 可拖动情况下 拦截父容器事件 子view处理当前滑动事件.
-                if (canScrollHorizontally() || canScrollVertically()) {
+                if (canScrollHorizontally(0) || canScrollVertically(0)) {
                     parent.requestDisallowInterceptTouchEvent(true)
                     return super.dispatchTouchEvent(ev)
                 }
@@ -122,7 +123,7 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         super.onTouchEvent(event)
-        if (canScrollHorizontally() || canScrollHorizontally()) {
+        if (canScrollHorizontally(0) || canScrollHorizontally(0)) {
             return true
         }
         val x = event.rawX.toInt()

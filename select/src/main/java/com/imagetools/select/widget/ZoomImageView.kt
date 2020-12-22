@@ -468,16 +468,21 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
         return rectF
     }
 
-    protected fun canScrollHorizontally(): Boolean {
+    /**
+     * 解决和父控件滑动冲突 只要图片边界超过控件边界，返回true
+     *
+     * @param direction
+     * @return true 禁止父控件滑动
+     */
+    override fun canScrollHorizontally(direction: Int): Boolean {
         val rect = getMatrixRectF()
         rect ?: return false
         return rect.right >= width + 1 || rect.left <= -1
     }
 
-    protected fun canScrollVertically(): Boolean {
+    override fun canScrollVertically(direction: Int): Boolean {
         val rect = getMatrixRectF()
         rect ?: return false
         return rect.bottom >= height + 1 || rect.top <= -1
     }
-
 }
