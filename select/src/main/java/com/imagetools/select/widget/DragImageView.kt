@@ -17,7 +17,7 @@ import com.imagetools.select.lifecycle.ViewLifecycle
  * 当前实现为向下拖拽进入拖拽模式 ， 横向 向上不进入拖拽模式.
  */
 class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
-    AppCompatImageView(context, attributeSet), ViewLifecycle {
+    ZoomImageView(context, attributeSet), ViewLifecycle {
 
     private val TAG = DragImageView::class.java.simpleName
 

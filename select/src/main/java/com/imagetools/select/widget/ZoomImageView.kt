@@ -137,11 +137,13 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
     }
 
     override fun onAttachedToWindow() {
+        Log.i(TAG, "onAttachedToWindow: ")
         super.onAttachedToWindow()
         viewTreeObserver.addOnGlobalLayoutListener(this)
     }
 
     override fun onDetachedFromWindow() {
+        Log.i(TAG, "onDetachedFromWindow: ")
         super.onDetachedFromWindow()
         viewTreeObserver.removeOnGlobalLayoutListener(this)
     }
@@ -162,8 +164,7 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
     /**
      * 初始化调正 view视图渲染位置大小.
      */
-    fun drawViewLayout() {
-        Log.i(TAG, "drawViewLayout: $drawable")
+    private fun drawViewLayout() {
         //获取图片drawable 无图片资源直接返回
         drawable ?: return
 
