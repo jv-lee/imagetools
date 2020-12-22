@@ -112,7 +112,6 @@ class DragImageView constructor(context: Context, attributeSet: AttributeSet) :
                 isChildTouch = false
             }
         }
-        // 如果是Y轴位移大于X轴，事件交给swipeRefreshLayout处理。
         return super.dispatchTouchEvent(ev)
     }
 

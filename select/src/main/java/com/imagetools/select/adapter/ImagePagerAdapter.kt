@@ -2,11 +2,11 @@ package com.imagetools.select.adapter
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -16,6 +16,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
+import com.imagetools.select.tools.SimpleRequestListener
 import com.imagetools.select.widget.DragImageView
 
 /**
@@ -23,14 +24,8 @@ import com.imagetools.select.widget.DragImageView
  * @date 2020/12/16
  * @description
  */
-internal class ImagePagerAdapter(
-    private val data: MutableList<Image>,
-    val toPosition: Int,
-    var bitmap: Bitmap?
-) :
+internal class ImagePagerAdapter(private val data: MutableList<Image>) :
     RecyclerView.Adapter<ImagePagerAdapter.ImagePagerViewHolder>() {
-
-    private var firstLoad = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImagePagerViewHolder {
         return ImagePagerViewHolder(
@@ -49,37 +44,15 @@ internal class ImagePagerAdapter(
     internal inner class ImagePagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val moveImage by lazy { itemView.findViewById<DragImageView>(R.id.move_image) }
         fun bindView(item: Image, position: Int) {
-            //预加载
-            if (firstLoad && position == toPosition) {
-                firstLoad = false
-                moveImage.setImageBitmap(bitmap)
-            }
-            Glide.with(moveImage).load(item.path).listener(object : RequestListener<Drawable> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    bitmap?.recycle()
-                    bitmap = null
-                    (itemView.context as FragmentActivity).supportStartPostponedEnterTransition()
-                    return false
-                }
-
-                override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    bitmap?.recycle()
-                    bitmap = null
-                    (itemView.context as FragmentActivity).supportStartPostponedEnterTransition()
-                    return false
-                }
-            }).into(moveImage)
+            Glide.with(moveImage)
+                .load(item.path)
+//                .listener(object : SimpleRequestListener() {
+//                    override fun call() {
+//                        (itemView.context as FragmentActivity).supportStartPostponedEnterTransition()
+//
+//                    }
+//                })
+                .into(moveImage)
             moveImage.setCallback(object : DragImageView.Callback {
                 override fun onClose() {
                     if ((itemView.context is FragmentActivity)) {
@@ -102,7 +75,6 @@ internal class ImagePagerAdapter(
                 }
 
             })
-
 //            ViewCompat.setTransitionName(moveImage, position.toString())
         }
 

@@ -151,7 +151,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                     this,
                     position,
                     imageView,
-                    arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) })
+                    arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
+                    mImageAdapter.size
+                )
             } else {
                 imageLaunch.launch(mImageAdapter.getItem(position).also {
                     it.isSquare = selectConfig.isSquare

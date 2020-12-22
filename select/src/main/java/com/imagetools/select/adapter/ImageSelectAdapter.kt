@@ -63,7 +63,7 @@ internal class ImageSelectAdapter(
         var glide = Glide.with(context).load(item.path)
             .placeholder(ColorDrawable(ContextCompat.getColor(context, R.color.colorPlaceholder)))
             .transition(DrawableTransitionOptions.withCrossFade())
-            .override((size * 0.8).toInt(), (size * 0.8).toInt())
+            .override(size, size)
         if (isMultiple) {
             glide = glide.listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
