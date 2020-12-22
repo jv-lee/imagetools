@@ -6,13 +6,10 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Matrix
+import android.graphics.Point
 import android.graphics.RectF
 import android.util.AttributeSet
-import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
-import android.view.ViewTreeObserver
+import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.OverScroller
 import androidx.appcompat.widget.AppCompatImageView
@@ -38,6 +35,10 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
 
     //双击能达到的最大比例
     private var mMidScale = 0f
+
+    //屏幕宽高
+    private var sWidth = 0
+    private var sHeight = 0
 
     //缩放矩阵
     private var mScaleMatrix: Matrix
@@ -79,6 +80,14 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
 
         //模拟滑动惯性
         scroller = OverScroller(context)
+
+        //初始化屏幕宽高比
+        Point().run {
+            (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)
+                .defaultDisplay.getSize(this)
+            sWidth = x
+            sHeight = y
+        }
 
         //手势缩放事件监听
         mScaleGestureDetector = ScaleGestureDetector(
@@ -137,13 +146,11 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
     }
 
     override fun onAttachedToWindow() {
-        Log.i(TAG, "onAttachedToWindow: ")
         super.onAttachedToWindow()
         viewTreeObserver.addOnGlobalLayoutListener(this)
     }
 
     override fun onDetachedFromWindow() {
-        Log.i(TAG, "onDetachedFromWindow: ")
         super.onDetachedFromWindow()
         viewTreeObserver.removeOnGlobalLayoutListener(this)
     }
@@ -156,7 +163,9 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
 
     override fun onGlobalLayout() {
         if (mIsFirstLoad) {
-            postDelayed({ drawViewLayout() }, 300)
+            postDelayed({
+                drawViewLayout()
+            }, 300)
             mIsFirstLoad = false
         }
     }
@@ -353,7 +362,6 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
     private fun scaleAnimation(tagScale: Float, x: Float, y: Float) {
         //如果缩放动画已经在执行，那就不执行任何事件
         mScaleAnimator?.takeIf { it.isRunning }?.run { return }
-
         mScaleAnimator = ObjectAnimator.ofFloat(getScale(), tagScale).apply {
             duration = 300
             interpolator = AccelerateDecelerateInterpolator()
@@ -459,6 +467,15 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
         }
     }
 
+    /**
+     * 视图复原.
+     */
+    private fun reViewScale() {
+        val scale = getDoubleScale()
+        if (scale == mScale) {
+            scaleAnimation(scale, 0f, 0f)
+        }
+    }
 
     //获取图片宽高以及左右上下边界
     private fun getMatrixRectF(): RectF? {

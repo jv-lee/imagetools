@@ -33,12 +33,12 @@ internal class ImagePagerAdapter(private val data: MutableList<Image>) :
     }
 
     internal inner class ImagePagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val moveImage by lazy { itemView.findViewById<DragImageView>(R.id.move_image) }
+        private val view by lazy { itemView.findViewById<DragImageView>(R.id.drag_image) }
         fun bindView(item: Image, position: Int) {
-            Glide.with(moveImage)
+            Glide.with(view)
                 .load(item.path)
-                .into(moveImage)
-            moveImage.setCallback(object : DragImageView.Callback {
+                .into(view)
+            view.setCallback(object : DragImageView.Callback {
                 override fun onClose() {
                     if ((itemView.context is FragmentActivity)) {
                         //关闭当前activity 执行共享动画关闭

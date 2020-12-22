@@ -66,19 +66,19 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //暂时阻止共享元素过渡
-        supportPostponeEnterTransition()
-
-        ViewCompat.setTransitionName(iv_holder, position.toString())
-        Glide.with(iv_holder)
-            .load(data[position].path)
-            .override(size, size)
-            .listener(object : SimpleRequestListener() {
-                override fun call() {
-                    //占位图加载完成后 开启共享元素共享动画
-                    supportStartPostponedEnterTransition()
-                }
-            })
-            .into(iv_holder)
+//        supportPostponeEnterTransition()
+//
+//        ViewCompat.setTransitionName(iv_holder, position.toString())
+//        Glide.with(iv_holder)
+//            .load(data[position].path)
+//            .override(size, size)
+//            .listener(object : SimpleRequestListener() {
+//                override fun call() {
+//                    //占位图加载完成后 开启共享元素共享动画
+//                    supportStartPostponedEnterTransition()
+//                }
+//            })
+//            .into(iv_holder)
 
         //初始化加载详情图Pager页面.
         vp_container.adapter = ImagePagerAdapter(data)
@@ -107,7 +107,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 sharedElements: MutableMap<String, View>
             ) {
                 val position = vp_container.currentItem
-                val view = vp_container.findViewById<View>(R.id.move_image)
+                val view = vp_container.findViewById<View>(R.id.drag_image)
                 view?.run {
                     sharedElements.put(position.toString(), this)
                 }
