@@ -1,22 +1,13 @@
 package com.imagetools.select.adapter
 
-import android.app.Activity.RESULT_OK
-import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
-import com.imagetools.select.tools.SimpleRequestListener
 import com.imagetools.select.widget.DragImageView
 
 /**
@@ -46,21 +37,11 @@ internal class ImagePagerAdapter(private val data: MutableList<Image>) :
         fun bindView(item: Image, position: Int) {
             Glide.with(moveImage)
                 .load(item.path)
-//                .listener(object : SimpleRequestListener() {
-//                    override fun call() {
-//                        (itemView.context as FragmentActivity).supportStartPostponedEnterTransition()
-//
-//                    }
-//                })
                 .into(moveImage)
             moveImage.setCallback(object : DragImageView.Callback {
                 override fun onClose() {
                     if ((itemView.context is FragmentActivity)) {
-                        //设置选中坐标 修改回调时共享元素坐标
-                        (itemView.context as FragmentActivity).setResult(
-                            RESULT_OK,
-                            Intent().putExtra("position", position)
-                        )
+                        //关闭当前activity 执行共享动画关闭
                         (itemView.context as FragmentActivity).supportFinishAfterTransition()
                     }
                 }
@@ -75,7 +56,6 @@ internal class ImagePagerAdapter(private val data: MutableList<Image>) :
                 }
 
             })
-//            ViewCompat.setTransitionName(moveImage, position.toString())
         }
 
         fun setBackgroundAlphaCompat(view: View?, alpha: Int) {

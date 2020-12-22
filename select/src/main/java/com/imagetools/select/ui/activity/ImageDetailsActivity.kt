@@ -1,7 +1,7 @@
 package com.imagetools.select.ui.activity
 
+import android.app.Activity
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -10,14 +10,13 @@ import android.widget.ImageView
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.ViewCompat
-import androidx.core.view.drawToBitmap
 import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.imagetools.select.R
 import com.imagetools.select.adapter.ImagePagerAdapter
 import com.imagetools.select.entity.Image
 import com.imagetools.select.tools.SimpleRequestListener
-import com.imagetools.select.tools.Tools
 import kotlinx.android.synthetic.main.activity_image_details.*
 
 /**
@@ -32,7 +31,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         const val KEY_POSITION = "position"
         const val KEY_DATA = "data"
         const val KEY_SIZE = "size"
-        const val KEY_BITMAP = "bitmapBytes"
 
         fun startActivity(
             activity: FragmentActivity,
@@ -51,7 +49,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 Intent(activity, ImageDetailsActivity::class.java)
                     .putExtra(KEY_SIZE, size)
                     .putExtra(KEY_DATA, data)
-                    .putExtra(KEY_BITMAP, Tools.bitmap2Bytes(view.drawToBitmap()))
                     .putExtra(KEY_POSITION, position), optionsCompat.toBundle()
             )
         }
@@ -64,13 +61,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
     private val data by lazy<ArrayList<Image>> {
         intent.getParcelableArrayListExtra(KEY_DATA) ?: arrayListOf()
-    }
-
-    private val bitmap by lazy {
-        val bitmapBytes = intent.getByteArrayExtra(KEY_BITMAP)
-        bitmapBytes?.let {
-            return@let BitmapFactory.decodeByteArray(it, 0, it.size)
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,6 +91,13 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 vp_container.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
 
+        })
+        //每次切换页面动态更改回调值
+        vp_container.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                setResult(Activity.RESULT_OK, Intent().putExtra(KEY_POSITION, position))
+            }
         })
 
         //设置回调共享元素通信
