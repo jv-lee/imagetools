@@ -39,9 +39,6 @@ open class ZoomImageView : AppCompatImageView {
 
     private val TAG = ZoomImageView::class.java.simpleName
 
-    //view初次构建调整视图 单次调整
-    private var mIsFirstLoad = true
-
     //初始化的比例,也就是最小比例
     private var mScale = 0f
 
@@ -56,7 +53,7 @@ open class ZoomImageView : AppCompatImageView {
     private var sHeight = 0
 
     //缩放矩阵
-    private var mScaleMatrix: Matrix
+    private var mScaleMatrix = Matrix()
 
     //捕获用户多点触控
     private var mScaleGestureDetector: ScaleGestureDetector
@@ -80,9 +77,6 @@ open class ZoomImageView : AppCompatImageView {
     init {
         //设置视图类型为矩阵渲染.
         scaleType = ScaleType.MATRIX
-
-        //缩放矩阵
-        mScaleMatrix = Matrix()
 
         //模拟滑动惯性
         scroller = OverScroller(context)
@@ -205,6 +199,7 @@ open class ZoomImageView : AppCompatImageView {
     private fun drawViewLayout() {
         //获取图片drawable 无图片资源直接返回
         drawable ?: return
+        mScaleMatrix?:return
 
         //获取图片宽高
         val dw = drawable.intrinsicWidth
