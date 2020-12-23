@@ -7,7 +7,6 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.Animation
 import android.view.animation.Transformation
-import androidx.appcompat.widget.AppCompatImageView
 import com.imagetools.select.lifecycle.ViewLifecycle
 
 /**
@@ -68,12 +67,16 @@ class DragImageView : ZoomImageView, ViewLifecycle {
     }
 
     override fun onLifecycleCancel() {
-        System.currentTimeMillis()
         unBindLifecycle(context)
         clearAnimation()
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        //多点触控则直接交由当前view处理 拦截父容器处理事件
+        if (ev.pointerCount > 1) {
+            parent.requestDisallowInterceptTouchEvent(true)
+            return super.dispatchTouchEvent(ev)
+        }
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
                 // 记录手指按下的位置
@@ -130,6 +133,12 @@ class DragImageView : ZoomImageView, ViewLifecycle {
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         super.onTouchEvent(event)
+        //多点触控直接交由父view处理
+        if (event.pointerCount > 1) {
+            parent.requestDisallowInterceptTouchEvent(true)
+            return true
+        }
+        //父view可滑动则当前滑动事件不处理
         if (canScrollHorizontally(0) || canScrollHorizontally(0)) {
             return true
         }

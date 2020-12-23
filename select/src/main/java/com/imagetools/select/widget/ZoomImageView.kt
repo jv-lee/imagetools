@@ -11,7 +11,10 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.AttributeSet
-import android.view.*
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.OverScroller
 import androidx.appcompat.widget.AppCompatImageView
@@ -22,7 +25,7 @@ import kotlin.math.roundToInt
  * @date 2020/12/21
  * @description
  */
-open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutListener {
+open class ZoomImageView : AppCompatImageView {
 
     constructor(context: Context) : super(context, null)
 
@@ -63,6 +66,7 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
 
     //双击
     private var mScaleAnimator: ValueAnimator? = null
+    private val mInterpolator = AccelerateDecelerateInterpolator()
 
     //滚动
     private var scroller: OverScroller
@@ -130,7 +134,7 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
                     velocityY: Float
                 ): Boolean {
                     return if (onFlingEvent(e2.x, e2.y, velocityX, velocityY)) {
-                        super.onFling(e1, e2, velocityX, velocityY)
+                        return super.onFling(e1, e2, velocityX, velocityY)
                     } else {
                         false
                     }
@@ -151,21 +155,6 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
 
     override fun setOnClickListener(onClickListener: OnClickListener?) {
         this.onClickListener = onClickListener
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        viewTreeObserver.addOnGlobalLayoutListener(this)
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        drawViewLayout()
-        viewTreeObserver.removeOnGlobalLayoutListener(this)
-    }
-
-    override fun onGlobalLayout() {
-        drawViewLayout()
     }
 
     override fun setImageDrawable(drawable: Drawable?) {
@@ -372,7 +361,7 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
         //动画启动结束后设置为end状态
         mTranslateAnimator?.takeIf { it.isStarted }?.end()
         mTranslateAnimator = ValueAnimator.ofInt(0, 1).apply {
-            interpolator = AccelerateDecelerateInterpolator()
+            interpolator = mInterpolator
             duration = 2000
             addUpdateListener {
                 if (scroller.computeScrollOffset()) {
@@ -405,7 +394,7 @@ open class ZoomImageView : AppCompatImageView, ViewTreeObserver.OnGlobalLayoutLi
         mScaleAnimator?.takeIf { it.isRunning }?.run { return }
         mScaleAnimator = ObjectAnimator.ofFloat(getScale(), tagScale).apply {
             duration = 300
-            interpolator = AccelerateDecelerateInterpolator()
+            interpolator = mInterpolator
             addUpdateListener { animation ->
                 val tranScale = animation.currentPlayTime.toFloat() / animation.duration.toFloat()
                 val translateX = getTranslateX() * tranScale
