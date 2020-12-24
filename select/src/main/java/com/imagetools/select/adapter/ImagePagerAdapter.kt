@@ -15,7 +15,7 @@ import com.imagetools.select.widget.DragImageView
  * @date 2020/12/16
  * @description
  */
-internal class ImagePagerAdapter(private val data: MutableList<Image>) :
+internal class ImagePagerAdapter(val data: MutableList<Image>) :
     RecyclerView.Adapter<ImagePagerAdapter.ImagePagerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImagePagerViewHolder {

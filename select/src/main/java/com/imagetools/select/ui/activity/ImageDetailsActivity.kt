@@ -31,29 +31,36 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         const val KEY_POSITION = "position"
         const val KEY_DATA = "data"
         const val KEY_SIZE = "size"
+        const val KEY_IS_REVIEW = "review"
+        const val KEY_TRANSITION_NAME = "transitionName"
+        const val KEY_IMAGE = "image"
 
         fun startActivity(
             activity: FragmentActivity,
+            transitionName: String,
             position: Int,
             view: ImageView,
             data: ArrayList<Image>,
-            size: Int
+            size: Int,
+            isReview: Boolean = false
         ) {
             val optionsCompat =
-                ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    activity,
-                    view,
-                    position.toString()
-                )
+                ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, transitionName)
             activity.startActivity(
                 Intent(activity, ImageDetailsActivity::class.java)
                     .putExtra(KEY_SIZE, size)
                     .putExtra(KEY_DATA, data)
+                    .putExtra(KEY_IS_REVIEW, isReview)
+                    .putExtra(KEY_TRANSITION_NAME, transitionName)
                     .putExtra(KEY_POSITION, position), optionsCompat.toBundle()
             )
         }
 
     }
+
+    private val transitionName by lazy { intent.getStringExtra(KEY_TRANSITION_NAME) ?: "" }
+
+    private val isReview by lazy { intent.getBooleanExtra(KEY_IS_REVIEW, false) }
 
     private val size by lazy { intent.getIntExtra(KEY_SIZE, 0) }
 
@@ -63,15 +70,17 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         intent.getParcelableArrayListExtra(KEY_DATA) ?: arrayListOf()
     }
 
+    private val adapter by lazy { ImagePagerAdapter(data) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         //暂时阻止共享元素过渡
         supportPostponeEnterTransition()
 
-        ViewCompat.setTransitionName(iv_holder, position.toString())
+        ViewCompat.setTransitionName(iv_holder, transitionName)
         Glide.with(iv_holder)
-            .load(data[position].path)
+            .load(transitionName)
             .override(size, size)
             .listener(object : SimpleRequestListener() {
                 override fun call() {
@@ -82,8 +91,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             .into(iv_holder)
 
         //初始化加载详情图Pager页面.
-        vp_container.adapter = ImagePagerAdapter(data)
-        vp_container.setCurrentItem(position, false)
+        vp_container.adapter = adapter
         vp_container.viewTreeObserver.addOnGlobalLayoutListener(object :
             ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -97,9 +105,11 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         vp_container.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                setResult(Activity.RESULT_OK, Intent().putExtra(KEY_POSITION, position))
+                setResult(Activity.RESULT_OK, Intent().putExtra(KEY_IMAGE, data[position]))
             }
         })
+        //是否是预览模式 设置页面position
+        if (!isReview) vp_container.setCurrentItem(position, false)
 
         //设置回调共享元素通信
         setEnterSharedElementCallback(object : SharedElementCallback() {
@@ -110,7 +120,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 val position = vp_container.currentItem
                 val view = vp_container.findViewById<View>(R.id.drag_image)
                 view?.run {
-                    sharedElements.put(position.toString(), this)
+                    sharedElements.put(adapter.data[position].path, this)
                 }
             }
         })

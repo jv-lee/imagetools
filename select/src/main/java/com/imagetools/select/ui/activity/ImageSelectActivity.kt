@@ -50,7 +50,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     //共享元素动画使用 取消重复修改元素
     private var isReset = false
-    private var position = 0
+    private var animImage: Image? = null
 
     private var animator: ValueAnimator? = null
 
@@ -125,10 +125,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 .findViewById<ImageView>(R.id.iv_image)
             ImageDetailsActivity.startActivity(
                 this,
+                mImageAdapter.getItem(position).path,
                 position,
                 imageView,
-                arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
-                mImageAdapter.size
+                mImageAdapter.selectList,
+                mImageAdapter.size,
+                isReview = true
             )
         }
         tv_done.setOnClickListener {
@@ -162,6 +164,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 val imageView = view.findViewById<ImageView>(R.id.iv_image)
                 ImageDetailsActivity.startActivity(
                     this,
+                    mImageAdapter.getItem(position).path,
                     position,
                     imageView,
                     arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
@@ -184,10 +187,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             ) {
                 if (!isReset) return
                 isReset = false
-                val itemView = gv_images.getChildAt(position - gv_images.firstVisiblePosition)
-                itemView?.let {
-                    sharedElements.put(position.toString(), it.findViewById(R.id.iv_image))
+                animImage?.let { image ->
+                    val position = mImageAdapter.getPosition(image)
+                    val itemView = gv_images.getChildAt(position - gv_images.firstVisiblePosition)
+                    itemView?.let {
+                        sharedElements.put(image.path, it.findViewById(R.id.iv_image))
+                    }
                 }
+
             }
         })
 
@@ -330,7 +337,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         if (resultCode == Activity.RESULT_OK && data != null) {
             data.extras?.let {
                 isReset = true
-                position = it.getInt(ImageDetailsActivity.KEY_POSITION, 0)
+                animImage = it.getParcelable(ImageDetailsActivity.KEY_IMAGE)
             }
         }
         super.onActivityReenter(resultCode, data)
