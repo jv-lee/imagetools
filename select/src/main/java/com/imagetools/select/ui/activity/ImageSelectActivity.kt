@@ -34,7 +34,6 @@ import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
 import com.imagetools.select.widget.ImageSelectBar
 import kotlinx.android.synthetic.main.activity_image_select.*
-import kotlinx.android.synthetic.main.item_image.*
 
 /**
  * @author jv.lee
@@ -337,6 +336,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         if (resultCode == Activity.RESULT_OK && data != null) {
             data.extras?.let {
                 isReset = true
+                it.classLoader = Image::class.java.classLoader
                 animImage = it.getParcelable(ImageDetailsActivity.KEY_IMAGE)
             }
         }
