@@ -37,6 +37,10 @@ open class ZoomImageView : AppCompatImageView {
 
     private val TAG = ZoomImageView::class.java.simpleName
 
+    private var isDrawComplete = false
+
+    private var mScaleType: ScaleType? = ScaleType.FIT_CENTER
+
     //初始化的比例,也就是最小比例
     private var mScale = 0f
 
@@ -70,7 +74,10 @@ open class ZoomImageView : AppCompatImageView {
 
     init {
         //设置视图类型为矩阵渲染.
-        scaleType = ScaleType.MATRIX
+        super.setScaleType(ScaleType.MATRIX)
+
+        //apply the previously applied scale type
+        scaleType = ScaleType.FIT_CENTER
 
         //模拟滑动惯性
         scroller = OverScroller(context)
@@ -125,6 +132,18 @@ open class ZoomImageView : AppCompatImageView {
                     return true
                 }
             })
+    }
+
+    override fun getScaleType(): ScaleType? {
+        return mScaleType
+    }
+
+    override fun setScaleType(scaleType: ScaleType?) {
+        if (isDrawComplete) {
+            super.setScaleType(scaleType)
+        } else {
+            mScaleType = scaleType
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -185,7 +204,7 @@ open class ZoomImageView : AppCompatImageView {
     private fun drawViewLayout() {
         //获取图片drawable 无图片资源直接返回
         drawable ?: return
-        mScaleMatrix?:return
+        mScaleMatrix ?: return
 
         //获取图片宽高
         val dw = drawable.intrinsicWidth
@@ -221,6 +240,13 @@ open class ZoomImageView : AppCompatImageView {
         mScaleMatrix.postTranslate(translationX, translationY)
         mScaleMatrix.postScale(mScale, mScale, centerX, centerY)
         imageMatrix = mScaleMatrix
+        drawMatrixComplete()
+    }
+
+    //绘制完成设置状态
+    private fun drawMatrixComplete() {
+        if (isDrawComplete) return
+        postDelayed({ isDrawComplete = true }, 100)
     }
 
     /**
