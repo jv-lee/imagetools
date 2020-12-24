@@ -34,6 +34,7 @@ import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
 import com.imagetools.select.widget.ImageSelectBar
 import kotlinx.android.synthetic.main.activity_image_select.*
+import kotlinx.android.synthetic.main.item_image.*
 
 /**
  * @author jv.lee
@@ -118,6 +119,18 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     @SuppressLint("ClickableViewAccessibility")
     private fun bindListener() {
+        tv_review.setOnClickListener {
+            val position = mImageAdapter.getSelectFirstPosition()
+            val imageView = gv_images.getChildAt(position)
+                .findViewById<ImageView>(R.id.iv_image)
+            ImageDetailsActivity.startActivity(
+                this,
+                position,
+                imageView,
+                arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
+                mImageAdapter.size
+            )
+        }
         tv_done.setOnClickListener {
             finishImagesResult((mImageAdapter).selectList)
         }

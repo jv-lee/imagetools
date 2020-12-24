@@ -38,6 +38,17 @@ internal class ImageSelectAdapter(
     BaseSelectAdapter<Image>(context, arrayListOf(), isMultiple, selectLimit, columnCount),
     AbsListView.OnScrollListener {
 
+    fun getPosition(item: Image): Int {
+        return getData().indexOf(item)
+    }
+
+    fun getSelectFirstPosition(): Int {
+        if (selectList.isEmpty()) {
+            return 0
+        }
+        return getPosition(selectList[0])
+    }
+
     override fun getView(position: Int, converView: View?, parent: ViewGroup?): View {
         val itemView: View
         val viewHolder: ViewHolder
