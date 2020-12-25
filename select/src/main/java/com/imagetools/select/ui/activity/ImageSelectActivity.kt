@@ -9,13 +9,13 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ImageView
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import com.bumptech.glide.Glide
 import com.imagetools.compress.CompressImageManager
 import com.imagetools.compress.bean.Photo
 import com.imagetools.compress.config.CompressConfig
@@ -29,6 +29,7 @@ import com.imagetools.select.dialog.CompressProgresDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.LoadStatus
 import com.imagetools.select.entity.SelectConfig
+import com.imagetools.select.listener.ShakeItemClickListener
 import com.imagetools.select.result.ActivityResultContracts
 import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
@@ -148,36 +149,39 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 animator = Tools.selectViewTranslationAnimator(enable, lv_select, mask)
             }
         })
-        lv_select.setOnItemClickListener { adapterView, view, position, id ->
-            val item = mAlbumAdapter.getItem(position)
-            viewModel.albumId = item.id
-            viewModel.albumName = item.name
-            if (viewModel.isCurrentAlbum()) {
-                image_select_bar.switch()
-            } else {
-                viewModel.getImages(LoadStatus.INIT)
+        lv_select.onItemClickListener = object : ShakeItemClickListener() {
+            override fun onShakeClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                val item = mAlbumAdapter.getItem(position)
+                viewModel.albumId = item.id
+                viewModel.albumName = item.name
+                if (viewModel.isCurrentAlbum()) {
+                    image_select_bar.switch()
+                } else {
+                    viewModel.getImages(LoadStatus.INIT)
+                }
             }
         }
-        gv_images.setOnItemClickListener { adapterView, view, position, id ->
-            if (mImageAdapter.isMultiple) {
-                val imageView = view.findViewById<ImageView>(R.id.iv_image)
-                ImageDetailsActivity.startActivity(
-                    this,
-                    mImageAdapter.getItem(position).path,
-                    position,
-                    imageView,
-                    arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
-                    mImageAdapter.size
-                )
-            } else {
-                imageLaunch.launch(mImageAdapter.getItem(position).also {
-                    it.isSquare = selectConfig.isSquare
-                    it.isCompress = selectConfig.isCompress
-                })
+        gv_images.onItemClickListener = object : ShakeItemClickListener() {
+            override fun onShakeClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                if (mImageAdapter.isMultiple) {
+                    val imageView = view.findViewById<ImageView>(R.id.iv_image)
+                    ImageDetailsActivity.startActivity(
+                        this@ImageSelectActivity,
+                        mImageAdapter.getItem(position).path,
+                        position,
+                        imageView,
+                        arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
+                        mImageAdapter.size
+                    )
+                } else {
+                    imageLaunch.launch(mImageAdapter.getItem(position).also {
+                        it.isSquare = selectConfig.isSquare
+                        it.isCompress = selectConfig.isCompress
+                    })
+                }
             }
+
         }
-        gv_images.setOnScrollListener(mImageAdapter)
-        Glide.with(gv_images).resumeRequests()
 
         setExitSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(

@@ -3,11 +3,8 @@ package com.imagetools.select.adapter
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView
-import android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -35,8 +32,7 @@ internal class ImageSelectAdapter(
     selectLimit: Int = 9,
     columnCount: Int = 4
 ) :
-    BaseSelectAdapter<Image>(context, arrayListOf(), isMultiple, selectLimit, columnCount),
-    AbsListView.OnScrollListener {
+    BaseSelectAdapter<Image>(context, arrayListOf(), isMultiple, selectLimit, columnCount) {
 
     fun getPosition(item: Image): Int {
         return getData().indexOf(item)
@@ -147,25 +143,6 @@ internal class ImageSelectAdapter(
 
         notifyDataSetChanged()
         mSelectCallback?.selectCall(selectList.size)
-    }
-
-    override fun onScroll(
-        view: AbsListView?,
-        firstVisibleItem: Int,
-        visibleItemCount: Int,
-        totalItemCount: Int
-    ) {
-
-    }
-
-    override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
-        return
-        view?.context ?: return
-        if (scrollState == SCROLL_STATE_IDLE) {
-            Glide.with(view.context).resumeRequests()
-        } else {
-            Glide.with(view.context).pauseRequests()
-        }
     }
 
 }
