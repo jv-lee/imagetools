@@ -18,7 +18,7 @@ import com.imagetools.select.tools.Tools
 /**
  * @author jv.lee
  * @date 2020/11/30
- * @description
+ * @description 相册选择下拉列表bar
  */
 internal class ImageSelectBar constructor(context: Context, attributeSet: AttributeSet) :
     FrameLayout(context, attributeSet),

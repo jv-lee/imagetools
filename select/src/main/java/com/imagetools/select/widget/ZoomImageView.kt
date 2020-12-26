@@ -21,7 +21,7 @@ import kotlin.math.roundToInt
 /**
  * @author jv.lee
  * @date 2020/12/21
- * @description 缩放ImageView
+ * @description
  */
 open class ZoomImageView : AppCompatImageView {
 
