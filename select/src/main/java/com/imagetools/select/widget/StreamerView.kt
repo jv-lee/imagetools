@@ -12,7 +12,7 @@ import com.imagetools.select.tools.Tools
 /**
  * @author jv.lee
  * @date 2020/12/7
- * @description 预加载流光占位view
+ * @description
  */
 class StreamerView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
 
