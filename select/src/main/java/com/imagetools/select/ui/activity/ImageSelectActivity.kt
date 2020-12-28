@@ -2,7 +2,6 @@ package com.imagetools.select.ui.activity
 
 import android.Manifest
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
@@ -106,10 +105,10 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         streamer_view.setColumnCount(selectConfig.columnCount)
 
         lv_select.adapter = mAlbumAdapter
+
         gv_images.layoutAnimation = Tools.getItemOrderAnimator(this)
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private fun bindListener() {
         tv_review.setOnClickListener {
             val position = mImageAdapter.getSelectFirstPosition()
@@ -177,8 +176,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 names: MutableList<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                if (!isReset) return
-                isReset = false
+                //防止重复设置动画元素效果.
+                if (!isReset) {
+                    isReset = false
+                    return
+                }
+
                 animImage?.let { image ->
                     val position = mImageAdapter.getPosition(image)
                     val itemView = gv_images.getChildAt(position - gv_images.firstVisiblePosition)

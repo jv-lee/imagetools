@@ -1,6 +1,5 @@
 package com.imagetools.select.ui.activity
 
-import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
