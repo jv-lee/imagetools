@@ -121,13 +121,10 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private fun bindListener() {
         tv_review.setOnClickListener {
             val position = mImageAdapter.getSelectFirstPosition()
-            val imageView = gv_images.getChildAt(position)
-                .findViewById<ImageView>(R.id.iv_image)
             ImageDetailsActivity.startActivity(
                 this,
-                mImageAdapter.getItem(position).path,
                 position,
-                imageView,
+                View(this),
                 mImageAdapter.selectList,
                 mImageAdapter.size,
                 isReview = true

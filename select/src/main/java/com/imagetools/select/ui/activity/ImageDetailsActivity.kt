@@ -39,7 +39,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             activity: FragmentActivity,
             transitionName: String,
             position: Int,
-            view: ImageView,
+            view: View,
             data: ArrayList<Image>,
             size: Int,
             isReview: Boolean = false
@@ -52,6 +52,26 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                     .putExtra(KEY_DATA, data)
                     .putExtra(KEY_IS_REVIEW, isReview)
                     .putExtra(KEY_TRANSITION_NAME, transitionName)
+                    .putExtra(KEY_POSITION, position), optionsCompat.toBundle()
+            )
+        }
+
+        fun startActivity(
+            activity: FragmentActivity,
+            position: Int,
+            view: View,
+            data: ArrayList<Image>,
+            size: Int,
+            isReview: Boolean = false
+        ) {
+            val optionsCompat =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, "")
+            activity.startActivity(
+                Intent(activity, ImageDetailsActivity::class.java)
+                    .putExtra(KEY_SIZE, size)
+                    .putExtra(KEY_DATA, data)
+                    .putExtra(KEY_IS_REVIEW, isReview)
+                    .putExtra(KEY_TRANSITION_NAME, "")
                     .putExtra(KEY_POSITION, position), optionsCompat.toBundle()
             )
         }
