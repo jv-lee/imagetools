@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
-import android.widget.ImageView
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.ViewCompat
@@ -17,6 +16,7 @@ import com.imagetools.select.R
 import com.imagetools.select.adapter.ImagePagerAdapter
 import com.imagetools.select.entity.Image
 import com.imagetools.select.listener.SimpleRequestListener
+import com.imagetools.select.widget.DragImageView
 import kotlinx.android.synthetic.main.activity_image_details.*
 
 /**
@@ -90,7 +90,22 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         intent.getParcelableArrayListExtra(KEY_DATA) ?: arrayListOf()
     }
 
-    private val adapter by lazy { ImagePagerAdapter(data) }
+    private val adapter by lazy {
+        ImagePagerAdapter(data).also {
+            it.setDragCallback(object : DragImageView.Callback {
+                override fun onClose() {
+                    //关闭当前activity 执行共享动画关闭
+                    supportFinishAfterTransition()
+                }
+
+                override fun changeAlpha(alpha: Float) {
+                    //根据下拉修改activity透明度
+                    it.setBackgroundAlphaCompat(window.decorView, (255 * alpha).toInt())
+                }
+
+            })
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

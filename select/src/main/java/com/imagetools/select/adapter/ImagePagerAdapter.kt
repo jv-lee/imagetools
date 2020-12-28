@@ -18,6 +18,8 @@ import com.imagetools.select.widget.DragImageView
 internal class ImagePagerAdapter(val data: MutableList<Image>) :
     RecyclerView.Adapter<ImagePagerAdapter.ImagePagerViewHolder>() {
 
+    private var mDragCallback: DragImageView.Callback? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImagePagerViewHolder {
         return ImagePagerViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.item_page_image, parent, false)
@@ -38,34 +40,23 @@ internal class ImagePagerAdapter(val data: MutableList<Image>) :
             Glide.with(view)
                 .load(item.path)
                 .into(view)
-            view.setCallback(object : DragImageView.Callback {
-                override fun onClose() {
-                    if ((itemView.context is FragmentActivity)) {
-                        //关闭当前activity 执行共享动画关闭
-                        (itemView.context as FragmentActivity).supportFinishAfterTransition()
-                    }
-                }
-
-                override fun changeAlpha(alpha: Float) {
-                    if (itemView.context is FragmentActivity) {
-                        setBackgroundAlphaCompat(
-                            (itemView.context as FragmentActivity).window.decorView,
-                            (255 * alpha).toInt()
-                        )
-                    }
-                }
-
-            })
-        }
-
-        fun setBackgroundAlphaCompat(view: View?, alpha: Int) {
-            view ?: return
-            val mutate = view.background.mutate()
-            if (mutate != null) {
-                mutate.alpha = alpha
-            } else {
-                view.background.alpha = alpha
+            mDragCallback?.let {
+                view.setCallback(it)
             }
         }
+    }
+
+    fun setBackgroundAlphaCompat(view: View?, alpha: Int) {
+        view ?: return
+        val mutate = view.background.mutate()
+        if (mutate != null) {
+            mutate.alpha = alpha
+        } else {
+            view.background.alpha = alpha
+        }
+    }
+
+    fun setDragCallback(dragCallback: DragImageView.Callback) {
+        this.mDragCallback = dragCallback
     }
 }
