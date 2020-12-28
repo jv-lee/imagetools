@@ -80,9 +80,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         }
     }
 
-    /**
-     * 单图裁剪后返回
-     */
+    //单图裁剪后返回
     private val imageLaunch by lazy {
         registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
             it ?: return@registerForActivityResult
@@ -245,6 +243,26 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         animator = null
     }
 
+    /**
+     * 共享元素回调设置
+     * @param resultCode 返回code
+     * @param data 返回数据 动态更改当前共享元素
+     */
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            data.extras?.let {
+                isReset = true
+                it.classLoader = Image::class.java.classLoader
+                animImage = it.getParcelable(ImageDetailsActivity.KEY_IMAGE)
+            }
+        }
+        super.onActivityReenter(resultCode, data)
+    }
+
+    /**
+     * 图片选中后修改 Done按钮count数量
+     * @param count 选中数量
+     */
     private fun selectDoneCount(count: Int) {
         if (count == 0) {
             tv_done.setText(R.string.done_text)
@@ -254,6 +272,10 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         checkNavigationView(count > 0)
     }
 
+    /**
+     * 设置当前底部导航布局选中状态view修改.
+     * @param enable  true选中图片状态 / false未选中图片状态
+     */
     private fun checkNavigationView(enable: Boolean) {
         val textColor = ContextCompat.getColor(
             this,
@@ -270,6 +292,10 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         tv_done.isClickable = enable
     }
 
+    /**
+     * 根据压缩配置 启动图片压缩.
+     * @param images 未压缩图片列表
+     */
     private fun finishImagesResult(images: ArrayList<Image>) {
         //不使用自带压缩
         if (!selectConfig.isCompress) {
@@ -316,6 +342,10 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             }).compress()
     }
 
+    /**
+     * 图片列表设置到result中.
+     * @param images 需要返回的图片集合
+     */
     private fun parseImageResult(images: ArrayList<Image>) {
         loadingDialog.dismiss()
         setResult(
@@ -326,17 +356,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             )
         )
         finish()
-    }
-
-    override fun onActivityReenter(resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK && data != null) {
-            data.extras?.let {
-                isReset = true
-                it.classLoader = Image::class.java.classLoader
-                animImage = it.getParcelable(ImageDetailsActivity.KEY_IMAGE)
-            }
-        }
-        super.onActivityReenter(resultCode, data)
     }
 
 }
