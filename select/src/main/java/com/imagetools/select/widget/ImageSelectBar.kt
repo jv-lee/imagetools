@@ -14,6 +14,7 @@ import android.widget.TextView
 import com.imagetools.select.R
 import com.imagetools.select.lifecycle.ViewLifecycle
 import com.imagetools.select.tools.Tools
+import com.imagetools.select.tools.Tools.getStatusBarHeight
 
 /**
  * @author jv.lee
@@ -128,20 +129,6 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
             valueAnimator.cancel()
         }
         animatorSet.clear()
-    }
-
-    /**
-     * 获取状态栏高度
-     *
-     * @param context
-     * @return
-     */
-    fun getStatusBarHeight(context: Context): Int {
-        val resId =
-            context.resources.getIdentifier("status_bar_height", "dimen", "android")
-        return if (resId > 0) {
-            context.resources.getDimensionPixelSize(resId)
-        } else 0
     }
 
 }

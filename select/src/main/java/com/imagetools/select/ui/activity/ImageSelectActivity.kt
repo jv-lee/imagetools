@@ -32,6 +32,7 @@ import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
 import com.imagetools.select.widget.ImageSelectBar
 import kotlinx.android.synthetic.main.activity_image_select.*
+import kotlinx.android.synthetic.main.layout_navigation.*
 
 /**
  * @author jv.lee
@@ -105,6 +106,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         lv_select.adapter = mAlbumAdapter
 
         gv_images.layoutAnimation = Tools.getItemOrderAnimator(this)
+
+        //默认未选中状态
+        checkNavigationView(false)
     }
 
     private fun bindListener() {
