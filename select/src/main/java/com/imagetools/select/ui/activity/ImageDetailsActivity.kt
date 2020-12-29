@@ -18,6 +18,7 @@ import com.imagetools.select.entity.Image
 import com.imagetools.select.listener.SimpleRequestListener
 import com.imagetools.select.widget.DragImageView
 import kotlinx.android.synthetic.main.activity_image_details.*
+import kotlinx.android.synthetic.main.layout_edit_top.*
 import kotlinx.android.synthetic.main.layout_navigation.*
 
 /**
@@ -94,7 +95,12 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private val adapter by lazy {
         ImagePagerAdapter(data).also {
             it.setDragCallback(object : DragImageView.Callback {
-                override fun onClose() {
+                override fun onClicked() {
+                    //单击事件
+                    switchEditLayoutVisible()
+                }
+
+                override fun onDragClose() {
                     //关闭当前activity 执行共享动画关闭
                     supportFinishAfterTransition()
                 }
@@ -102,6 +108,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 override fun changeAlpha(alpha: Float) {
                     //根据下拉修改activity透明度
                     it.setBackgroundAlphaCompat(window.decorView, (255 * alpha).toInt())
+                    setEditLayoutVisible(alpha == 1.0F)
                 }
 
             })
@@ -178,6 +185,18 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private fun initEditLayout() {
         tv_review.text = getString(R.string.edit_text)
         tv_review.visibility = View.GONE
+    }
+
+    private fun switchEditLayoutVisible() {
+        const_navigation.visibility =
+            if (const_navigation.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        const_navigation_top.visibility =
+            if (const_navigation_top.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+    }
+
+    private fun setEditLayoutVisible(visible: Boolean) {
+        const_navigation.visibility = if (visible) View.VISIBLE else View.GONE
+        const_navigation_top.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
 }

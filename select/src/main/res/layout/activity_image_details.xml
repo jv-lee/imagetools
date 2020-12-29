@@ -14,16 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <include layout="@layout/layout_edit_top" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/const_edit"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <include layout="@layout/layout_edit_top" />
-
-        <include layout="@layout/layout_navigation" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/layout_navigation" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

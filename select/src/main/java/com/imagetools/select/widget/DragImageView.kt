@@ -3,6 +3,7 @@ package com.imagetools.select.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.Animation
@@ -47,7 +48,7 @@ class DragImageView : ZoomImageView, ViewLifecycle {
     private val mAnimation = ReIndexAnimation()
     private var mCallback: Callback? = null
 
-    private val mSingleTapRunnable = Runnable { mCallback?.onClose() }
+    private val mSingleTapRunnable = Runnable { mCallback?.onClicked() }
 
     private val mGesture =
         GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
@@ -165,7 +166,7 @@ class DragImageView : ZoomImageView, ViewLifecycle {
                 isClickable = true
                 //获取当前时间减最后移动时间 如果超过500毫秒 代表用户悬停 onReIndex  否则直接关闭.
                 if ((System.currentTimeMillis() - mMoveMillis) < 500 && translationY > 0) {
-                    mCallback?.onClose()
+                    mCallback?.onDragClose()
                 } else {
                     onReIndex()
                 }
@@ -208,6 +209,7 @@ class DragImageView : ZoomImageView, ViewLifecycle {
      */
     private fun onReIndex() {
         //平移回到该view水平方向的初始点
+        if (scaleX == 1.0F && translationX == 0F && translationY == 0F) return
         mAnimation.initValue()
         startAnimation(mAnimation)
     }
@@ -268,7 +270,8 @@ class DragImageView : ZoomImageView, ViewLifecycle {
     }
 
     interface Callback {
-        fun onClose()
+        fun onClicked()
+        fun onDragClose()
         fun changeAlpha(alpha: Float)
     }
 

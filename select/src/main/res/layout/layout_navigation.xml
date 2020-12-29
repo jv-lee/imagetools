@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:background="@color/colorNavigation"
+    android:clickable="true"
     app:layout_constraintBottom_toBottomOf="parent">
 
     <TextView

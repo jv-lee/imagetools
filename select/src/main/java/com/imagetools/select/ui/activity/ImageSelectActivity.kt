@@ -180,11 +180,11 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             ) {
                 //防止重复设置动画元素效果.
                 if (!isReset) {
-                    isReset = false
                     return
                 }
 
                 animImage?.let { image ->
+                    isReset = false
                     val position = mImageAdapter.getPosition(image)
                     val itemView = gv_images.getChildAt(position - gv_images.firstVisiblePosition)
                     itemView?.let {
