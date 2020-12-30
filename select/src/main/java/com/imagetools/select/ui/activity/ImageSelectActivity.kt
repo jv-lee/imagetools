@@ -82,16 +82,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
 
     //单图裁剪后返回
-    private val imageLaunch by lazy {
+    private val imageLaunch =
         registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
             it ?: return@registerForActivityResult
             finishImagesResult(arrayListOf(it))
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        imageLaunch
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         bindView()
         bindListener()
