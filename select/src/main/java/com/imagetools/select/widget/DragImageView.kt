@@ -147,6 +147,8 @@ class DragImageView : ZoomImageView, ViewLifecycle {
         val y = event.rawY.toInt()
         when (event.action) {
             MotionEvent.ACTION_MOVE -> {
+                //当前view拖动时拦截父容器处理事件
+                parent.requestDisallowInterceptTouchEvent(true)
                 //计算距离上次移动了多远
                 val currX: Int = x - mEndX
                 val currY: Int = y - mEndY
