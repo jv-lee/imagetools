@@ -116,6 +116,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             val position = mImageAdapter.getSelectFirstPosition()
             ImageDetailsActivity.startActivity(
                 this,
+                "",
                 position,
                 View(this),
                 mImageAdapter.selectList,

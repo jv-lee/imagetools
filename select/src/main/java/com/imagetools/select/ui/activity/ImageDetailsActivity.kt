@@ -58,26 +58,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             )
         }
 
-        fun startActivity(
-            activity: FragmentActivity,
-            position: Int,
-            view: View,
-            data: ArrayList<Image>,
-            size: Int,
-            isReview: Boolean = false
-        ) {
-            val optionsCompat =
-                ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, "")
-            activity.startActivity(
-                Intent(activity, ImageDetailsActivity::class.java)
-                    .putExtra(KEY_SIZE, size)
-                    .putExtra(KEY_DATA, data)
-                    .putExtra(KEY_IS_REVIEW, isReview)
-                    .putExtra(KEY_TRANSITION_NAME, "")
-                    .putExtra(KEY_POSITION, position), optionsCompat.toBundle()
-            )
-        }
-
     }
 
     private val transitionName by lazy { intent.getStringExtra(KEY_TRANSITION_NAME) ?: "" }
@@ -185,6 +165,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private fun initEditLayout() {
         tv_review.text = getString(R.string.edit_text)
         tv_review.visibility = View.GONE
+
+        iv_back.setOnClickListener { supportFinishAfterTransition() }
     }
 
     private fun switchEditLayoutVisible() {
