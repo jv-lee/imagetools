@@ -34,6 +34,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         const val KEY_DATA = "data"
         const val KEY_SIZE = "size"
         const val KEY_IS_REVIEW = "review"
+        const val KEY_IS_ORIGINAL = "original"
         const val KEY_TRANSITION_NAME = "transitionName"
         const val KEY_IMAGE = "image"
 
@@ -44,7 +45,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             view: View,
             data: ArrayList<Image>,
             size: Int,
-            isReview: Boolean = false
+            isReview: Boolean = false,
+            isOriginal: Boolean = false
         ) {
             val optionsCompat =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, transitionName)
@@ -53,6 +55,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                     .putExtra(KEY_SIZE, size)
                     .putExtra(KEY_DATA, data)
                     .putExtra(KEY_IS_REVIEW, isReview)
+                    .putExtra(KEY_IS_ORIGINAL, isOriginal)
                     .putExtra(KEY_TRANSITION_NAME, transitionName)
                     .putExtra(KEY_POSITION, position), optionsCompat.toBundle()
             )
@@ -63,6 +66,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private val transitionName by lazy { intent.getStringExtra(KEY_TRANSITION_NAME) ?: "" }
 
     private val isReview by lazy { intent.getBooleanExtra(KEY_IS_REVIEW, false) }
+
+    private val isOriginal by lazy { intent.getBooleanExtra(KEY_IS_ORIGINAL, false) }
 
     private val size by lazy { intent.getIntExtra(KEY_SIZE, 0) }
 
@@ -100,6 +105,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         initAnimation()
         initPager()
         initEditLayout()
+        parseResult()
     }
 
     private fun initAnimation() {
@@ -155,7 +161,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         vp_container.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                setResult(Activity.RESULT_OK, Intent().putExtra(KEY_IMAGE, data[position]))
+                parseResult()
             }
         })
         //是否是预览模式 设置页面position
@@ -165,7 +171,11 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private fun initEditLayout() {
         tv_review.text = getString(R.string.edit_text)
         tv_review.visibility = View.GONE
+        cb_original.isChecked = isOriginal
 
+        cb_original.setOnCheckedChangeListener { buttonView, isChecked ->
+            parseResult()
+        }
         iv_back.setOnClickListener { supportFinishAfterTransition() }
     }
 
@@ -179,6 +189,14 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private fun setEditLayoutVisible(visible: Boolean) {
         const_navigation.visibility = if (visible) View.VISIBLE else View.GONE
         const_navigation_top.visibility = if (visible) View.VISIBLE else View.GONE
+    }
+
+    private fun parseResult() {
+        setResult(
+            Activity.RESULT_OK, Intent()
+                .putExtra(KEY_IMAGE, data[vp_container.currentItem])
+                .putExtra(KEY_IS_ORIGINAL, cb_original.isChecked)
+        )
     }
 
 }

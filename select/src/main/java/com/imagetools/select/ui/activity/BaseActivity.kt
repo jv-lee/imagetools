@@ -1,5 +1,6 @@
 package com.imagetools.select.ui.activity
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -10,6 +11,15 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentActivity
+import com.imagetools.compress.CompressImageManager
+import com.imagetools.compress.bean.Photo
+import com.imagetools.compress.config.CompressConfig
+import com.imagetools.compress.listener.CompressImage
+import com.imagetools.select.constant.Constants
+import com.imagetools.select.dialog.CompressProgresDialog
+import com.imagetools.select.entity.Image
+import com.imagetools.select.entity.SelectConfig
 
 /**
  * @author jv.lee
@@ -72,6 +82,80 @@ internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId
                 }
             }
         }
+    }
+
+    /**
+     * 根据压缩配置 启动图片压缩.
+     * @param images 未压缩图片列表
+     */
+    fun FragmentActivity.finishImagesResult(
+        config: SelectConfig,
+        images: ArrayList<Image>,
+        isOriginal: Boolean,
+        loadingDialog: CompressProgresDialog
+    ) {
+        //不使用自带压缩
+        if (!config.isCompress) {
+            parseImageResult(images.also {
+                for (image in it) {
+                    image.isCompress = !isOriginal
+                }
+            },loadingDialog)
+            return
+        }
+        //使用自带压缩 且 使用原图模式 取消压缩方式
+        if (config.isCompress && isOriginal) {
+            parseImageResult(images,loadingDialog)
+            return
+        }
+        //使用自带压缩
+        loadingDialog.show()
+        CompressImageManager.build(
+            this,
+            CompressConfig.getDefaultConfig(),
+            arrayListOf<Photo>().also {
+                for (image in images) {
+                    it.add(Photo(image.path))
+                }
+            },
+            object : CompressImage.CompressListener {
+                override fun onCompressSuccess(photos: ArrayList<Photo>?) {
+                    photos?.let {
+                        for ((index, image) in images.withIndex()) {
+                            image.path = it[index].compressPath
+                        }
+                    }
+                    parseImageResult(images,loadingDialog)
+                }
+
+                override fun onCompressProgress(progress: Int) {
+                    loadingDialog.setProgress(progress)
+                }
+
+                override fun onCompressFailed(images: ArrayList<Photo>?, error: String?) {
+                    parseImageResult(arrayListOf(),loadingDialog)
+                }
+
+            }).compress()
+    }
+
+    /**
+     * 图片列表设置到result中.
+     * @param images 需要返回的图片集合
+     */
+    fun FragmentActivity.parseImageResult(
+        images: ArrayList<Image>,
+        loadingDialog: CompressProgresDialog
+    ) {
+        loadingDialog.dismiss()
+        setResult(
+            Constants.IMAGE_DATA_RESULT_CODE,
+            Intent().putParcelableArrayListExtra(
+                Constants.IMAGE_DATA_KEY,
+                images
+            )
+        )
+        finish()
     }
 
 }

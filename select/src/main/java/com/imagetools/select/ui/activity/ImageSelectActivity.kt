@@ -13,10 +13,6 @@ import androidx.activity.viewModels
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import com.imagetools.compress.CompressImageManager
-import com.imagetools.compress.bean.Photo
-import com.imagetools.compress.config.CompressConfig
-import com.imagetools.compress.listener.CompressImage
 import com.imagetools.select.R
 import com.imagetools.select.adapter.AlbumSelectAdapter
 import com.imagetools.select.adapter.ImageSelectAdapter
@@ -85,7 +81,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private val imageLaunch =
         registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
             it ?: return@registerForActivityResult
-            finishImagesResult(arrayListOf(it))
+            finishImagesResult(
+                selectConfig,
+                arrayListOf(it),
+                cb_original.isChecked,
+                loadingDialog
+            )
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,11 +120,17 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 View(this),
                 mImageAdapter.selectList,
                 mImageAdapter.size,
-                isReview = true
+                isReview = true,
+                isOriginal = cb_original.isChecked
             )
         }
         tv_done.setOnClickListener {
-            finishImagesResult((mImageAdapter).selectList)
+            finishImagesResult(
+                selectConfig,
+                (mImageAdapter).selectList,
+                cb_original.isChecked,
+                loadingDialog
+            )
         }
         mask.setOnClickListener {
             if (image_select_bar.isExpansion()) {
@@ -160,7 +167,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                         position,
                         imageView,
                         arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
-                        mImageAdapter.size
+                        mImageAdapter.size,
+                        isReview = false,
+                        isOriginal = cb_original.isChecked
                     )
                 } else {
                     imageLaunch.launch(mImageAdapter.getItem(position).also {
@@ -257,6 +266,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 isReset = true
                 it.classLoader = Image::class.java.classLoader
                 animImage = it.getParcelable(ImageDetailsActivity.KEY_IMAGE)
+                cb_original.isChecked = it.getBoolean(ImageDetailsActivity.KEY_IS_ORIGINAL)
             }
         }
         super.onActivityReenter(resultCode, data)
@@ -293,72 +303,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         tv_done.setTextColor(textColor)
         tv_done.background = textBackground
         tv_done.isClickable = enable
-    }
-
-    /**
-     * 根据压缩配置 启动图片压缩.
-     * @param images 未压缩图片列表
-     */
-    private fun finishImagesResult(images: ArrayList<Image>) {
-        //不使用自带压缩
-        if (!selectConfig.isCompress) {
-            parseImageResult(images.also {
-                for (image in it) {
-                    image.isCompress = !cb_original.isChecked
-                }
-            })
-            return
-        }
-        //使用自带压缩 且 使用原图模式 取消压缩方式
-        if (selectConfig.isCompress && cb_original.isChecked) {
-            parseImageResult(images)
-            return
-        }
-        //使用自带压缩
-        loadingDialog.show()
-        CompressImageManager.build(
-            this,
-            CompressConfig.getDefaultConfig(),
-            arrayListOf<Photo>().also {
-                for (image in images) {
-                    it.add(Photo(image.path))
-                }
-            },
-            object : CompressImage.CompressListener {
-                override fun onCompressSuccess(photos: ArrayList<Photo>?) {
-                    photos?.let {
-                        for ((index, image) in images.withIndex()) {
-                            image.path = it[index].compressPath
-                        }
-                    }
-                    parseImageResult(images)
-                }
-
-                override fun onCompressProgress(progress: Int) {
-                    loadingDialog.setProgress(progress)
-                }
-
-                override fun onCompressFailed(images: ArrayList<Photo>?, error: String?) {
-                    parseImageResult(arrayListOf())
-                }
-
-            }).compress()
-    }
-
-    /**
-     * 图片列表设置到result中.
-     * @param images 需要返回的图片集合
-     */
-    private fun parseImageResult(images: ArrayList<Image>) {
-        loadingDialog.dismiss()
-        setResult(
-            Constants.IMAGE_DATA_RESULT_CODE,
-            Intent().putParcelableArrayListExtra(
-                Constants.IMAGE_DATA_KEY,
-                images
-            )
-        )
-        finish()
     }
 
 }
