@@ -147,15 +147,15 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             val position = mImageAdapter.getSelectFirstPosition()
             ImageDetailsActivity.startActivity(
                 this,
+                View(this),
                 "",
                 position,
-                View(this),
-                mImageAdapter.selectList,
-                mImageAdapter.selectList,
                 mImageAdapter.size,
-                isReview = true,
-                isOriginal = cb_original.isChecked,
-                selectLimit = selectConfig.selectLimit
+                true,
+                cb_original.isChecked,
+                selectConfig.selectLimit,
+                mImageAdapter.selectList,
+                mImageAdapter.selectList
             )
         }
         tv_done.setOnClickListener {
@@ -197,15 +197,15 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                     val imageView = view.findViewById<ImageView>(R.id.iv_image)
                     ImageDetailsActivity.startActivity(
                         this@ImageSelectActivity,
+                        imageView,
                         mImageAdapter.getItem(position).path,
                         position,
-                        imageView,
-                        arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
-                        mImageAdapter.selectList,
                         mImageAdapter.size,
-                        isReview = false,
-                        isOriginal = cb_original.isChecked,
-                        selectLimit = selectConfig.selectLimit
+                        false,
+                        cb_original.isChecked,
+                        selectConfig.selectLimit,
+                        arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
+                        mImageAdapter.selectList
                     )
                 } else {
                     imageLaunch.launch(mImageAdapter.getItem(position).also {

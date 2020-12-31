@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.app.ActivityOptionsCompat
@@ -14,11 +15,11 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.imagetools.select.R
 import com.imagetools.select.adapter.ImagePagerAdapter
-import com.imagetools.select.dialog.CompressProgresDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.event.ImageEventBus
 import com.imagetools.select.listener.SimpleRequestListener
 import com.imagetools.select.widget.DragImageView
+import kotlinx.android.parcel.Parcelize
 import kotlinx.android.synthetic.main.activity_image_details.*
 import kotlinx.android.synthetic.main.layout_edit_top.*
 import kotlinx.android.synthetic.main.layout_navigation.*
@@ -31,68 +32,63 @@ import kotlinx.android.synthetic.main.layout_navigation.*
 internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details) {
 
     companion object {
-        const val TAG = "IMAGE_DETAILS"
-        const val KEY_POSITION = "position"
-        const val KEY_DATA = "data"
-        const val KEY_SELECT_DATA = "select_data"
-        const val KEY_SIZE = "size"
-        const val KEY_IS_REVIEW = "review"
+        const val TAG = "ImageDetailsActivity"
         const val KEY_IS_ORIGINAL = "original"
-        const val KEY_TRANSITION_NAME = "transitionName"
         const val KEY_IMAGE = "image"
-        const val KEY_SELECT_LIMIT = "select_limit"
+        const val KEY_PARAMS = "params"
+
+        @Parcelize
+        data class ImageDetailsParams(
+            val transitionName: String = "",
+            val position: Int,
+            val size: Int,
+            val isReview: Boolean = false,
+            val isOriginal: Boolean = false,
+            val selectLimit: Int = 9,
+            val data: ArrayList<Image>,
+            val selectData: ArrayList<Image>
+        ) : Parcelable
 
         fun startActivity(
             activity: FragmentActivity,
+            view: View,
             transitionName: String,
             position: Int,
-            view: View,
-            data: ArrayList<Image>,
-            selectData: ArrayList<Image>,
             size: Int,
             isReview: Boolean = false,
             isOriginal: Boolean = false,
-            selectLimit: Int = 9
+            selectLimit: Int = 9,
+            data: ArrayList<Image>,
+            selectData: ArrayList<Image>
         ) {
+            val params = ImageDetailsParams(
+                transitionName,
+                position,
+                size,
+                isReview,
+                isOriginal,
+                selectLimit,
+                data,
+                selectData
+            )
             val optionsCompat =
-                ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, transitionName)
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    activity,
+                    view,
+                    params.transitionName
+                )
             activity.startActivityForResult(
                 Intent(activity, ImageDetailsActivity::class.java)
-                    .putExtra(KEY_SIZE, size)
-                    .putExtra(KEY_DATA, data)
-                    .putExtra(KEY_SELECT_DATA, selectData)
-                    .putExtra(KEY_IS_REVIEW, isReview)
-                    .putExtra(KEY_IS_ORIGINAL, isOriginal)
-                    .putExtra(KEY_TRANSITION_NAME, transitionName)
-                    .putExtra(KEY_SELECT_LIMIT, selectLimit)
-                    .putExtra(KEY_POSITION, position), 0, optionsCompat.toBundle()
+                    .putExtra(KEY_PARAMS, params), 0, optionsCompat.toBundle()
             )
         }
 
     }
 
-    private val transitionName by lazy { intent.getStringExtra(KEY_TRANSITION_NAME) ?: "" }
-
-    private val isReview by lazy { intent.getBooleanExtra(KEY_IS_REVIEW, false) }
-
-    private val isOriginal by lazy { intent.getBooleanExtra(KEY_IS_ORIGINAL, false) }
-
-    private val size by lazy { intent.getIntExtra(KEY_SIZE, 0) }
-
-    private val position by lazy { intent.getIntExtra(KEY_POSITION, 0) }
-
-    private val selectLimit by lazy { intent.getIntExtra(KEY_SELECT_LIMIT, 9) }
-
-    private val data by lazy<ArrayList<Image>> {
-        intent.getParcelableArrayListExtra(KEY_DATA) ?: arrayListOf()
-    }
-
-    private val selectData by lazy<ArrayList<Image>> {
-        intent.getParcelableArrayListExtra(KEY_SELECT_DATA) ?: arrayListOf()
-    }
+    private val params by lazy<ImageDetailsParams> { intent.getParcelableExtra(KEY_PARAMS)!! }
 
     private val adapter by lazy {
-        ImagePagerAdapter(data).also {
+        ImagePagerAdapter(params.data).also {
             it.setDragCallback(object : DragImageView.Callback {
                 override fun onClicked() {
                     //单击事件
@@ -114,8 +110,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         }
     }
 
-    private val loadingDialog by lazy { CompressProgresDialog(this) }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initAnimation()
@@ -127,10 +121,10 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         //暂时阻止共享元素过渡
         supportPostponeEnterTransition()
 
-        ViewCompat.setTransitionName(iv_holder, transitionName)
+        ViewCompat.setTransitionName(iv_holder, params.transitionName)
         Glide.with(iv_holder)
-            .load(transitionName)
-            .override(size, size)
+            .load(params.transitionName)
+            .override(params.size, params.size)
             .listener(object : SimpleRequestListener() {
                 override fun call() {
                     //占位图加载完成后 开启共享元素共享动画
@@ -181,13 +175,13 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             }
         })
         //是否是预览模式 设置页面position
-        if (!isReview) vp_container.setCurrentItem(position, false)
+        if (!params.isReview) vp_container.setCurrentItem(params.position, false)
     }
 
     private fun initEditLayout() {
         tv_review.text = getString(R.string.edit_text)
         tv_review.visibility = View.GONE
-        cb_original.isChecked = isOriginal
+        cb_original.isChecked = params.isOriginal
 
         cb_original.setOnCheckedChangeListener { buttonView, isChecked ->
             parseResult()
@@ -213,30 +207,30 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
     private fun clickSelect() {
         //检验最大选择数
-        if (selectData.size >= selectLimit) {
-            toast(getString(R.string.select_limit_description, selectLimit))
+        if (params.selectData.size >= params.selectLimit) {
+            toast(getString(R.string.select_limit_description, params.selectLimit))
             return
         }
         //设置选择
         val position = vp_container.currentItem
-        val item = data[position]
+        val item = params.data[position]
         //发送事件通知上层页面刷新
         ImageEventBus.getInstance().eventLiveData.value =
             ImageEventBus.ImageEvent(item, item.select)
         if (item.select) {
-            selectData.remove(item)
+            params.selectData.remove(item)
             item.select = false
         } else {
             item.select = true
-            selectData.add(item)
+            params.selectData.add(item)
         }
         setSelectView(position)
     }
 
     private fun setSelectView(position: Int) {
-        val item = data[position]
-        if (selectData.contains(item)) {
-            val index = selectData.indexOf(item)
+        val item = params.data[position]
+        if (params.selectData.contains(item)) {
+            val index = params.selectData.indexOf(item)
             tv_select_number.text = index.plus(1).toString()
             tv_select_number.visibility = View.VISIBLE
             iv_check.visibility = View.GONE
@@ -244,16 +238,16 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             tv_select_number.visibility = View.GONE
             iv_check.visibility = View.VISIBLE
         }
-        if (selectData.isEmpty()) {
+        if (params.selectData.isEmpty()) {
             tv_done.setText(R.string.done_text)
         } else {
-            tv_done.text = getString(R.string.done_format_text, selectData.size)
+            tv_done.text = getString(R.string.done_format_text, params.selectData.size)
         }
     }
 
     private fun finishImageData() {
-        if (selectData.isEmpty()) {
-            val image = data[vp_container.currentItem]
+        if (params.selectData.isEmpty()) {
+            val image = params.data[vp_container.currentItem]
             ImageEventBus.getInstance().eventLiveData.value = ImageEventBus.ImageEvent(image, false)
         }
 
@@ -264,7 +258,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private fun parseResult() {
         setResult(
             Activity.RESULT_OK, Intent()
-                .putExtra(KEY_IMAGE, data[vp_container.currentItem])
+                .putExtra(KEY_IMAGE, params.data[vp_container.currentItem])
                 .putExtra(KEY_IS_ORIGINAL, cb_original.isChecked)
 
         )
