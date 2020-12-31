@@ -110,7 +110,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         bindView()
         bindListener()
         bindObservable()
-        ImageEventBus.getInstance().eventLiveData.observeForever(eventObserver)
+        if (selectConfig.isMultiple) ImageEventBus.getInstance().eventLiveData.observeForever(
+            eventObserver
+        )
     }
 
     private fun bindView() {
@@ -271,7 +273,10 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         super.onDestroy()
         animator?.cancel()
         animator = null
-        ImageEventBus.getInstance().eventLiveData.removeObserver(eventObserver)
+        if (selectConfig.isMultiple) ImageEventBus.getInstance().eventLiveData.removeObserver(
+            eventObserver
+        )
+
     }
 
     /**
