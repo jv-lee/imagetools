@@ -1,14 +1,13 @@
-package com.imagetools.select.adapter
+package com.imagetools.select.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
-import com.imagetools.select.widget.DragImageView
+import com.imagetools.select.ui.widget.DragImageView
 
 /**
  * @author jv.lee

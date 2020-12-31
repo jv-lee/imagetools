@@ -1,4 +1,4 @@
-package com.imagetools.select.dialog
+package com.imagetools.select.ui.dialog
 
 import android.app.Activity
 import android.app.Dialog

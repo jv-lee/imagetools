@@ -1,4 +1,4 @@
-package com.imagetools.select.adapter
+package com.imagetools.select.ui.adapter
 
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
@@ -17,7 +17,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.imagetools.select.R
-import com.imagetools.select.adapter.base.BaseSelectAdapter
+import com.imagetools.select.ui.adapter.base.BaseSelectAdapter
 import com.imagetools.select.constant.Constants
 import com.imagetools.select.entity.Image
 

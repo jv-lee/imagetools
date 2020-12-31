@@ -23,7 +23,7 @@
         app:layout_constraintBottom_toTopOf="@id/const_navigation"
         app:layout_constraintTop_toBottomOf="@id/image_select_bar" />
 
-    <com.imagetools.select.widget.StreamerView
+    <com.imagetools.select.ui.widget.StreamerView
         android:id="@+id/streamer_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -61,7 +61,7 @@
         android:visibility="invisible"
         app:layout_constraintTop_toBottomOf="@id/image_select_bar" />
 
-    <com.imagetools.select.widget.ImageSelectBar
+    <com.imagetools.select.ui.widget.ImageSelectBar
         android:id="@+id/image_select_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

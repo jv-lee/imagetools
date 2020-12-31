@@ -1,9 +1,8 @@
-package com.imagetools.select.widget
+package com.imagetools.select.ui.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.Animation

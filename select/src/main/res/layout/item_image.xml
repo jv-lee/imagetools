@@ -7,7 +7,7 @@
     android:layout_marginRight="@dimen/item_padding"
     android:layout_marginBottom="@dimen/item_padding">
 
-    <com.imagetools.select.widget.NoAlphaImageView
+    <com.imagetools.select.ui.widget.NoAlphaImageView
         android:id="@+id/iv_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

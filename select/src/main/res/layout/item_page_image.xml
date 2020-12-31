@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.imagetools.select.widget.DragImageView
+    <com.imagetools.select.ui.widget.DragImageView
         android:id="@+id/drag_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

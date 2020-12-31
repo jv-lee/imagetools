@@ -1,4 +1,4 @@
-package com.imagetools.select.adapter
+package com.imagetools.select.ui.adapter
 
 import android.content.Context
 import android.view.View
@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.imagetools.select.R
-import com.imagetools.select.adapter.base.BaseAdapter
+import com.imagetools.select.ui.adapter.base.BaseAdapter
 import com.imagetools.select.entity.Album
 
 /**

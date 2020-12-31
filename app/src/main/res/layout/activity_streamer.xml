@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.imagetools.app.StreamerActivity">
 
-    <com.imagetools.select.widget.StreamerView
+    <com.imagetools.select.ui.widget.StreamerView
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

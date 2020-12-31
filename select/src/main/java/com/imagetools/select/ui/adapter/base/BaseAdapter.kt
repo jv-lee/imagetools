@@ -1,4 +1,4 @@
-package com.imagetools.select.adapter.base
+package com.imagetools.select.ui.adapter.base
 
 import android.content.Context
 import android.view.LayoutInflater

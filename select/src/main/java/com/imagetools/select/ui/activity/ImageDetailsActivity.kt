@@ -14,11 +14,11 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.imagetools.select.R
-import com.imagetools.select.adapter.ImagePagerAdapter
+import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.entity.Image
 import com.imagetools.select.event.ImageEventBus
 import com.imagetools.select.listener.SimpleRequestListener
-import com.imagetools.select.widget.DragImageView
+import com.imagetools.select.ui.widget.DragImageView
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.synthetic.main.activity_image_details.*
 import kotlinx.android.synthetic.main.layout_edit_top.*

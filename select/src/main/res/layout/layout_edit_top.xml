@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.imagetools.select.widget.StatusPaddingFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.imagetools.select.ui.widget.StatusPaddingFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/const_navigation_top"
     android:layout_width="match_parent"
@@ -40,4 +40,4 @@
 
     </FrameLayout>
 
-</com.imagetools.select.widget.StatusPaddingFrameLayout>
+</com.imagetools.select.ui.widget.StatusPaddingFrameLayout>

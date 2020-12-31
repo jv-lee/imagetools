@@ -14,11 +14,11 @@ import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.imagetools.select.R
-import com.imagetools.select.adapter.AlbumSelectAdapter
-import com.imagetools.select.adapter.ImageSelectAdapter
-import com.imagetools.select.adapter.base.BaseSelectAdapter
+import com.imagetools.select.ui.adapter.AlbumSelectAdapter
+import com.imagetools.select.ui.adapter.ImageSelectAdapter
+import com.imagetools.select.ui.adapter.base.BaseSelectAdapter
 import com.imagetools.select.constant.Constants
-import com.imagetools.select.dialog.CompressProgresDialog
+import com.imagetools.select.ui.dialog.CompressProgresDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.LoadStatus
 import com.imagetools.select.entity.SelectConfig
@@ -27,7 +27,7 @@ import com.imagetools.select.listener.ShakeItemClickListener
 import com.imagetools.select.result.ActivityResultContracts
 import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
-import com.imagetools.select.widget.ImageSelectBar
+import com.imagetools.select.ui.widget.ImageSelectBar
 import kotlinx.android.synthetic.main.activity_image_select.*
 import kotlinx.android.synthetic.main.layout_navigation.*
 

@@ -1,4 +1,4 @@
-package com.imagetools.select.widget
+package com.imagetools.select.ui.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -6,7 +6,6 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import com.imagetools.select.R
-import com.imagetools.select.tools.Tools
 
 
 /**

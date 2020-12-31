@@ -1,4 +1,4 @@
-package com.imagetools.select.widget
+package com.imagetools.select.ui.widget
 
 import android.animation.Animator
 import android.animation.ValueAnimator

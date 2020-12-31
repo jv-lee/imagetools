@@ -17,7 +17,7 @@ import com.imagetools.compress.bean.Photo
 import com.imagetools.compress.config.CompressConfig
 import com.imagetools.compress.listener.CompressImage
 import com.imagetools.select.constant.Constants
-import com.imagetools.select.dialog.CompressProgresDialog
+import com.imagetools.select.ui.dialog.CompressProgresDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.SelectConfig
 
