@@ -77,9 +77,9 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                     view,
                     params.transitionName
                 )
-            activity.startActivityForResult(
+            activity.startActivity(
                 Intent(activity, ImageDetailsActivity::class.java)
-                    .putExtra(KEY_PARAMS, params), 0, optionsCompat.toBundle()
+                    .putExtra(KEY_PARAMS, params), optionsCompat.toBundle()
             )
         }
 
