@@ -16,12 +16,28 @@
         android:scaleType="center"
         android:src="@drawable/ic_back" />
 
-    <ImageView
-        android:id="@+id/iv_check"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+    <FrameLayout
+        android:id="@+id/frame_select"
         android:layout_gravity="end"
-        android:scaleType="center"
-        android:src="@drawable/ic_check" />
+        android:layout_width="56dp"
+        android:layout_height="56dp">
+
+        <ImageView
+            android:id="@+id/iv_check"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="center"
+            android:src="@drawable/ic_check" />
+
+        <TextView
+            android:id="@+id/tv_select_number"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="center"
+            android:background="@drawable/shape_select_number_press"
+            android:gravity="center"
+            android:textColor="@color/colorText" />
+
+    </FrameLayout>
 
 </com.imagetools.select.widget.StatusPaddingFrameLayout>

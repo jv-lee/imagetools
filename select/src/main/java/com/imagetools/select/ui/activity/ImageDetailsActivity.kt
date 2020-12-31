@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide
 import com.imagetools.select.R
 import com.imagetools.select.adapter.ImagePagerAdapter
 import com.imagetools.select.entity.Image
+import com.imagetools.select.event.ImageEventBus
 import com.imagetools.select.listener.SimpleRequestListener
 import com.imagetools.select.widget.DragImageView
 import kotlinx.android.synthetic.main.activity_image_details.*
@@ -32,6 +33,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         const val TAG = "IMAGE_DETAILS"
         const val KEY_POSITION = "position"
         const val KEY_DATA = "data"
+        const val KEY_SELECT_DATA = "select_data"
         const val KEY_SIZE = "size"
         const val KEY_IS_REVIEW = "review"
         const val KEY_IS_ORIGINAL = "original"
@@ -44,6 +46,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             position: Int,
             view: View,
             data: ArrayList<Image>,
+            selectData: ArrayList<Image>,
             size: Int,
             isReview: Boolean = false,
             isOriginal: Boolean = false
@@ -54,6 +57,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 Intent(activity, ImageDetailsActivity::class.java)
                     .putExtra(KEY_SIZE, size)
                     .putExtra(KEY_DATA, data)
+                    .putExtra(KEY_SELECT_DATA, selectData)
                     .putExtra(KEY_IS_REVIEW, isReview)
                     .putExtra(KEY_IS_ORIGINAL, isOriginal)
                     .putExtra(KEY_TRANSITION_NAME, transitionName)
@@ -75,6 +79,10 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
     private val data by lazy<ArrayList<Image>> {
         intent.getParcelableArrayListExtra(KEY_DATA) ?: arrayListOf()
+    }
+
+    private val selectData by lazy<ArrayList<Image>> {
+        intent.getParcelableArrayListExtra(KEY_SELECT_DATA) ?: arrayListOf()
     }
 
     private val adapter by lazy {
@@ -105,7 +113,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         initAnimation()
         initPager()
         initEditLayout()
-        parseResult()
     }
 
     private fun initAnimation() {
@@ -161,6 +168,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         vp_container.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+                setSelectView(position)
                 parseResult()
             }
         })
@@ -177,6 +185,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             parseResult()
         }
         iv_back.setOnClickListener { supportFinishAfterTransition() }
+        frame_select.setOnClickListener { clickSelect() }
     }
 
     private fun switchEditLayoutVisible() {
@@ -191,11 +200,41 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         const_navigation_top.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
+    private fun clickSelect() {
+        val position = vp_container.currentItem
+        val item = data[position]
+        //发送事件通知上层页面刷新
+        ImageEventBus.getInstance().eventLiveData.value =
+            ImageEventBus.ImageEvent(item, item.select)
+        if (item.select) {
+            selectData.remove(item)
+            item.select = false
+        } else {
+            item.select = true
+            selectData.add(item)
+        }
+        setSelectView(position)
+    }
+
+    private fun setSelectView(position: Int) {
+        val item = data[position]
+        if (selectData.contains(item)) {
+            val index = selectData.indexOf(item)
+            tv_select_number.text = index.plus(1).toString()
+            tv_select_number.visibility = View.VISIBLE
+            iv_check.visibility = View.GONE
+        } else {
+            tv_select_number.visibility = View.GONE
+            iv_check.visibility = View.VISIBLE
+        }
+    }
+
     private fun parseResult() {
         setResult(
             Activity.RESULT_OK, Intent()
                 .putExtra(KEY_IMAGE, data[vp_container.currentItem])
                 .putExtra(KEY_IS_ORIGINAL, cb_original.isChecked)
+
         )
     }
 

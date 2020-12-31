@@ -22,6 +22,7 @@ import com.imagetools.select.dialog.CompressProgresDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.LoadStatus
 import com.imagetools.select.entity.SelectConfig
+import com.imagetools.select.event.ImageEventBus
 import com.imagetools.select.listener.ShakeItemClickListener
 import com.imagetools.select.result.ActivityResultContracts
 import com.imagetools.select.tools.Tools
@@ -89,12 +90,27 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             )
         }
 
+    private val eventObserver =
+        Observer<ImageEventBus.ImageEvent> { it ->
+            if (it.isSelect) {
+                val item = mImageAdapter.getItem(mImageAdapter.getPosition(it.image))
+                mImageAdapter.selectList.remove(item)
+                item.select = false
+            } else {
+                val item = mImageAdapter.getItem(mImageAdapter.getPosition(it.image))
+                item.select = true
+                mImageAdapter.selectList.add(item)
+            }
+            mImageAdapter.notifyDataSetChanged()
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         bindView()
         bindListener()
         bindObservable()
+        ImageEventBus.getInstance().eventLiveData.observeForever(eventObserver)
     }
 
     private fun bindView() {
@@ -118,6 +134,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 "",
                 position,
                 View(this),
+                mImageAdapter.selectList,
                 mImageAdapter.selectList,
                 mImageAdapter.size,
                 isReview = true,
@@ -167,6 +184,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                         position,
                         imageView,
                         arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
+                        mImageAdapter.selectList,
                         mImageAdapter.size,
                         isReview = false,
                         isOriginal = cb_original.isChecked
@@ -253,6 +271,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         super.onDestroy()
         animator?.cancel()
         animator = null
+        ImageEventBus.getInstance().eventLiveData.removeObserver(eventObserver)
     }
 
     /**
