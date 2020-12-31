@@ -191,6 +191,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         }
         iv_back.setOnClickListener { supportFinishAfterTransition() }
         frame_select.setOnClickListener { clickSelect() }
+        setDoneCount()
     }
 
     private fun switchEditLayoutVisible() {
@@ -238,6 +239,10 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             tv_select_number.visibility = View.GONE
             iv_check.visibility = View.VISIBLE
         }
+        setDoneCount()
+    }
+
+    private fun setDoneCount(){
         if (params.selectData.isEmpty()) {
             tv_done.setText(R.string.done_text)
         } else {
