@@ -14,6 +14,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.imagetools.select.R
 import com.imagetools.select.adapter.ImagePagerAdapter
+import com.imagetools.select.dialog.CompressProgresDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.event.ImageEventBus
 import com.imagetools.select.listener.SimpleRequestListener
@@ -39,6 +40,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         const val KEY_IS_ORIGINAL = "original"
         const val KEY_TRANSITION_NAME = "transitionName"
         const val KEY_IMAGE = "image"
+        const val KEY_SELECT_LIMIT = "select_limit"
 
         fun startActivity(
             activity: FragmentActivity,
@@ -49,11 +51,12 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             selectData: ArrayList<Image>,
             size: Int,
             isReview: Boolean = false,
-            isOriginal: Boolean = false
+            isOriginal: Boolean = false,
+            selectLimit: Int = 9
         ) {
             val optionsCompat =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, transitionName)
-            activity.startActivity(
+            activity.startActivityForResult(
                 Intent(activity, ImageDetailsActivity::class.java)
                     .putExtra(KEY_SIZE, size)
                     .putExtra(KEY_DATA, data)
@@ -61,7 +64,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                     .putExtra(KEY_IS_REVIEW, isReview)
                     .putExtra(KEY_IS_ORIGINAL, isOriginal)
                     .putExtra(KEY_TRANSITION_NAME, transitionName)
-                    .putExtra(KEY_POSITION, position), optionsCompat.toBundle()
+                    .putExtra(KEY_SELECT_LIMIT, selectLimit)
+                    .putExtra(KEY_POSITION, position), 0, optionsCompat.toBundle()
             )
         }
 
@@ -76,6 +80,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private val size by lazy { intent.getIntExtra(KEY_SIZE, 0) }
 
     private val position by lazy { intent.getIntExtra(KEY_POSITION, 0) }
+
+    private val selectLimit by lazy { intent.getIntExtra(KEY_SELECT_LIMIT, 9) }
 
     private val data by lazy<ArrayList<Image>> {
         intent.getParcelableArrayListExtra(KEY_DATA) ?: arrayListOf()
@@ -107,6 +113,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             })
         }
     }
+
+    private val loadingDialog by lazy { CompressProgresDialog(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -184,6 +192,9 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         cb_original.setOnCheckedChangeListener { buttonView, isChecked ->
             parseResult()
         }
+        tv_done.setOnClickListener {
+            finishImageData()
+        }
         iv_back.setOnClickListener { supportFinishAfterTransition() }
         frame_select.setOnClickListener { clickSelect() }
     }
@@ -201,6 +212,12 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     }
 
     private fun clickSelect() {
+        //检验最大选择数
+        if (selectData.size >= selectLimit) {
+            toast(getString(R.string.select_limit_description, selectLimit))
+            return
+        }
+        //设置选择
         val position = vp_container.currentItem
         val item = data[position]
         //发送事件通知上层页面刷新
@@ -227,6 +244,21 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             tv_select_number.visibility = View.GONE
             iv_check.visibility = View.VISIBLE
         }
+        if (selectData.isEmpty()) {
+            tv_done.setText(R.string.done_text)
+        } else {
+            tv_done.text = getString(R.string.done_format_text, selectData.size)
+        }
+    }
+
+    private fun finishImageData() {
+        if (selectData.isEmpty()) {
+            val image = data[vp_container.currentItem]
+            ImageEventBus.getInstance().eventLiveData.value = ImageEventBus.ImageEvent(image, false)
+        }
+
+        finish()
+        ImageEventBus.getInstance().finishLiveData.value = true
     }
 
     private fun parseResult() {

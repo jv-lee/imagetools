@@ -13,6 +13,7 @@ class ImageEventBus {
     data class ImageEvent(val image: Image, val isSelect: Boolean)
 
     val eventLiveData = MutableLiveData<ImageEvent>()
+    val finishLiveData = MutableLiveData<Boolean>()
 
     companion object {
         @Volatile

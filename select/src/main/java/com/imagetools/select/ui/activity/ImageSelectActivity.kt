@@ -92,6 +92,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private val eventObserver =
         Observer<ImageEventBus.ImageEvent> { it ->
+            it ?: return@Observer
             if (it.isSelect) {
                 val item = mImageAdapter.getItem(mImageAdapter.getPosition(it.image))
                 mImageAdapter.selectList.remove(item)
@@ -102,7 +103,22 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 mImageAdapter.selectList.add(item)
             }
             mImageAdapter.notifyDataSetChanged()
+            selectDoneCount(mImageAdapter.selectList.size)
         }
+
+    private val finishObserver = Observer<Boolean> {
+        it ?: return@Observer
+        if (mImageAdapter.selectList.isEmpty()) return@Observer
+        loadingDialog.show()
+        window.decorView.postDelayed({
+            finishImagesResult(
+                selectConfig,
+                (mImageAdapter).selectList,
+                cb_original.isChecked,
+                loadingDialog
+            )
+        }, 300)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,9 +126,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         bindView()
         bindListener()
         bindObservable()
-        if (selectConfig.isMultiple) ImageEventBus.getInstance().eventLiveData.observeForever(
-            eventObserver
-        )
+        bindEvent()
     }
 
     private fun bindView() {
@@ -140,7 +154,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 mImageAdapter.selectList,
                 mImageAdapter.size,
                 isReview = true,
-                isOriginal = cb_original.isChecked
+                isOriginal = cb_original.isChecked,
+                selectLimit = selectConfig.selectLimit
             )
         }
         tv_done.setOnClickListener {
@@ -189,7 +204,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                         mImageAdapter.selectList,
                         mImageAdapter.size,
                         isReview = false,
-                        isOriginal = cb_original.isChecked
+                        isOriginal = cb_original.isChecked,
+                        selectLimit = selectConfig.selectLimit
                     )
                 } else {
                     imageLaunch.launch(mImageAdapter.getItem(position).also {
@@ -264,6 +280,13 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         viewModel.getImages(LoadStatus.INIT)
     }
 
+    private fun bindEvent() {
+        if (selectConfig.isMultiple) {
+            ImageEventBus.getInstance().eventLiveData.observeForever(eventObserver)
+            ImageEventBus.getInstance().finishLiveData.observeForever(finishObserver)
+        }
+    }
+
     override fun onPause() {
         super.onPause()
         Tools.bindBottomFinishing(this)
@@ -273,10 +296,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         super.onDestroy()
         animator?.cancel()
         animator = null
-        if (selectConfig.isMultiple) ImageEventBus.getInstance().eventLiveData.removeObserver(
-            eventObserver
-        )
-
+        if (selectConfig.isMultiple) {
+            ImageEventBus.getInstance().eventLiveData.value = null
+            ImageEventBus.getInstance().eventLiveData.removeObserver(eventObserver)
+            ImageEventBus.getInstance().finishLiveData.value = null
+            ImageEventBus.getInstance().finishLiveData.removeObserver(finishObserver)
+        }
     }
 
     /**
