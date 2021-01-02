@@ -14,7 +14,7 @@ import com.imagetools.select.result.ActivityResultContracts
 /**
  * @author jv.lee
  * @date 2020/12/11
- * @description
+ * @description 图片选择器功能入口
  */
 class ImageLaunch private constructor() : LifecycleObserver {
 
