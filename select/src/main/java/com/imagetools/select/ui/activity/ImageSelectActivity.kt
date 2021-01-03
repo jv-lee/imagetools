@@ -34,7 +34,7 @@ import kotlinx.android.synthetic.main.layout_navigation.*
 /**
  * @author jv.lee
  * @date 2020/12/1
- * @description
+ * @description 图片选择视口
  */
 internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select) {
 

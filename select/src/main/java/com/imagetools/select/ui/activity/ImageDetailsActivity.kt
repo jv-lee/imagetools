@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.layout_navigation.*
 /**
  * @author jv.lee
  * @date 2020/12/14
- * @description
+ * @description 图片详情pager页面
  */
 internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details) {
 
