@@ -1,5 +1,6 @@
 package com.imagetools.select.ui.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -17,9 +18,9 @@ import com.imagetools.compress.bean.Photo
 import com.imagetools.compress.config.CompressConfig
 import com.imagetools.compress.listener.CompressImage
 import com.imagetools.select.constant.Constants
-import com.imagetools.select.ui.dialog.CompressProgresDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.SelectConfig
+import com.imagetools.select.ui.dialog.CompressProgresDialog
 
 /**
  * @author jv.lee
@@ -29,6 +30,7 @@ import com.imagetools.select.entity.SelectConfig
 internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId) {
     override fun onCreate(savedInstanceState: Bundle?) {
         statusBar(window, false)
+        setStatusFontLight2(this)
         super.onCreate(savedInstanceState)
     }
 
@@ -81,6 +83,34 @@ internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId
                     window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
                 }
             }
+        }
+    }
+
+
+    /**
+     * 保持原有flag 设置深色状态栏颜色
+     *
+     * @param activity
+     */
+    open fun setStatusFontLight2(activity: Activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val originFlag = activity.window.decorView.systemUiVisibility
+            activity.window.decorView.systemUiVisibility =
+                originFlag or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+    }
+
+    /**
+     * 保留原有flag 清除深色状态栏颜色
+     *
+     * @param activity
+     */
+    open fun clearStatusFontLight2(activity: Activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val originFlag = activity.window.decorView.systemUiVisibility
+            //使用异或清除SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            activity.window.decorView.systemUiVisibility =
+                originFlag and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
         }
     }
 
