@@ -2,6 +2,7 @@ package com.imagetools.select.ui.activity
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -125,7 +126,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         Glide.with(iv_holder)
             .load(params.transitionName)
             .override(params.size, params.size)
-            .listener(object : SimpleRequestListener() {
+            .listener(object : SimpleRequestListener<Drawable>() {
                 override fun call() {
                     //占位图加载完成后 开启共享元素共享动画
                     supportStartPostponedEnterTransition()

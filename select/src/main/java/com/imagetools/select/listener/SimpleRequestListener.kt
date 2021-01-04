@@ -1,6 +1,5 @@
 package com.imagetools.select.listener
 
-import android.graphics.drawable.Drawable
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
@@ -11,12 +10,12 @@ import com.bumptech.glide.request.target.Target
  * @date 2020/12/22
  * @description
  */
-abstract class SimpleRequestListener : RequestListener<Drawable> {
+abstract class SimpleRequestListener<T> : RequestListener<T> {
 
     override fun onLoadFailed(
         e: GlideException?,
         model: Any?,
-        target: Target<Drawable>?,
+        target: Target<T>?,
         isFirstResource: Boolean
     ): Boolean {
         call()
@@ -24,9 +23,9 @@ abstract class SimpleRequestListener : RequestListener<Drawable> {
     }
 
     override fun onResourceReady(
-        resource: Drawable?,
+        resource: T?,
         model: Any?,
-        target: Target<Drawable>?,
+        target: Target<T>?,
         dataSource: DataSource?,
         isFirstResource: Boolean
     ): Boolean {
