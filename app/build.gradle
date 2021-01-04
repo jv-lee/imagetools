@@ -7,7 +7,11 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.lee.app"
+        if(isRelease.toBoolean()){
+            applicationId "com.lee.app"
+        }else{
+            applicationId "com.lee.test"
+        }
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
