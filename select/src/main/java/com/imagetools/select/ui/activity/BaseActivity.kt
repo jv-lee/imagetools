@@ -30,7 +30,7 @@ import com.imagetools.select.ui.dialog.CompressProgresDialog
 internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId) {
     override fun onCreate(savedInstanceState: Bundle?) {
         statusBar(window, false)
-        setStatusFontLight2(this)
+        setLightStatusIcon(this)
         super.onCreate(savedInstanceState)
     }
 
@@ -92,7 +92,7 @@ internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId
      *
      * @param activity
      */
-    open fun setStatusFontLight2(activity: Activity) {
+    open fun setDarkStatusIcon(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val originFlag = activity.window.decorView.systemUiVisibility
             activity.window.decorView.systemUiVisibility =
@@ -105,7 +105,7 @@ internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId
      *
      * @param activity
      */
-    open fun clearStatusFontLight2(activity: Activity) {
+    open fun setLightStatusIcon(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val originFlag = activity.window.decorView.systemUiVisibility
             //使用异或清除SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
