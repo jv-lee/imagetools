@@ -61,7 +61,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         }
 
         btn_image_page.setOnClickListener {
-            startActivity(Intent(this, ImagePagerActivity::class.java))
+            startActivity(Intent(this, ImageGridActivity::class.java))
         }
 
     }

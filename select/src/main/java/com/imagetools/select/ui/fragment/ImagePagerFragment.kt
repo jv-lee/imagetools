@@ -9,15 +9,16 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.imagetools.select.R
+import com.imagetools.select.entity.Image
 import com.imagetools.select.listener.SimpleRequestListener
 import com.imagetools.select.ui.activity.ImageDetailsActivity
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
-import kotlinx.android.synthetic.main.activity_image_details.*
-import kotlinx.android.synthetic.main.layout_navigation.*
+import kotlinx.android.synthetic.main.fragment_image_pager.*
 
 /**
  * @author jv.lee
@@ -26,12 +27,42 @@ import kotlinx.android.synthetic.main.layout_navigation.*
  */
 class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
 
-    private val params by lazy<ImageDetailsActivity.Companion.ImageDetailsParams> {
-        requireActivity().intent.getParcelableExtra(ImageDetailsActivity.KEY_PARAMS)!!
+    companion object {
+        const val imagePath1 =
+            "/storage/emulated/0/dreame/imagesTemp/b6d95861aec95234f175439e63b6545d.jpeg"
+        const val imagePath2 =
+            "/storage/emulated/0/dreame/imagesTemp/0fd74f6b934c11746b7aae81ef0b184f.jpeg"
+        const val imagePath3 =
+            "/storage/emulated/0/dreame/imagesTemp/1180db1daa346583c557b2d4b0e18bdd.jpeg"
+
+        fun newInstance(): Fragment {
+            return ImagePagerFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelableArrayList(
+                        "data",
+                        arrayListOf(
+                            Image(1, imagePath1),
+                            Image(2, imagePath2),
+                            Image(3, imagePath3)
+                        )
+                    )
+                    putInt("position", 0)
+                    putString("transitionName", "transitionName")
+                    putInt("size", 50)
+                }
+            }
+        }
     }
 
+    private val data by lazy<ArrayList<Image>> {
+        arguments?.getParcelableArrayList("data") ?: arrayListOf()
+    }
+    private val position by lazy { arguments?.getInt("position") ?: 0 }
+    private val transitionName by lazy { arguments?.getString("transitionName") ?: "" }
+    private val size by lazy { arguments?.getInt("size") ?: 0 }
+
     private val adapter by lazy {
-        ImagePagerAdapter(params.data).also {
+        ImagePagerAdapter(data).also {
             it.setDragCallback(object : DragImageView.Callback {
                 override fun onClicked() {
                     //单击事件
@@ -65,10 +96,9 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
         //暂时阻止共享元素过渡
         requireActivity().supportPostponeEnterTransition()
 
-        ViewCompat.setTransitionName(iv_holder, params.transitionName)
+        ViewCompat.setTransitionName(iv_holder, transitionName)
         Glide.with(iv_holder)
-            .load(params.transitionName)
-            .override(params.size, params.size)
+            .load(data[position])
             .listener(object : SimpleRequestListener<Drawable>() {
                 override fun call() {
                     //占位图加载完成后 开启共享元素共享动画
@@ -118,7 +148,7 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
             }
         })
         //定位到选中位置
-        vp_container.setCurrentItem(params.position, false)
+        vp_container.setCurrentItem(position, false)
     }
 
     private fun parseResult() {
@@ -126,7 +156,7 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
             Activity.RESULT_OK, Intent()
                 .putExtra(
                     ImageDetailsActivity.KEY_IMAGE,
-                    params.data[vp_container.currentItem]
+                    data[vp_container.currentItem]
                 )
         )
     }

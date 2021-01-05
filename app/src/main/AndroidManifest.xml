@@ -26,6 +26,8 @@
             android:name=".ImagePagerActivity"
             android:theme="@style/ImagePagerActivity" />
 
+        <activity android:name=".ImageGridActivity" />
+
         <provider
             android:name=".provider.MyProvider"
             android:authorities="${applicationId}.fileprovider"
