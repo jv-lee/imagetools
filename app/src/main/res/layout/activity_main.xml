@@ -30,7 +30,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="116dp"
+        android:layout_marginTop="106dp"
         android:text="Start Take Image" />
+
+    <Button
+        android:id="@+id/btn_image_page"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="162dp"
+        android:text="Start Image Pager" />
 
 </FrameLayout>

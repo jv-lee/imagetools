@@ -10,6 +10,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
@@ -27,18 +28,18 @@ import com.imagetools.select.ui.dialog.CompressProgresDialog
  * @date 2020/12/1
  * @description
  */
-internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId) {
+internal abstract class BaseActivity(@LayoutRes layoutId: Int) : AppCompatActivity(layoutId) {
     override fun onCreate(savedInstanceState: Bundle?) {
         statusBar(window, false)
         setLightStatusIcon(this)
         super.onCreate(savedInstanceState)
     }
 
-    fun BaseActivity.toast(message: String) {
+    fun FragmentActivity.toast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    fun checkPermission(permission: String) {
+    fun FragmentActivity.checkPermission(permission: String) {
         if (ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED
         ) {
             throw RuntimeException("Please apply for '$permission' permission first")
@@ -92,7 +93,7 @@ internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId
      *
      * @param activity
      */
-    open fun setDarkStatusIcon(activity: Activity) {
+    private fun setDarkStatusIcon(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val originFlag = activity.window.decorView.systemUiVisibility
             activity.window.decorView.systemUiVisibility =
@@ -105,7 +106,7 @@ internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId
      *
      * @param activity
      */
-    open fun setLightStatusIcon(activity: Activity) {
+    private fun setLightStatusIcon(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val originFlag = activity.window.decorView.systemUiVisibility
             //使用异或清除SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
@@ -130,12 +131,12 @@ internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId
                 for (image in it) {
                     image.isCompress = !isOriginal
                 }
-            },loadingDialog)
+            }, loadingDialog)
             return
         }
         //使用自带压缩 且 使用原图模式 取消压缩方式
         if (config.isCompress && isOriginal) {
-            parseImageResult(images,loadingDialog)
+            parseImageResult(images, loadingDialog)
             return
         }
         //使用自带压缩
@@ -155,7 +156,7 @@ internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId
                             image.path = it[index].compressPath
                         }
                     }
-                    parseImageResult(images,loadingDialog)
+                    parseImageResult(images, loadingDialog)
                 }
 
                 override fun onCompressProgress(progress: Int) {
@@ -163,7 +164,7 @@ internal abstract class BaseActivity(layoutId: Int) : AppCompatActivity(layoutId
                 }
 
                 override fun onCompressFailed(images: ArrayList<Photo>?, error: String?) {
-                    parseImageResult(arrayListOf(),loadingDialog)
+                    parseImageResult(arrayListOf(), loadingDialog)
                 }
 
             }).compress()

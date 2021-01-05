@@ -1,11 +1,9 @@
 package com.imagetools.app
 
 import android.Manifest
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.Toast
 import com.imagetools.app.base.BaseActivity
 import com.imagetools.select.ImageLaunch
 import com.imagetools.select.entity.SelectConfig
@@ -25,7 +23,13 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
         btn_single_image.setOnClickListener {
             requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
-                imageLaunch.select(SelectConfig(isMultiple = false, isSquare = true, columnCount = 3)) {
+                imageLaunch.select(
+                    SelectConfig(
+                        isMultiple = false,
+                        isSquare = true,
+                        columnCount = 3
+                    )
+                ) {
                     iv_image.setImageURI(Uri.fromFile(File(it[0].path)))
                     toast("count:${it.size} , path:${it[0].path}")
                 }
@@ -34,7 +38,13 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 
         btn_multiple_image.setOnClickListener {
             requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
-                imageLaunch.select(SelectConfig(isMultiple = true, isSquare = true, isCompress = true)) {
+                imageLaunch.select(
+                    SelectConfig(
+                        isMultiple = true,
+                        isSquare = true,
+                        isCompress = true
+                    )
+                ) {
                     iv_image.setImageURI(Uri.fromFile(File(it[0].path)))
                     toast("count:${it.size} , path:${it[0].path}")
                 }
@@ -48,6 +58,10 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     toast("path:${it.path}")
                 }
             }
+        }
+
+        btn_image_page.setOnClickListener {
+            startActivity(Intent(this, ImagePagerActivity::class.java))
         }
 
     }
