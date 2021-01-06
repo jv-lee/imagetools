@@ -1,7 +1,6 @@
 package com.imagetools.app
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.ActivityOptionsCompat
@@ -16,11 +15,14 @@ import com.imagetools.select.ui.fragment.ImagePagerFragment
  */
 class ImagePagerActivity : BaseActivity(R.layout.activity_image_pager) {
 
-    private var isReset = false
-    private var position = 0
-
     companion object {
-        fun startActivity(activity: FragmentActivity, view: View, transitionName: String) {
+        fun startActivity(
+            activity: FragmentActivity, view: View,
+            position: Int,
+            transitionName: String,
+            size: Int,
+            data: ArrayList<String>
+        ) {
             val optionsCompat =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(
                     activity,
@@ -28,7 +30,12 @@ class ImagePagerActivity : BaseActivity(R.layout.activity_image_pager) {
                     transitionName
                 )
             activity.startActivity(
-                Intent(activity, ImagePagerActivity::class.java), optionsCompat.toBundle()
+                Intent(activity, ImagePagerActivity::class.java)
+                    .putExtra(ImagePagerFragment.KEY_POSITION, position)
+                    .putExtra(ImagePagerFragment.KEY_TRANSITION_NAME, transitionName)
+                    .putExtra(ImagePagerFragment.KEY_SIZE, size)
+                    .putExtra(ImagePagerFragment.KEY_DATA, data)
+                , optionsCompat.toBundle()
             )
         }
     }
@@ -36,47 +43,17 @@ class ImagePagerActivity : BaseActivity(R.layout.activity_image_pager) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportFragmentManager.beginTransaction()
-            .replace(R.id.frame_container, ImagePagerFragment.newInstance())
+            .replace(
+                R.id.frame_container,
+                ImagePagerFragment.newInstance(
+                    intent.getIntExtra(ImagePagerFragment.KEY_POSITION, 0),
+                    intent.getStringExtra(ImagePagerFragment.KEY_TRANSITION_NAME) ?: "",
+                    intent.getIntExtra(ImagePagerFragment.KEY_SIZE, 0),
+                    intent.getSerializableExtra(ImagePagerFragment.KEY_DATA) as ArrayList<String>
+                )
+            )
             .commit()
 
-
-//        setExitSharedElementCallback(object : SharedElementCallback() {
-//            override fun onMapSharedElements(
-//                names: MutableList<String>,
-//                sharedElements: MutableMap<String, View>
-//            ) {
-//                //防止重复设置动画元素效果.
-//                if (!isReset) {
-//                    return
-//                }
-//                isReset = false
-//                sharedElements.put(
-//                    "transitionName",
-//                    iv_image_one
-//                )
-//            }
-//        })
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.sharedElementEnterTransition.duration = 200
-            window.sharedElementExitTransition.duration = 200
-        }
-
     }
-
-//    /**
-//     * 共享元素回调设置
-//     * @param resultCode 返回code
-//     * @param data 返回数据 动态更改当前共享元素
-//     */
-//    override fun onActivityReenter(resultCode: Int, data: Intent?) {
-//        if (resultCode == Activity.RESULT_OK && data != null) {
-//            data.extras?.let {
-//                isReset = true
-//                position = data.getIntExtra("position", 0)
-//            }
-//        }
-//        super.onActivityReenter(resultCode, data)
-//    }
 
 }

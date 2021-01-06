@@ -7,9 +7,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
-import android.view.ViewTreeObserver
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
+import androidx.core.transition.addListener
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
@@ -152,21 +152,17 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.sharedElementEnterTransition.duration = 200
             window.sharedElementExitTransition.duration = 200
+            window.sharedElementEnterTransition.addListener(onEnd = {
+                iv_holder.postDelayed({ iv_holder.visibility = View.GONE }, 10)
+            })
+        } else {
+            iv_holder.visibility = View.GONE
         }
     }
 
     private fun initPager() {
         //初始化加载详情图Pager页面.
         vp_container.adapter = adapter
-        vp_container.viewTreeObserver.addOnGlobalLayoutListener(object :
-            ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                //view绘制完成后 隐藏占位共享元素Image
-                iv_holder.visibility = View.GONE
-                vp_container.viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
-
-        })
         //每次切换页面动态更改回调值
         vp_container.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -243,7 +239,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         setDoneCount()
     }
 
-    private fun setDoneCount(){
+    private fun setDoneCount() {
         if (params.selectData.isEmpty()) {
             tv_done.setText(R.string.done_text)
         } else {

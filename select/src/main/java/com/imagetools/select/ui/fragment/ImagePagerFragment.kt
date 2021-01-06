@@ -6,8 +6,8 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewTreeObserver
 import androidx.core.app.SharedElementCallback
+import androidx.core.transition.addListener
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
@@ -15,10 +15,9 @@ import com.bumptech.glide.Glide
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.listener.SimpleRequestListener
-import com.imagetools.select.ui.activity.ImageDetailsActivity
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
-import kotlinx.android.synthetic.main.fragment_image_pager.*
+import kotlinx.android.synthetic.main.activity_image_details.*
 
 /**
  * @author jv.lee
@@ -28,38 +27,43 @@ import kotlinx.android.synthetic.main.fragment_image_pager.*
 class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
 
     companion object {
-        const val imagePath1 =
-            "/storage/emulated/0/dreame/imagesTemp/b6d95861aec95234f175439e63b6545d.jpeg"
-        const val imagePath2 =
-            "/storage/emulated/0/dreame/imagesTemp/0fd74f6b934c11746b7aae81ef0b184f.jpeg"
-        const val imagePath3 =
-            "/storage/emulated/0/dreame/imagesTemp/1180db1daa346583c557b2d4b0e18bdd.jpeg"
+        const val KEY_DATA = "DATA"
+        const val KEY_POSITION = "POSITION"
+        const val KEY_TRANSITION_NAME = "TRANSITION_NAME"
+        const val KEY_SIZE = "SIZE"
 
-        fun newInstance(): Fragment {
+        fun newInstance(
+            position: Int,
+            transitionName: String,
+            size: Int,
+            data: ArrayList<String>
+        ): Fragment {
             return ImagePagerFragment().apply {
                 arguments = Bundle().apply {
                     putParcelableArrayList(
-                        "data",
-                        arrayListOf(
-                            Image(1, imagePath1),
-                            Image(2, imagePath2),
-                            Image(3, imagePath3)
-                        )
+                        KEY_DATA,
+                        data.run {
+                            val images = arrayListOf<Image>()
+                            for ((index, item) in this.withIndex()) {
+                                images.add(Image(index.toLong(), item))
+                            }
+                            return@run images
+                        }
                     )
-                    putInt("position", 0)
-                    putString("transitionName", "transitionName")
-                    putInt("size", 50)
+                    putInt(KEY_POSITION, position)
+                    putString(KEY_TRANSITION_NAME, transitionName)
+                    putInt(KEY_SIZE, size)
                 }
             }
         }
     }
 
     private val data by lazy<ArrayList<Image>> {
-        arguments?.getParcelableArrayList("data") ?: arrayListOf()
+        arguments?.getParcelableArrayList(KEY_DATA) ?: arrayListOf()
     }
-    private val position by lazy { arguments?.getInt("position") ?: 0 }
-    private val transitionName by lazy { arguments?.getString("transitionName") ?: "" }
-    private val size by lazy { arguments?.getInt("size") ?: 0 }
+    private val position by lazy { arguments?.getInt(KEY_POSITION) ?: 0 }
+    private val transitionName by lazy { arguments?.getString(KEY_TRANSITION_NAME) ?: "" }
+    private val size by lazy { arguments?.getInt(KEY_SIZE) ?: 0 }
 
     private val adapter by lazy {
         ImagePagerAdapter(data).also {
@@ -98,7 +102,8 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
 
         ViewCompat.setTransitionName(iv_holder, transitionName)
         Glide.with(iv_holder)
-            .load(data[position])
+            .load(data[position].path)
+            .override(size)
             .listener(object : SimpleRequestListener<Drawable>() {
                 override fun call() {
                     //占位图加载完成后 开启共享元素共享动画
@@ -108,7 +113,7 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
             .into(iv_holder)
 
         //设置回调共享元素通信
-        setEnterSharedElementCallback(object : SharedElementCallback() {
+        requireActivity().setEnterSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(
                 names: MutableList<String>,
                 sharedElements: MutableMap<String, View>
@@ -116,7 +121,7 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
                 val position = vp_container.currentItem
                 val view = vp_container.findViewById<View>(R.id.drag_image)
                 view?.run {
-                    sharedElements.put(adapter.data[position].path, this)
+                    sharedElements.put(data[position].path, this)
                 }
             }
         })
@@ -125,21 +130,17 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             requireActivity().window.sharedElementEnterTransition.duration = 200
             requireActivity().window.sharedElementExitTransition.duration = 200
+            requireActivity().window.sharedElementEnterTransition.addListener(onEnd = {
+                iv_holder.postDelayed({ iv_holder.visibility = View.GONE }, 10)
+            })
+        } else {
+            iv_holder.visibility = View.GONE
         }
     }
 
     private fun initPager() {
         //初始化加载详情图Pager页面.
         vp_container.adapter = adapter
-        vp_container.viewTreeObserver.addOnGlobalLayoutListener(object :
-            ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                //view绘制完成后 隐藏占位共享元素Image
-                iv_holder.visibility = View.GONE
-                vp_container.viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
-
-        })
         //每次切换页面动态更改回调值
         vp_container.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -153,11 +154,7 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
 
     private fun parseResult() {
         requireActivity().setResult(
-            Activity.RESULT_OK, Intent()
-                .putExtra(
-                    ImageDetailsActivity.KEY_IMAGE,
-                    data[vp_container.currentItem]
-                )
+            Activity.RESULT_OK, Intent().putExtra(KEY_POSITION, vp_container.currentItem)
         )
     }
 

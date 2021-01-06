@@ -1,16 +1,13 @@
 package com.imagetools.select.ui.adapter
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.Target
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.ui.widget.DragImageView
-import java.io.File
 
 /**
  * @author jv.lee
