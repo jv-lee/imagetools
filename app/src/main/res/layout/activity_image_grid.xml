@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
 
-    <ImageView
+    <com.imagetools.select.ui.widget.NoAlphaImageView
         android:id="@+id/iv_image_one"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <com.imagetools.select.ui.widget.NoAlphaImageView
         android:id="@+id/iv_image_two"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -27,7 +27,7 @@
         app:layout_constraintStart_toEndOf="@id/iv_image_one"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <com.imagetools.select.ui.widget.NoAlphaImageView
         android:id="@+id/iv_image_three"
         android:layout_width="100dp"
         android:layout_height="100dp"

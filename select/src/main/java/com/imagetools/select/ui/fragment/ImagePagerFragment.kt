@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.imagetools.select.R
+import com.imagetools.select.constant.SharedConstants
 import com.imagetools.select.entity.Image
 import com.imagetools.select.listener.SimpleRequestListener
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
@@ -27,10 +28,6 @@ import kotlinx.android.synthetic.main.activity_image_details.*
 class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
 
     companion object {
-        const val KEY_DATA = "DATA"
-        const val KEY_POSITION = "POSITION"
-        const val KEY_TRANSITION_NAME = "TRANSITION_NAME"
-        const val KEY_SIZE = "SIZE"
 
         fun newInstance(
             position: Int,
@@ -41,7 +38,7 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
             return ImagePagerFragment().apply {
                 arguments = Bundle().apply {
                     putParcelableArrayList(
-                        KEY_DATA,
+                        SharedConstants.KEY_DATA,
                         data.run {
                             val images = arrayListOf<Image>()
                             for ((index, item) in this.withIndex()) {
@@ -50,20 +47,22 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
                             return@run images
                         }
                     )
-                    putInt(KEY_POSITION, position)
-                    putString(KEY_TRANSITION_NAME, transitionName)
-                    putInt(KEY_SIZE, size)
+                    putInt(SharedConstants.KEY_POSITION, position)
+                    putString(SharedConstants.KEY_TRANSITION_NAME, transitionName)
+                    putInt(SharedConstants.KEY_SIZE, size)
                 }
             }
         }
     }
 
     private val data by lazy<ArrayList<Image>> {
-        arguments?.getParcelableArrayList(KEY_DATA) ?: arrayListOf()
+        arguments?.getParcelableArrayList(SharedConstants.KEY_DATA) ?: arrayListOf()
     }
-    private val position by lazy { arguments?.getInt(KEY_POSITION) ?: 0 }
-    private val transitionName by lazy { arguments?.getString(KEY_TRANSITION_NAME) ?: "" }
-    private val size by lazy { arguments?.getInt(KEY_SIZE) ?: 0 }
+    private val position by lazy { arguments?.getInt(SharedConstants.KEY_POSITION) ?: 0 }
+    private val transitionName by lazy {
+        arguments?.getString(SharedConstants.KEY_TRANSITION_NAME) ?: ""
+    }
+    private val size by lazy { arguments?.getInt(SharedConstants.KEY_SIZE) ?: 0 }
 
     private val adapter by lazy {
         ImagePagerAdapter(data).also {
@@ -154,7 +153,8 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
 
     private fun parseResult() {
         requireActivity().setResult(
-            Activity.RESULT_OK, Intent().putExtra(KEY_POSITION, vp_container.currentItem)
+            Activity.RESULT_OK,
+            Intent().putExtra(SharedConstants.KEY_POSITION, vp_container.currentItem)
         )
     }
 

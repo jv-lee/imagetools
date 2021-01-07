@@ -142,7 +142,7 @@ internal abstract class BaseActivity(@LayoutRes layoutId: Int) : AppCompatActivi
         //使用自带压缩
         loadingDialog.show()
         CompressImageManager.build(
-            this,
+            applicationContext,
             CompressConfig.getDefaultConfig(),
             arrayListOf<Photo>().also {
                 for (image in images) {

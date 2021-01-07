@@ -400,7 +400,7 @@ public class CropImageActivity extends MonitoredActivity {
             public void run() {
                 ArrayList<Photo> data = new ArrayList<Photo>();
                 data.add(new Photo(saveUri.getPath()));
-                CompressImageManager.build(CropImageActivity.this, CompressConfig.getDefaultConfig(), data,
+                CompressImageManager.build(getApplicationContext(), CompressConfig.getDefaultConfig(), data,
                         new CompressImage.CompressListener() {
                             @Override
                             public void onCompressSuccess(ArrayList<Photo> images) {

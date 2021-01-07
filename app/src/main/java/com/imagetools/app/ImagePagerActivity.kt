@@ -6,6 +6,7 @@ import android.view.View
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
 import com.imagetools.app.base.BaseActivity
+import com.imagetools.select.constant.SharedConstants
 import com.imagetools.select.ui.fragment.ImagePagerFragment
 
 /**
@@ -31,10 +32,10 @@ class ImagePagerActivity : BaseActivity(R.layout.activity_image_pager) {
                 )
             activity.startActivity(
                 Intent(activity, ImagePagerActivity::class.java)
-                    .putExtra(ImagePagerFragment.KEY_POSITION, position)
-                    .putExtra(ImagePagerFragment.KEY_TRANSITION_NAME, transitionName)
-                    .putExtra(ImagePagerFragment.KEY_SIZE, size)
-                    .putExtra(ImagePagerFragment.KEY_DATA, data)
+                    .putExtra(SharedConstants.KEY_POSITION, position)
+                    .putExtra(SharedConstants.KEY_TRANSITION_NAME, transitionName)
+                    .putExtra(SharedConstants.KEY_SIZE, size)
+                    .putExtra(SharedConstants.KEY_DATA, data)
                 , optionsCompat.toBundle()
             )
         }
@@ -46,10 +47,10 @@ class ImagePagerActivity : BaseActivity(R.layout.activity_image_pager) {
             .replace(
                 R.id.frame_container,
                 ImagePagerFragment.newInstance(
-                    intent.getIntExtra(ImagePagerFragment.KEY_POSITION, 0),
-                    intent.getStringExtra(ImagePagerFragment.KEY_TRANSITION_NAME) ?: "",
-                    intent.getIntExtra(ImagePagerFragment.KEY_SIZE, 0),
-                    intent.getSerializableExtra(ImagePagerFragment.KEY_DATA) as ArrayList<String>
+                    intent.getIntExtra(SharedConstants.KEY_POSITION, 0),
+                    intent.getStringExtra(SharedConstants.KEY_TRANSITION_NAME) ?: "",
+                    intent.getIntExtra(SharedConstants.KEY_SIZE, 0),
+                    intent.getSerializableExtra(SharedConstants.KEY_DATA) as ArrayList<String>
                 )
             )
             .commit()

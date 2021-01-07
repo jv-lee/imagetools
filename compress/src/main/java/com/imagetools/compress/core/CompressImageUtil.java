@@ -42,7 +42,7 @@ public class CompressImageUtil {
             });
 
     public CompressImageUtil(Context context, CompressConfig config) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.config = config == null ? CompressConfig.getDefaultConfig() : config;
     }
 

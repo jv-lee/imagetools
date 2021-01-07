@@ -29,7 +29,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                         isSquare = true,
                         columnCount = 3
                     )
-                ) {
+                )  {
                     iv_image.setImageURI(Uri.fromFile(File(it[0].path)))
                     toast("count:${it.size} , path:${it[0].path}")
                 }
