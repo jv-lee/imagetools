@@ -17,6 +17,7 @@ class App : Application() {
             return
         }
         LeakCanary.install(this)
+        LeakCanary.enableDisplayLeakActivity(this)
     }
 
 }
