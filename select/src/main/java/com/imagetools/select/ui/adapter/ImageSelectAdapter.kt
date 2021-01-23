@@ -49,7 +49,7 @@ internal class ImageSelectAdapter(
         val itemView: View
         val viewHolder: ViewHolder
         if (converView == null) {
-            itemView = layoutInflater.inflate(R.layout.item_image, parent, false)
+            itemView = layoutInflater.inflate(R.layout.item_image_imagetools, parent, false)
             viewHolder = ViewHolder(
                 itemView.findViewById(R.id.iv_image),
                 itemView.findViewById(R.id.iv_mask),

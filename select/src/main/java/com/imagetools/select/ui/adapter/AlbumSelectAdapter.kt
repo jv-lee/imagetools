@@ -21,7 +21,7 @@ internal class AlbumSelectAdapter(context: Context) : BaseAdapter<Album>(context
         val itemView: View
         val viewHolder: ViewHolder
         if (converView == null) {
-            itemView = layoutInflater.inflate(R.layout.item_select, parent, false)
+            itemView = layoutInflater.inflate(R.layout.item_select_imagetools, parent, false)
             viewHolder = ViewHolder(
                 itemView.findViewById(R.id.iv_cover),
                 itemView.findViewById(R.id.tv_album_name)

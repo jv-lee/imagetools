@@ -28,15 +28,15 @@ import com.imagetools.select.result.ActivityResultContracts
 import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
 import com.imagetools.select.ui.widget.ImageSelectBar
-import kotlinx.android.synthetic.main.activity_image_select.*
-import kotlinx.android.synthetic.main.layout_navigation.*
+import kotlinx.android.synthetic.main.activity_image_select_imagetools.*
+import kotlinx.android.synthetic.main.layout_navigation_imagetools.*
 
 /**
  * @author jv.lee
  * @date 2020/12/1
  * @description 图片选择视口
  */
-internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select) {
+internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select_imagetools) {
 
     private val viewModel by viewModels<ImageViewModel>()
     private val selectConfig by lazy {

@@ -18,14 +18,14 @@ import com.imagetools.select.entity.Image
 import com.imagetools.select.listener.SimpleRequestListener
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
-import kotlinx.android.synthetic.main.activity_image_details.*
+import kotlinx.android.synthetic.main.activity_image_details_imagetools.*
 
 /**
  * @author jv.lee
  * @date 2020/12/12
  * @description
  */
-class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager) {
+class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager_imagetools) {
 
     companion object {
 

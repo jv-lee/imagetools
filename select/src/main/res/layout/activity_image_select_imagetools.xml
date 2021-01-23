@@ -36,7 +36,7 @@
         app:streamer_itemLineColor="@color/colorBackground"
         app:streamer_streamerColor="@color/colorItem" />
 
-    <include layout="@layout/layout_navigation" />
+    <include layout="@layout/layout_navigation_imagetools" />
 
     <View
         android:id="@+id/mask"

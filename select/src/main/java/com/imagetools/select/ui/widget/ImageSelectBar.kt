@@ -34,7 +34,7 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
     private val animatorSet = HashSet<ValueAnimator>()
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.layout_image_select_bar, this, true)
+        LayoutInflater.from(context).inflate(R.layout.layout_image_select_bar_imagetools, this, true)
         setPadding(0, getStatusBarHeight(context), 0, 0)
         findViewById<ImageView>(R.id.iv_close).setOnClickListener { (context as Activity).finish() }
         tvAlbumName = findViewById(R.id.tv_album_name)

@@ -17,7 +17,7 @@ class CompressProgresDialog(context: Context) : Dialog(context, R.style.Transluc
     private val progressView: ProgressBar
 
     init {
-        setContentView(R.layout.dialog_compress_progress)
+        setContentView(R.layout.dialog_compress_progress_imagetools)
         setCanceledOnTouchOutside(false)
         setOnKeyListener { _, keyCode, _ -> keyCode == KeyEvent.KEYCODE_BACK }
         progressView = findViewById(R.id.progress)

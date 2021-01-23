@@ -21,7 +21,7 @@ internal class ImagePagerAdapter(val data: MutableList<Image>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImagePagerViewHolder {
         return ImagePagerViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_page_image, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_page_image_imagetools, parent, false)
         )
     }
 

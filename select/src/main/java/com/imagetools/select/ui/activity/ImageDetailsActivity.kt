@@ -21,16 +21,16 @@ import com.imagetools.select.listener.SimpleRequestListener
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
 import kotlinx.android.parcel.Parcelize
-import kotlinx.android.synthetic.main.activity_image_details.*
-import kotlinx.android.synthetic.main.layout_edit_top.*
-import kotlinx.android.synthetic.main.layout_navigation.*
+import kotlinx.android.synthetic.main.activity_image_details_imagetools.*
+import kotlinx.android.synthetic.main.layout_edit_top_imagetools.*
+import kotlinx.android.synthetic.main.layout_navigation_imagetools.*
 
 /**
  * @author jv.lee
  * @date 2020/12/14
  * @description 图片详情pager页面
  */
-internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details) {
+internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details_imagetools) {
 
     companion object {
         const val TAG = "ImageDetailsActivity"
