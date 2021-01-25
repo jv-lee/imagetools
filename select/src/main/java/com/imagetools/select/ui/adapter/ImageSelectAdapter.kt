@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
@@ -68,6 +69,7 @@ internal class ImageSelectAdapter(
         viewHolder.ivImage.layoutParams = ConstraintLayout.LayoutParams(size, size)
 
         var glide = Glide.with(context).load(item.path)
+            .format(DecodeFormat.PREFER_RGB_565)
             .placeholder(ColorDrawable(ContextCompat.getColor(context, R.color.colorPlaceholder)))
             .transition(DrawableTransitionOptions.withCrossFade())
             .override(size, size)

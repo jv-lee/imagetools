@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.transition.addListener
@@ -14,6 +15,7 @@ import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DecodeFormat
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.event.ImageEventBus
@@ -125,6 +127,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         ViewCompat.setTransitionName(iv_holder, params.transitionName)
         Glide.with(iv_holder)
             .load(params.transitionName)
+            .format(DecodeFormat.PREFER_RGB_565)
             .override(params.size, params.size)
             .listener(object : SimpleRequestListener<Drawable>() {
                 override fun call() {
@@ -153,10 +156,14 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             window.sharedElementEnterTransition.duration = 200
             window.sharedElementExitTransition.duration = 200
             window.sharedElementEnterTransition.addListener(onEnd = {
-                iv_holder.postDelayed({ iv_holder.visibility = View.GONE }, 10)
+                iv_holder.postDelayed({
+                    iv_holder.visibility = View.GONE
+                    Glide.with(iv_holder).clear(iv_holder)
+                }, 10)
             })
         } else {
             iv_holder.visibility = View.GONE
+            Glide.with(iv_holder).clear(iv_holder)
         }
     }
 
