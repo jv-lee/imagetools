@@ -5,6 +5,7 @@
 
     <com.imagetools.select.ui.widget.DragImageView
         android:id="@+id/drag_image"
+        android:scaleType="matrix"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

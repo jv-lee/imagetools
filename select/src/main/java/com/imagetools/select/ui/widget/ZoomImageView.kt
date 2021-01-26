@@ -403,12 +403,14 @@ open class ZoomImageView : AppCompatImageView {
             duration = 300
             interpolator = mInterpolator
             addUpdateListener { animation ->
-                val tranScale = animation.currentPlayTime.toFloat() / animation.duration.toFloat()
-                val translateX = getTranslateX() * tranScale
-                val translateY = getTranslateY() * tranScale
-                mScaleMatrix.postTranslate(translateX, translateY)
+
                 val value: Float = animation.animatedValue as Float / getScale()
                 mScaleMatrix.postScale(value, value, x, y)
+                imageMatrix = mScaleMatrix
+
+                val translateX = getTranslateX()
+                val translateY = getTranslateY()
+                mScaleMatrix.postTranslate(translateX, translateY)
                 imageMatrix = mScaleMatrix
             }
             addListener(object : Animator.AnimatorListener {
