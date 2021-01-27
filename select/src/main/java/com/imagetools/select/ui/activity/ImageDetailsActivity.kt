@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.transition.addListener
@@ -155,12 +154,13 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.sharedElementEnterTransition.duration = 200
             window.sharedElementExitTransition.duration = 200
-            window.sharedElementEnterTransition.addListener(onEnd = {
-                iv_holder.postDelayed({
-                    iv_holder.visibility = View.GONE
-                    Glide.with(iv_holder).clear(iv_holder)
-                }, 10)
-            })
+            window.sharedElementEnterTransition.addListener(
+                onEnd = {
+                    iv_holder.postDelayed({
+                        iv_holder.visibility = View.GONE
+                        Glide.with(iv_holder).clear(iv_holder)
+                    }, 10)
+                })
         } else {
             iv_holder.visibility = View.GONE
             Glide.with(iv_holder).clear(iv_holder)

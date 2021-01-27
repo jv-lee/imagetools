@@ -129,11 +129,16 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager_imagetools
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             requireActivity().window.sharedElementEnterTransition.duration = 200
             requireActivity().window.sharedElementExitTransition.duration = 200
-            requireActivity().window.sharedElementEnterTransition.addListener(onEnd = {
-                iv_holder.postDelayed({ iv_holder.visibility = View.GONE }, 10)
-            })
+            requireActivity().window.sharedElementEnterTransition.addListener(
+                onEnd = {
+                    iv_holder.postDelayed({
+                        iv_holder.visibility = View.GONE
+                        Glide.with(iv_holder).clear(iv_holder)
+                    }, 10)
+                })
         } else {
             iv_holder.visibility = View.GONE
+            Glide.with(iv_holder).clear(iv_holder)
         }
     }
 
