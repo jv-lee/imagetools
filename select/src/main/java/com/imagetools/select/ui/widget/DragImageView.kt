@@ -73,7 +73,6 @@ class DragImageView : TransformImageView, ViewLifecycle {
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        Log.i("jv.lee", "dispatchTouchEvent: drag")
         //多点触控则直接交由当前view处理 拦截父容器处理事件
         if (ev.pointerCount > 1) {
             parent.requestDisallowInterceptTouchEvent(true)

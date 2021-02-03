@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -611,6 +612,9 @@ public class TransformImageView extends ImageView {
         super.draw(canvas);
     }
 
+    //事件分发记录初始化位置
+    private float mStartX = 0f;
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         //继承控件拦截事件消费
@@ -618,6 +622,28 @@ public class TransformImageView extends ImageView {
 
         final int Action = event.getActionMasked();
         if (event.getPointerCount() >= 2) hasMultiTouch = true;
+
+        //添加拦截代码.
+        if (Action == MotionEvent.ACTION_DOWN) {
+            mStartX = event.getX();
+        } else if (Action == MotionEvent.ACTION_MOVE) {
+            // 获取当前手指位置
+            float endX = event.getX();
+            float distanceX = endX - mStartX;
+
+            if (distanceX > 0 && Math.round(mImgRect.left) == Math.round(mCropRect.left)){
+                getParent().requestDisallowInterceptTouchEvent(false);
+                return false;
+            }
+
+            if (distanceX < 0 && (Math.round(mImgRect.right) == Math.round(mCropRect.right))) {
+                getParent().requestDisallowInterceptTouchEvent(false);
+                return false;
+            }
+
+        }else{
+            getParent().requestDisallowInterceptTouchEvent(false);
+        }
 
         mDetector.onTouchEvent(event);
         if (isRotateEnable) {
