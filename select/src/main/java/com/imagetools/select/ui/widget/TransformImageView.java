@@ -42,7 +42,7 @@ import java.io.Serializable;
  * Date: 2019/2/21
  */
 @SuppressLint("AppCompatCustomView")
-public class CropImageView extends ImageView {
+public class TransformImageView extends ImageView {
     private final static int MIN_ROTATE = 35;
     private final static int ANIM_DURING = 340;
     private final static float MAX_SCALE = 2.5f;
@@ -65,13 +65,14 @@ public class CropImageView extends ImageView {
     private ScaleGestureDetector mScaleDetector;
     private OnClickListener mClickListener;
 
-    private ScaleType mScaleType = ScaleType.CENTER_INSIDE;
+    private ScaleType mScaleType = ScaleType.FIT_CENTER;
 
     private boolean hasMultiTouch;
     private boolean hasDrawable;
     private boolean isKnowSize;
     private boolean hasOverTranslate;
     private boolean isRotateEnable = false;
+    public boolean isDispatch = true;
     // 当前是否处于放大状态
     private boolean isZoomUp;
     private boolean canRotate;
@@ -102,24 +103,35 @@ public class CropImageView extends ImageView {
 
     private OnLongClickListener mLongClick;
 
-    public CropImageView(Context context) {
+    private boolean isDrawComplete = false;
+
+    //绘制完成设置状态
+    private void drawMatrixComplete() {
+        if (isDrawComplete) return;
+        postDelayed(() -> {
+            isDrawComplete = true;
+        }, 100);
+
+    }
+
+    public TransformImageView(Context context) {
         super(context);
         init();
     }
 
-    public CropImageView(Context context, AttributeSet attrs) {
+    public TransformImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public CropImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public TransformImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     private void init() {
         super.setScaleType(ScaleType.MATRIX);
-        if (mScaleType == null) mScaleType = ScaleType.CENTER_CROP;
+        if (mScaleType == null) mScaleType = ScaleType.FIT_CENTER;
         mRotateDetector = new RotateGestureDetector(mRotateListener);
         mDetector = new GestureDetector(getContext(), mGestureListener);
         mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
@@ -140,12 +152,18 @@ public class CropImageView extends ImageView {
 
     @Override
     public void setScaleType(ScaleType scaleType) {
-        if (scaleType == ScaleType.MATRIX) return;
-
-        if (scaleType != mScaleType) {
+        if (isDrawComplete) {
+            super.setScaleType(scaleType);
+        } else {
             mScaleType = scaleType;
             initBase();
         }
+//        if (scaleType == ScaleType.MATRIX) return;
+//
+//        if (scaleType != mScaleType) {
+//            mScaleType = scaleType;
+//            initBase();
+//        }
     }
 
     public ScaleType getNewScaleType() {
@@ -400,6 +418,7 @@ public class CropImageView extends ImageView {
                 initFitXY();
                 break;
         }
+        drawMatrixComplete();
     }
 
     private void initCenter() {
@@ -594,6 +613,9 @@ public class CropImageView extends ImageView {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
+        //继承控件拦截事件消费
+        if(!isDispatch) return super.dispatchTouchEvent(event);
+
         final int Action = event.getActionMasked();
         if (event.getPointerCount() >= 2) hasMultiTouch = true;
 
@@ -605,7 +627,7 @@ public class CropImageView extends ImageView {
         if (Action == MotionEvent.ACTION_UP || Action == MotionEvent.ACTION_CANCEL) {
             onUp();
         }
-        return true;
+        return super.dispatchTouchEvent(event);
     }
 
     private void onUp() {
@@ -792,7 +814,7 @@ public class CropImageView extends ImageView {
         @Override
         public void run() {
             if (mClickListener != null) {
-                mClickListener.onClick(CropImageView.this);
+                mClickListener.onClick(TransformImageView.this);
             }
         }
     };
@@ -801,7 +823,7 @@ public class CropImageView extends ImageView {
         @Override
         public void onLongPress(MotionEvent e) {
             if (mLongClick != null) {
-                mLongClick.onLongClick(CropImageView.this);
+                mLongClick.onLongClick(TransformImageView.this);
             }
         }
 
@@ -1230,7 +1252,7 @@ public class CropImageView extends ImageView {
             }
         });
 
-        Bitmap bitmap = getViewBitmap(CropImageView.this);
+        Bitmap bitmap = getViewBitmap(TransformImageView.this);
         try {
             bitmap = Bitmap.createBitmap(bitmap, (int) mCropRect.left, (int) mCropRect.top,
                     (int) mCropRect.width(), (int) mCropRect.height());
@@ -1243,8 +1265,8 @@ public class CropImageView extends ImageView {
      * @return view的截图，在InVisible时也可以获取到bitmap
      */
     public Bitmap getViewBitmap(View view) {
-        view.measure(View.MeasureSpec.makeMeasureSpec(view.getMeasuredWidth(), View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(view.getMeasuredHeight(), View.MeasureSpec.EXACTLY));
+        view.measure(MeasureSpec.makeMeasureSpec(view.getMeasuredWidth(), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(view.getMeasuredHeight(), MeasureSpec.EXACTLY));
         view.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         view.setDrawingCacheEnabled(true);
         view.buildDrawingCache(true);
@@ -1429,8 +1451,8 @@ public class CropImageView extends ImageView {
         public float transitY;
         public float mScale;
 
-        public ImageView.ScaleType getScaleType() {
-            return ImageView.ScaleType.valueOf(mScaleType);
+        public ScaleType getScaleType() {
+            return ScaleType.valueOf(mScaleType);
         }
 
 
@@ -1454,9 +1476,12 @@ public class CropImageView extends ImageView {
             mDegrees = in.readFloat();
             mCropX = in.readFloat();
             mCropY = in.readFloat();
-            this.transitX = in.readFloat();;
-            this.transitY = in.readFloat();;
-            this.mScale = in.readFloat();;
+            this.transitX = in.readFloat();
+            ;
+            this.transitY = in.readFloat();
+            ;
+            this.mScale = in.readFloat();
+            ;
         }
 
         public final Creator<Info> CREATOR = new Creator<Info>() {

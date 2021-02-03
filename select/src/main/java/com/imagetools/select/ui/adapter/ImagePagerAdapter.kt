@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DecodeFormat
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.ui.widget.DragImageView
@@ -21,7 +22,8 @@ internal class ImagePagerAdapter(val data: MutableList<Image>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImagePagerViewHolder {
         return ImagePagerViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_page_image_imagetools, parent, false)
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_page_image_imagetools, parent, false)
         )
     }
 
@@ -36,8 +38,10 @@ internal class ImagePagerAdapter(val data: MutableList<Image>) :
     internal inner class ImagePagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val view by lazy { itemView.findViewById<DragImageView>(R.id.drag_image) }
         fun bindView(item: Image, position: Int) {
+            view.setMaxScale(3f)
             Glide.with(view)
                 .load(item.path)
+                .format(DecodeFormat.PREFER_RGB_565)
                 .into(view)
             mDragCallback?.let {
                 view.setCallback(it)

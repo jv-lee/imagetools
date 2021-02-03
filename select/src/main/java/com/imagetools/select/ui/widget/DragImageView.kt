@@ -3,6 +3,7 @@ package com.imagetools.select.ui.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.Animation
@@ -15,7 +16,7 @@ import com.imagetools.select.lifecycle.ViewLifecycle
  * @description 可拖拽的ImageView
  * 当前实现为向下拖拽进入拖拽模式 ， 横向 向上不进入拖拽模式.
  */
-class DragImageView : ZoomImageView, ViewLifecycle {
+class DragImageView : TransformImageView, ViewLifecycle {
 
     constructor(context: Context) : super(context, null, 0)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet, 0)
@@ -72,6 +73,7 @@ class DragImageView : ZoomImageView, ViewLifecycle {
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        Log.i("jv.lee", "dispatchTouchEvent: drag")
         //多点触控则直接交由当前view处理 拦截父容器处理事件
         if (ev.pointerCount > 1) {
             parent.requestDisallowInterceptTouchEvent(true)
@@ -116,6 +118,7 @@ class DragImageView : ZoomImageView, ViewLifecycle {
                 if (endY > mStartY) {
                     isChildTouch = true
                     isParentTouch = false
+                    isDispatch = false
                     parent.requestDisallowInterceptTouchEvent(true)
                     return super.dispatchTouchEvent(ev)
                 }
@@ -125,6 +128,7 @@ class DragImageView : ZoomImageView, ViewLifecycle {
                 parent.requestDisallowInterceptTouchEvent(false)
                 isParentTouch = false
                 isChildTouch = false
+                isDispatch = true
             }
         }
         return super.dispatchTouchEvent(ev)
@@ -133,6 +137,7 @@ class DragImageView : ZoomImageView, ViewLifecycle {
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         super.onTouchEvent(event)
+        mGesture.onTouchEvent(event)
         //多点触控直接交由父view处理
         if (event.pointerCount > 1) {
             parent.requestDisallowInterceptTouchEvent(true)
@@ -175,7 +180,6 @@ class DragImageView : ZoomImageView, ViewLifecycle {
         }
         mEndX = x
         mEndY = y
-        mGesture.onTouchEvent(event)
         return true
     }
 

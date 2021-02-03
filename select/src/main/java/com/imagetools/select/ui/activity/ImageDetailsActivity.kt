@@ -120,21 +120,11 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     }
 
     private fun initAnimation() {
-        //暂时阻止共享元素过渡
-        supportPostponeEnterTransition()
+//        //暂时阻止共享元素过渡
+//        supportPostponeEnterTransition()
+//        //占位图加载完成后 开启共享元素共享动画
+//        supportStartPostponedEnterTransition()
 
-        ViewCompat.setTransitionName(iv_holder, params.transitionName)
-        Glide.with(iv_holder)
-            .load(params.transitionName)
-            .format(DecodeFormat.PREFER_RGB_565)
-            .override(params.size, params.size)
-            .listener(object : SimpleRequestListener<Drawable>() {
-                override fun call() {
-                    //占位图加载完成后 开启共享元素共享动画
-                    supportStartPostponedEnterTransition()
-                }
-            })
-            .into(iv_holder)
 
         //设置回调共享元素通信
         setEnterSharedElementCallback(object : SharedElementCallback() {
@@ -154,16 +144,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.sharedElementEnterTransition.duration = 200
             window.sharedElementExitTransition.duration = 200
-            window.sharedElementEnterTransition.addListener(
-                onEnd = {
-                    iv_holder.postDelayed({
-                        iv_holder.visibility = View.GONE
-                        Glide.with(iv_holder).clear(iv_holder)
-                    }, 10)
-                })
-        } else {
-            iv_holder.visibility = View.GONE
-            Glide.with(iv_holder).clear(iv_holder)
         }
     }
 

@@ -2,23 +2,18 @@ package com.imagetools.select.ui.fragment
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.SharedElementCallback
-import androidx.core.transition.addListener
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.Glide
 import com.imagetools.select.R
 import com.imagetools.select.constant.SharedConstants
 import com.imagetools.select.entity.Image
-import com.imagetools.select.listener.SimpleRequestListener
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
-import kotlinx.android.synthetic.main.activity_image_details_imagetools.*
+import kotlinx.android.synthetic.main.fragment_image_pager_imagetools.*
 
 /**
  * @author jv.lee
@@ -96,20 +91,10 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager_imagetools
     }
 
     private fun initAnimation() {
-        //暂时阻止共享元素过渡
-        requireActivity().supportPostponeEnterTransition()
-
-        ViewCompat.setTransitionName(iv_holder, transitionName)
-        Glide.with(iv_holder)
-            .load(data[position].path)
-            .override(size)
-            .listener(object : SimpleRequestListener<Drawable>() {
-                override fun call() {
-                    //占位图加载完成后 开启共享元素共享动画
-                    requireActivity().supportStartPostponedEnterTransition()
-                }
-            })
-            .into(iv_holder)
+//        //暂时阻止共享元素过渡
+//        requireActivity().supportPostponeEnterTransition()
+//        //占位图加载完成后 开启共享元素共享动画
+//        requireActivity().supportStartPostponedEnterTransition()
 
         //设置回调共享元素通信
         requireActivity().setEnterSharedElementCallback(object : SharedElementCallback() {
@@ -129,16 +114,6 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager_imagetools
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             requireActivity().window.sharedElementEnterTransition.duration = 200
             requireActivity().window.sharedElementExitTransition.duration = 200
-            requireActivity().window.sharedElementEnterTransition.addListener(
-                onEnd = {
-                    iv_holder.postDelayed({
-                        iv_holder.visibility = View.GONE
-                        Glide.with(iv_holder).clear(iv_holder)
-                    }, 10)
-                })
-        } else {
-            iv_holder.visibility = View.GONE
-            Glide.with(iv_holder).clear(iv_holder)
         }
     }
 
