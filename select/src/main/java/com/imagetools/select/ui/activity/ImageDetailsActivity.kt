@@ -2,23 +2,17 @@ package com.imagetools.select.ui.activity
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
-import androidx.core.transition.addListener
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DecodeFormat
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.event.ImageEventBus
-import com.imagetools.select.listener.SimpleRequestListener
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
 import kotlinx.android.parcel.Parcelize

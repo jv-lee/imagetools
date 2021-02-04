@@ -3,6 +3,7 @@ package com.imagetools.select.ui.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.Animation
@@ -203,7 +204,7 @@ class DragImageView : TransformImageView, ViewLifecycle {
             scaleValue >= 1 -> {
                 this.scaleX = 1f
                 this.scaleY = 1f
-                mCallback?.changeAlpha(1f)
+                if (abs(y) > 10) mCallback?.changeAlpha(1f)
             }
             scaleValue <= 0.5F -> {
                 this.scaleX = 0.5f
