@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -43,6 +44,8 @@ import java.io.Serializable;
  */
 @SuppressLint("AppCompatCustomView")
 public class TransformImageView extends ImageView {
+
+    private final static String TAG = TransformImageView.class.getSimpleName();
     private final static int MIN_ROTATE = 35;
     private final static int ANIM_DURING = 340;
     private final static float MAX_SCALE = 2.5f;

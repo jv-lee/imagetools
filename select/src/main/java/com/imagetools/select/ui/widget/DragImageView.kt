@@ -108,11 +108,13 @@ class DragImageView : TransformImageView, ViewLifecycle {
                 }
                 // 当前子view不可消费事件 且为横向拖动 则返回false 子view不处理 直接返回父容器处理事件
                 if (!isChildTouch && abs(distanceX) > abs(distanceY)) {
+                    parent.requestDisallowInterceptTouchEvent(false)
                     isParentTouch = true
                     return false
                 }
                 // 当前子view不可消费事件 且滑动为向上滑动 则返回false 直接返回父亲容器处理事件
                 if (!isChildTouch && endY < mStartY) {
+                    parent.requestDisallowInterceptTouchEvent(false)
                     isParentTouch = true
                     return false
                 }
