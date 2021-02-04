@@ -21,7 +21,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -618,32 +617,10 @@ public class TransformImageView extends ImageView {
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         //继承控件拦截事件消费
-        if(!isDispatch) return super.dispatchTouchEvent(event);
+        if (!isDispatch) return super.dispatchTouchEvent(event);
 
         final int Action = event.getActionMasked();
         if (event.getPointerCount() >= 2) hasMultiTouch = true;
-
-        //添加拦截代码.
-        if (Action == MotionEvent.ACTION_DOWN) {
-            mStartX = event.getX();
-        } else if (Action == MotionEvent.ACTION_MOVE) {
-            // 获取当前手指位置
-            float endX = event.getX();
-            float distanceX = endX - mStartX;
-
-            if (distanceX > 0 && Math.round(mImgRect.left) == Math.round(mCropRect.left)){
-                getParent().requestDisallowInterceptTouchEvent(false);
-                return false;
-            }
-
-            if (distanceX < 0 && (Math.round(mImgRect.right) == Math.round(mCropRect.right))) {
-                getParent().requestDisallowInterceptTouchEvent(false);
-                return false;
-            }
-
-        }else{
-            getParent().requestDisallowInterceptTouchEvent(false);
-        }
 
         mDetector.onTouchEvent(event);
         if (isRotateEnable) {
@@ -998,17 +975,29 @@ public class TransformImageView extends ImageView {
     };
 
     public boolean canScrollHorizontallySelf(float direction) {
-        if (mImgRect.width() <= mCropRect.width()) return false;
-        if (direction < 0 && Math.round(mImgRect.left) - direction >= mCropRect.left)
+        if (mImgRect.width() <= mCropRect.width()) {
             return false;
-        return !(direction > 0) || !(Math.round(mImgRect.right) - direction <= mCropRect.right);
+        }
+        if (direction < 0 && Math.round(mImgRect.left) == Math.round(mCropRect.left)) {
+            return false;
+        }
+        if (direction > 0 && Math.round(mImgRect.right) == Math.round(mCropRect.right)) {
+            return false;
+        }
+        return true;
     }
 
     public boolean canScrollVerticallySelf(float direction) {
-        if (mImgRect.height() <= mCropRect.height()) return false;
-        if (direction < 0 && Math.round(mImgRect.top) - direction >= mCropRect.top)
+        if (mImgRect.height() <= mCropRect.height()) {
             return false;
-        return !(direction > 0) || !(Math.round(mImgRect.bottom) - direction <= mCropRect.bottom);
+        }
+        if (direction < 0 && Math.round(mImgRect.top) == Math.round(mCropRect.top)) {
+            return false;
+        }
+        if (direction > 0 && Math.round(mImgRect.bottom) == Math.round(mCropRect.bottom)) {
+            return false;
+        }
+        return true;
     }
 
     @Override

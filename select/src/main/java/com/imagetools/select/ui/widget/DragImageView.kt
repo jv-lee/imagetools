@@ -9,6 +9,8 @@ import android.view.MotionEvent
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import com.imagetools.select.lifecycle.ViewLifecycle
+import kotlin.math.abs
+import kotlin.math.log
 
 /**
  * @author jv.lee
@@ -95,16 +97,17 @@ class DragImageView : TransformImageView, ViewLifecycle {
                 // 获取当前手指位置
                 val endY: Float = ev.y
                 val endX: Float = ev.x
-                val distanceX: Float = Math.abs(endX - mStartX)
-                val distanceY: Float = Math.abs(endY - mStartY)
+                val distanceX: Float = mStartX - endX
+                val distanceY: Float = mStartY - endY
 
                 //判断当前View是否可以拖动 可拖动情况下 拦截父容器事件 子view处理当前滑动事件.
-                if (canScrollHorizontally(0) || canScrollVertically(0)) {
+                if ((abs(distanceX) > abs(distanceY) && canScrollHorizontally(distanceX.toInt())) ||
+                    (abs(distanceY) > abs(distanceX)) && canScrollVertically(distanceY.toInt())) {
                     parent.requestDisallowInterceptTouchEvent(true)
                     return super.dispatchTouchEvent(ev)
                 }
                 // 当前子view不可消费事件 且为横向拖动 则返回false 子view不处理 直接返回父容器处理事件
-                if (!isChildTouch && distanceX > distanceY) {
+                if (!isChildTouch && abs(distanceX) > abs(distanceY)) {
                     isParentTouch = true
                     return false
                 }
@@ -142,14 +145,21 @@ class DragImageView : TransformImageView, ViewLifecycle {
             parent.requestDisallowInterceptTouchEvent(true)
             return true
         }
-        //父view可滑动则当前滑动事件不处理
-        if (canScrollHorizontally(0) || canScrollHorizontally(0)) {
-            return true
-        }
+
         val x = event.rawX.toInt()
         val y = event.rawY.toInt()
         when (event.action) {
+            MotionEvent.ACTION_DOWN ->{
+                mStartY = event.y
+                mStartX = event.x
+            }
             MotionEvent.ACTION_MOVE -> {
+                val distanceX: Float = mStartX - x
+                val distanceY: Float = mStartY - y
+                //父view可滑动则当前滑动事件不处理
+                if (canScrollHorizontally(distanceX.toInt()) || canScrollHorizontally(distanceY.toInt())) {
+                    return true
+                }
                 //当前view拖动时拦截父容器处理事件
                 parent.requestDisallowInterceptTouchEvent(true)
                 //计算距离上次移动了多远
