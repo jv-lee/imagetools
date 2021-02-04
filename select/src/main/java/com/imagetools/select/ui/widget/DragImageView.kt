@@ -3,14 +3,12 @@ package com.imagetools.select.ui.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import com.imagetools.select.lifecycle.ViewLifecycle
 import kotlin.math.abs
-import kotlin.math.log
 
 /**
  * @author jv.lee
@@ -20,9 +18,9 @@ import kotlin.math.log
  */
 class DragImageView : TransformImageView, ViewLifecycle {
 
-    constructor(context: Context) : super(context, null, 0)
-    constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet, 0)
-    constructor(context: Context, attributeSet: AttributeSet, defaultStyle: Int) : super(
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0)
+    constructor(context: Context, attributeSet: AttributeSet?, defaultStyle: Int) : super(
         context,
         attributeSet,
         defaultStyle
