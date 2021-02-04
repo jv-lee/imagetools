@@ -1,5 +1,6 @@
 package com.imagetools.select.ui.adapter
 
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,22 +41,20 @@ internal class ImagePagerAdapter(val data: MutableList<Image>) :
         fun bindView(item: Image, position: Int) {
             view.setScaleValue(1f)
             view.setMaxScale(3f)
+            view.setCallback(mDragCallback)
             Glide.with(view)
                 .load(item.path)
                 .format(DecodeFormat.PREFER_RGB_565)
                 .into(view)
-            mDragCallback?.let {
-                view.setCallback(it)
-            }
         }
     }
 
     fun setBackgroundAlphaCompat(view: View?, alpha: Int) {
         view ?: return
-        val mutate = view.background.mutate()
-        if (mutate != null) {
-            mutate.alpha = alpha
-        } else {
+        val mutate: Drawable? = view.background.mutate()
+        mutate?.let {
+            it.alpha = alpha
+        } ?: run {
             view.background.alpha = alpha
         }
     }

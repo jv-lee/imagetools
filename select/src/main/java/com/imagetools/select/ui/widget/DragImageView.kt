@@ -228,7 +228,7 @@ class DragImageView : TransformImageView, ViewLifecycle {
         startAnimation(mAnimation)
     }
 
-    fun setCallback(callback: Callback) {
+    fun setCallback(callback: Callback?) {
         this.mCallback = callback
     }
 
