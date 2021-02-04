@@ -158,12 +158,10 @@ public class TransformImageView extends ImageView {
             mScaleType = scaleType;
             initBase();
         }
-//        if (scaleType == ScaleType.MATRIX) return;
-//
-//        if (scaleType != mScaleType) {
-//            mScaleType = scaleType;
-//            initBase();
-//        }
+    }
+
+    public void setScaleValue(float scale) {
+        this.mScale = scale;
     }
 
     public ScaleType getNewScaleType() {

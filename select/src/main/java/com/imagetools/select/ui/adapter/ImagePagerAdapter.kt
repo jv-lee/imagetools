@@ -38,6 +38,7 @@ internal class ImagePagerAdapter(val data: MutableList<Image>) :
     internal inner class ImagePagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val view by lazy { itemView.findViewById<DragImageView>(R.id.drag_image) }
         fun bindView(item: Image, position: Int) {
+            view.setScaleValue(1f)
             view.setMaxScale(3f)
             Glide.with(view)
                 .load(item.path)
