@@ -18,7 +18,7 @@ import com.imagetools.select.ui.adapter.AlbumSelectAdapter
 import com.imagetools.select.ui.adapter.ImageSelectAdapter
 import com.imagetools.select.ui.adapter.base.BaseSelectAdapter
 import com.imagetools.select.constant.Constants
-import com.imagetools.select.ui.dialog.CompressProgresDialog
+import com.imagetools.select.ui.dialog.CompressProgressDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.LoadStatus
 import com.imagetools.select.entity.SelectConfig
@@ -49,7 +49,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private var animator: ValueAnimator? = null
 
-    private val loadingDialog by lazy { CompressProgresDialog(this) }
+    private val loadingDialog by lazy { CompressProgressDialog(this) }
 
     private val mAlbumAdapter by lazy { AlbumSelectAdapter(this) }
 

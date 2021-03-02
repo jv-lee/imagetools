@@ -12,7 +12,7 @@ import com.imagetools.select.R
  * @date 2020/12/3
  * @description
  */
-class CompressProgresDialog(context: Context) : Dialog(context, R.style.TranslucentDialog) {
+class CompressProgressDialog(context: Context) : Dialog(context, R.style.TranslucentDialog) {
 
     private val progressView: ProgressBar
 

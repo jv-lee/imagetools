@@ -21,7 +21,7 @@ import com.imagetools.compress.listener.CompressImage
 import com.imagetools.select.constant.Constants
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.SelectConfig
-import com.imagetools.select.ui.dialog.CompressProgresDialog
+import com.imagetools.select.ui.dialog.CompressProgressDialog
 
 /**
  * @author jv.lee
@@ -123,7 +123,7 @@ internal abstract class BaseActivity(@LayoutRes layoutId: Int) : AppCompatActivi
         config: SelectConfig,
         images: ArrayList<Image>,
         isOriginal: Boolean,
-        loadingDialog: CompressProgresDialog
+        loadingDialog: CompressProgressDialog
     ) {
         //不使用自带压缩
         if (!config.isCompress) {
@@ -176,7 +176,7 @@ internal abstract class BaseActivity(@LayoutRes layoutId: Int) : AppCompatActivi
      */
     fun FragmentActivity.parseImageResult(
         images: ArrayList<Image>,
-        loadingDialog: CompressProgresDialog
+        loadingDialog: CompressProgressDialog
     ) {
         loadingDialog.dismiss()
         setResult(
