@@ -22,7 +22,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         btn_single_image.setOnClickListener {
-            requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
+            requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE) {
                 imageLaunch.select(
                     SelectConfig(
                         isMultiple = false,
@@ -37,7 +37,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         }
 
         btn_multiple_image.setOnClickListener {
-            requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
+            requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE) {
                 imageLaunch.select(
                     SelectConfig(
                         isMultiple = true,

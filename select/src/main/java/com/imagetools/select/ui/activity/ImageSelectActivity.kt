@@ -122,7 +122,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
         bindView()
         bindListener()
         bindObservable()
