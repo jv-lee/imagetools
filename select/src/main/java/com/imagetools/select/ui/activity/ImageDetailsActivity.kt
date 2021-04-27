@@ -13,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.event.ImageEventBus
+import com.imagetools.select.tools.WeakDataHolder
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
 import kotlinx.android.parcel.Parcelize
@@ -32,6 +33,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         const val KEY_IS_ORIGINAL = "original"
         const val KEY_IMAGE = "image"
         const val KEY_PARAMS = "params"
+        const val KEY_DATA = "data"
 
         @Parcelize
         data class ImageDetailsParams(
@@ -41,7 +43,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             val isReview: Boolean = false,
             val isOriginal: Boolean = false,
             val selectLimit: Int = 9,
-            val data: ArrayList<Image>,
             val selectData: ArrayList<Image>
         ) : Parcelable
 
@@ -64,7 +65,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 isReview,
                 isOriginal,
                 selectLimit,
-                data,
                 selectData
             )
             val optionsCompat =
@@ -73,6 +73,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                     view,
                     params.transitionName
                 )
+            WeakDataHolder.instance.saveData(KEY_DATA, data)
             activity.startActivity(
                 Intent(activity, ImageDetailsActivity::class.java)
                     .putExtra(KEY_PARAMS, params), optionsCompat.toBundle()
@@ -82,9 +83,10 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     }
 
     private val params by lazy<ImageDetailsParams> { intent.getParcelableExtra(KEY_PARAMS)!! }
+    private val data by lazy { WeakDataHolder.instance.getData(KEY_DATA) ?: arrayListOf<Image>() }
 
     private val adapter by lazy {
-        ImagePagerAdapter(params.data).also {
+        ImagePagerAdapter(data).also {
             it.setDragCallback(object : DragImageView.Callback {
                 override fun onClicked() {
                     //单击事件
@@ -192,7 +194,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         }
         //设置选择
         val position = vp_container.currentItem
-        val item = params.data[position]
+        val item = data[position]
         //发送事件通知上层页面刷新
         ImageEventBus.getInstance().eventLiveData.value =
             ImageEventBus.ImageEvent(item, item.select)
@@ -207,7 +209,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     }
 
     private fun setSelectView(position: Int) {
-        val item = params.data[position]
+        val item = data[position]
         if (params.selectData.contains(item)) {
             val index = params.selectData.indexOf(item)
             tv_select_number.text = index.plus(1).toString()
@@ -230,7 +232,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
     private fun finishImageData() {
         if (params.selectData.isEmpty()) {
-            val image = params.data[vp_container.currentItem]
+            val image = data[vp_container.currentItem]
             ImageEventBus.getInstance().eventLiveData.value = ImageEventBus.ImageEvent(image, false)
         }
 
@@ -241,7 +243,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private fun parseResult() {
         setResult(
             Activity.RESULT_OK, Intent()
-                .putExtra(KEY_IMAGE, params.data[vp_container.currentItem])
+                .putExtra(KEY_IMAGE, data[vp_container.currentItem])
                 .putExtra(KEY_IS_ORIGINAL, cb_original.isChecked)
 
         )
