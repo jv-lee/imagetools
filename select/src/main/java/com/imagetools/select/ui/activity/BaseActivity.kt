@@ -146,14 +146,14 @@ internal abstract class BaseActivity(@LayoutRes layoutId: Int) : AppCompatActivi
             CompressConfig.getDefaultConfig(),
             arrayListOf<Photo>().also {
                 for (image in images) {
-                    it.add(Photo(image.path))
+                    it.add(Photo(image.uri))
                 }
             },
             object : CompressImage.CompressListener {
                 override fun onCompressSuccess(photos: ArrayList<Photo>?) {
                     photos?.let {
                         for ((index, image) in images.withIndex()) {
-                            image.path = it[index].compressPath
+                            image.uri = it[index].compressUri
                         }
                     }
                     parseImageResult(images, loadingDialog)

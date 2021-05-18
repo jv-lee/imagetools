@@ -1,5 +1,7 @@
 package com.imagetools.compress.bean;
 
+import android.net.Uri;
+
 import java.io.Serializable;
 
 /**
@@ -9,7 +11,7 @@ public class Photo implements Serializable {
     /**
      * 图片原始路径
      */
-    private String originalPath;
+    private Uri originalUri;
     /**
      * 图片是否压缩过
      */
@@ -17,15 +19,15 @@ public class Photo implements Serializable {
     /**
      * 图片压缩后路径
      */
-    private String compressPath;
+    private Uri compressUri;
 
 
-    public String getOriginalPath() {
-        return originalPath;
+    public Uri getOriginalUri() {
+        return originalUri;
     }
 
-    public void setOriginalPath(String originalPath) {
-        this.originalPath = originalPath;
+    public void setOriginalUri(Uri originalUri) {
+        this.originalUri = originalUri;
     }
 
     public boolean isCompressed() {
@@ -36,15 +38,15 @@ public class Photo implements Serializable {
         this.compressed = compressed;
     }
 
-    public String getCompressPath() {
-        return compressPath;
+    public Uri getCompressUri() {
+        return compressUri;
     }
 
-    public void setCompressPath(String compressPath) {
-        this.compressPath = compressPath;
+    public void setCompressUri(Uri compressUri) {
+        this.compressUri = compressUri;
     }
 
-    public Photo(String originalPath) {
-        this.originalPath = originalPath;
+    public Photo(Uri originalPath) {
+        this.originalUri = originalPath;
     }
 }

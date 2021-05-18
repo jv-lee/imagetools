@@ -399,13 +399,13 @@ public class CropImageActivity extends MonitoredActivity {
             @Override
             public void run() {
                 ArrayList<Photo> data = new ArrayList<Photo>();
-                data.add(new Photo(saveUri.getPath()));
+                data.add(new Photo(saveUri));
                 CompressImageManager.build(getApplicationContext(), CompressConfig.getDefaultConfig(), data,
                         new CompressImage.CompressListener() {
                             @Override
                             public void onCompressSuccess(ArrayList<Photo> images) {
                                 if (images != null && !images.isEmpty()) {
-                                    setResultUri(Uri.fromFile(new File(images.get(0).getCompressPath())));
+                                    setResultUri(images.get(0).getCompressUri());
                                 } else {
                                     setResultUri(saveUri);
                                 }

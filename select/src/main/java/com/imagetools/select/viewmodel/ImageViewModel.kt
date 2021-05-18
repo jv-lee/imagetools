@@ -31,7 +31,7 @@ internal class ImageViewModel(application: Application) : AndroidViewModel(appli
     private val page = PageNumber(limit = 0)
     private var activeAlbumId = 0L
 
-    var albumId: Long = Constants.DEFAULT_ALBUM_ID
+    var albumId: Long = Constants.DEFAULT_ID
     var albumName: String = application.getString(R.string.default_album_name)
 
     val albumsLiveData by lazy { MutableLiveData<List<Album>>() }

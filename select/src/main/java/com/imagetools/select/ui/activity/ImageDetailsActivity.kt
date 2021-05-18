@@ -131,7 +131,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 val position = vp_container.currentItem
                 val view = vp_container.findViewById<View>(R.id.drag_image)
                 view?.run {
-                    sharedElements.put(adapter.data[position].path, this)
+                    sharedElements.put(adapter.data[position].uri.path ?: "", this)
                 }
             }
         })

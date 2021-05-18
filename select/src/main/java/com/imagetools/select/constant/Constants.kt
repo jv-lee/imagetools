@@ -7,7 +7,7 @@ package com.imagetools.select.constant
  */
 internal object Constants {
     //默认相册ID - 使用该ID获取所有照片数据
-    const val DEFAULT_ALBUM_ID = -1L
+    const val DEFAULT_ID = -1L
 
     //intent 透传图片选择器配置key
     const val CONFIG_KEY = "config_key"

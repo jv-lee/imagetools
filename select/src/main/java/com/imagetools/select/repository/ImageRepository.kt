@@ -3,7 +3,6 @@ package com.imagetools.select.repository
 import android.app.Application
 import android.content.ContentUris
 import android.provider.MediaStore
-import android.util.Log
 import com.imagetools.select.R
 import com.imagetools.select.constant.Constants
 import com.imagetools.select.entity.Album
@@ -23,7 +22,7 @@ internal class ImageRepository(private val application: Application) {
         val projection = arrayOf(
             MediaStore.Images.Media.BUCKET_ID,
             MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-            MediaStore.Images.Media.DATA
+            MediaStore.Images.Media._ID
         )
         val cursor = application.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -40,10 +39,13 @@ internal class ImageRepository(private val application: Application) {
                 val id = cursor.getLong(cursor.getColumnIndexOrThrow(projection[0]))
                 val name =
                     cursor.getString(cursor.getColumnIndexOrThrow(projection[1]))
-                val cover =
-                    cursor.getString(cursor.getColumnIndexOrThrow(projection[2]))
+                val coverId = cursor.getLong(cursor.getColumnIndexOrThrow(projection[2]))
+                val coverUri = ContentUris.withAppendedId(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    coverId
+                )
                 if (!albumSet.contains(id)) {
-                    albums.add(Album(id, name, cover))
+                    albums.add(Album(id, name, coverUri))
                     albumSet.add(id)
                 }
             } while (cursor.moveToPrevious())
@@ -53,9 +55,9 @@ internal class ImageRepository(private val application: Application) {
         albums.add(
             0,
             Album(
-                Constants.DEFAULT_ALBUM_ID,
+                Constants.DEFAULT_ID,
                 defaultAlbumName,
-                tempAlbum.cover
+                tempAlbum.coverUri
             )
         )
 
@@ -66,14 +68,13 @@ internal class ImageRepository(private val application: Application) {
     fun getImagesByAlbum(albumId: Long, page: Int = 0): List<Image> {
         val images = arrayListOf<Image>()
         val projection = arrayOf(
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DATA
+            MediaStore.Images.Media._ID
         )
         val cursor = application.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             projection,
-            if (albumId == Constants.DEFAULT_ALBUM_ID) null else MediaStore.Images.Media.BUCKET_ID + " =?",
-            if (albumId == Constants.DEFAULT_ALBUM_ID) null else arrayOf(albumId.toString()),
+            if (albumId == Constants.DEFAULT_ID) null else MediaStore.Images.Media.BUCKET_ID + " =?",
+            if (albumId == Constants.DEFAULT_ID) null else arrayOf(albumId.toString()),
             "${MediaStore.Images.Media.DATE_ADDED} desc"
 //            "${MediaStore.Images.Media.DATE_ADDED} desc limit ${page * Constants.PAGE_COUNT},${Constants.PAGE_COUNT}"
         )
@@ -82,8 +83,9 @@ internal class ImageRepository(private val application: Application) {
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getLong(cursor.getColumnIndex(projection[0]))
-                val path = cursor.getString(cursor.getColumnIndex(projection[1]))
-                images.add(Image(id, path))
+                val uri =
+                    ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                images.add(Image(id, uri))
             } while (cursor.moveToNext())
         }
         cursor.close()

@@ -1,6 +1,7 @@
 package com.imagetools.compress;
 
 import android.content.Context;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import com.imagetools.compress.bean.Photo;
@@ -8,6 +9,7 @@ import com.imagetools.compress.config.CompressConfig;
 import com.imagetools.compress.core.CompressImageUtil;
 import com.imagetools.compress.listener.CompressImage;
 import com.imagetools.compress.listener.CompressResultListener;
+import com.imagetools.compress.utils.CommonUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
  */
 public class CompressImageManager implements CompressImage {
 
+    private Context context;
     /**
      * 压缩工具类
      */
@@ -40,6 +43,7 @@ public class CompressImageManager implements CompressImage {
 
     private CompressImageManager(Context context, CompressConfig config, ArrayList<Photo> images, CompressListener listener) {
         compressImageUtil = new CompressImageUtil(context, config);
+        this.context = context;
         this.config = config;
         this.images = images;
         this.listener = listener;
@@ -73,12 +77,12 @@ public class CompressImageManager implements CompressImage {
      * @param image
      */
     private void compress(final Photo image) {
-        if (TextUtils.isEmpty(image.getOriginalPath())) {
+        if (TextUtils.isEmpty(image.getOriginalUri().getPath())) {
             continueCompress(image, false);
             return;
         }
 
-        File file = new File(image.getOriginalPath());
+        File file = new File(CommonUtils.uriToPath(context, image.getOriginalUri()));
         if (!file.exists() || !file.isFile()) {
             continueCompress(image, false);
             return;
@@ -87,23 +91,23 @@ public class CompressImageManager implements CompressImage {
         // <= 200KB
         if (file.length() < config.getMaxSize()) {
             //不满足压缩条件直接将原地址设置为压缩地址 方便调用.
-            image.setCompressPath(image.getOriginalPath());
+            image.setCompressUri(image.getOriginalUri());
             continueCompress(image, true);
             return;
         }
 
         //条件满足 开始压缩
-        compressImageUtil.compress(image.getOriginalPath(), new CompressResultListener() {
+        compressImageUtil.compress(image.getOriginalUri(), new CompressResultListener() {
             @Override
-            public void onCompressSuccess(String imgPath) {
+            public void onCompressSuccess(Uri imgUri) {
                 //压缩成功
-                image.setCompressPath(imgPath);
+                image.setCompressUri(imgUri);
                 continueCompress(image, true);
             }
 
 
             @Override
-            public void onCompressFailed(String imgPath, String error) {
+            public void onCompressFailed(Uri imgUri, String error) {
                 //压缩失败
                 continueCompress(image, false, error);
             }

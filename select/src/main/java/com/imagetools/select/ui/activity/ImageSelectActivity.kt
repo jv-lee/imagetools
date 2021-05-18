@@ -183,7 +183,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             override fun onShakeClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val item = mAlbumAdapter.getItem(position)
                 viewModel.albumId = item.id
-                viewModel.albumName = item.name
+                viewModel.albumName = item.name ?: ""
                 if (viewModel.isCurrentAlbum()) {
                     image_select_bar.switch()
                 } else {
@@ -198,7 +198,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                     ImageDetailsActivity.startActivity(
                         this@ImageSelectActivity,
                         imageView,
-                        mImageAdapter.getItem(position).path,
+                        mImageAdapter.getItem(position).uri.path ?: "",
                         position,
                         mImageAdapter.size,
                         false,
@@ -232,7 +232,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                     val position = mImageAdapter.getPosition(image)
                     val itemView = gv_images.getChildAt(position - gv_images.firstVisiblePosition)
                     itemView?.let {
-                        sharedElements.put(image.path, it.findViewById(R.id.iv_image))
+                        sharedElements.put(image.uri.path ?: "", it.findViewById(R.id.iv_image))
                     }
                 }
 

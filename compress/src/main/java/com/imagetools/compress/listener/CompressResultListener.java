@@ -1,5 +1,7 @@
 package com.imagetools.compress.listener;
 
+import android.net.Uri;
+
 /**
  * 单张图片压缩监听
  *
@@ -9,17 +11,17 @@ public interface CompressResultListener {
     /**
      * 成功
      *
-     * @param imgPath
+     * @param imgUri
      */
-    void onCompressSuccess(String imgPath);
+    void onCompressSuccess(Uri imgUri);
 
     /**
      * 失败
      *
-     * @param imgPath
+     * @param imgUri
      * @param error
      */
-    void onCompressFailed(String imgPath, String error);
+    void onCompressFailed(Uri imgUri, String error);
 
     void onCompressProgress(int progress);
 }

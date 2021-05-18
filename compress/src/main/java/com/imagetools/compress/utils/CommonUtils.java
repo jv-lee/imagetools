@@ -2,12 +2,19 @@ package com.imagetools.compress.utils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.widget.Toast;
+
+import androidx.core.content.FileProvider;
+
+import java.io.File;
 
 
 public class CommonUtils {
@@ -46,7 +53,8 @@ public class CommonUtils {
 
     /**
      * 跳转到图库
-     * @param activity 上下文
+     *
+     * @param activity    上下文
      * @param requestCode 回调码
      */
     public static void openAlbum(Activity activity, int requestCode) {
@@ -58,7 +66,8 @@ public class CommonUtils {
 
     /**
      * 显示圆形进度对话框
-     * @param activity 上下文
+     *
+     * @param activity      上下文
      * @param progressTitle 显示的标题
      * @return ProgressDialog
      */
@@ -67,7 +76,7 @@ public class CommonUtils {
             return null;
         }
         String title = "提示";
-        if (progressTitle != null && progressTitle.length>0) {
+        if (progressTitle != null && progressTitle.length > 0) {
             title = progressTitle[0];
         }
         ProgressDialog progressDialog = new ProgressDialog(activity);
@@ -76,4 +85,31 @@ public class CommonUtils {
         progressDialog.show();
         return progressDialog;
     }
+
+    public static Uri fileToUri(Context context, File file) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return FileProvider.getUriForFile(context, "${context.packageName}.select.fileprovider", file);
+        } else {
+            return Uri.fromFile(file);
+        }
+    }
+
+    public static String uriToPath(Context context, Uri uri) {
+        String imagePath;
+        Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
+        try {
+            if (cursor == null) {
+                imagePath = uri.getPath();
+            } else {
+                cursor.moveToFirst();
+                int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                imagePath = cursor.getString(index);
+                cursor.close();
+            }
+        } catch (Exception e) {
+            imagePath = uri.getPath();
+        }
+        return imagePath;
+    }
+
 }

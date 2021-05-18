@@ -18,9 +18,10 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.imagetools.select.R
-import com.imagetools.select.ui.adapter.base.BaseSelectAdapter
 import com.imagetools.select.constant.Constants
 import com.imagetools.select.entity.Image
+import com.imagetools.select.tools.UriTools
+import com.imagetools.select.ui.adapter.base.BaseSelectAdapter
 
 /**
  * @author jv.lee
@@ -68,7 +69,7 @@ internal class ImageSelectAdapter(
 
         viewHolder.ivImage.layoutParams = ConstraintLayout.LayoutParams(size, size)
 
-        var glide = Glide.with(context).load(item.path)
+        var glide = Glide.with(context).load(item.uri)
             .format(DecodeFormat.PREFER_RGB_565)
             .placeholder(ColorDrawable(ContextCompat.getColor(context, R.color.colorPlaceholder)))
             .transition(DrawableTransitionOptions.withCrossFade())

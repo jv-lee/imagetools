@@ -43,7 +43,7 @@ internal class ImagePagerAdapter(val data: MutableList<Image>) :
             view.setMaxScale(3f)
             view.setCallback(mDragCallback)
             Glide.with(view)
-                .load(item.path)
+                .load(item.uri)
                 .format(DecodeFormat.PREFER_RGB_565)
                 .into(view)
         }

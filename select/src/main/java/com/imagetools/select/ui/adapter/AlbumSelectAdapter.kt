@@ -33,8 +33,8 @@ internal class AlbumSelectAdapter(context: Context) : BaseAdapter<Album>(context
         }
 
         val item = getItem(position)
-        Glide.with(context).load(item.cover).into(viewHolder.ivCover)
-        viewHolder.tvAlbumName.text = getData()[position].name
+        Glide.with(context).load(item.coverUri).into(viewHolder.ivCover)
+        viewHolder.tvAlbumName.text = getData()[position].name ?: ""
 
         return itemView
     }

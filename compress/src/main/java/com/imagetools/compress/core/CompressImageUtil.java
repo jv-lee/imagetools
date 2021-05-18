@@ -3,11 +3,14 @@ package com.imagetools.compress.core;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.imagetools.compress.config.CompressConfig;
 import com.imagetools.compress.listener.CompressResultListener;
+import com.imagetools.compress.utils.CommonUtils;
 import com.imagetools.compress.utils.Constants;
 
 import java.io.ByteArrayOutputStream;
@@ -46,18 +49,23 @@ public class CompressImageUtil {
         this.config = config == null ? CompressConfig.getDefaultConfig() : config;
     }
 
-    public void compress(String imgPath, CompressResultListener listener) {
+    public void compress(Uri imageUri, CompressResultListener listener) {
         if (config.isEnablePixelCompress()) {
             try {
                 //启用像素压缩
-                compressImageByPixel(imgPath, listener);
+                compressImageByPixel(imageUri, listener);
             } catch (Exception e) {
-                listener.onCompressFailed(imgPath, String.format("Picture compress failed, %s", e.toString()));
+                listener.onCompressFailed(imageUri, String.format("Picture compress failed, %s", e.toString()));
                 e.printStackTrace();
             }
         } else {
             //质量压缩
-            compressImageByQuality(BitmapFactory.decodeFile(imgPath), imgPath, listener);
+            try {
+                compressImageByQuality(BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageUri)), imageUri, listener);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                listener.onCompressFailed(imageUri, String.format("Picture compress failed %s", e.toString()));
+            }
         }
     }
 
@@ -65,9 +73,9 @@ public class CompressImageUtil {
      * 质量压缩
      * 多线程压缩图片的质量
      */
-    private void compressImageByQuality(final Bitmap bitmap, final String imgPath, final CompressResultListener listener) {
+    private void compressImageByQuality(final Bitmap bitmap, final Uri imgUri, final CompressResultListener listener) {
         if (bitmap == null) {
-            sendMsg(false, imgPath, "quality compress failed,bitmap is null.", listener);
+            sendMsg(false, imgUri, "quality compress failed,bitmap is null.", listener);
             return;
         }
         //开启多线程进行压缩处理
@@ -96,7 +104,7 @@ public class CompressImageUtil {
                     }
                 }
                 try {
-                    File thumbnailFile = getThumbnailFile(new File(imgPath));
+                    File thumbnailFile = getThumbnailFile(new File(CommonUtils.uriToPath(context, imgUri)));
                     //将压缩后的图片保存的本地上指定路径中
                     FileOutputStream fos = new FileOutputStream(thumbnailFile);
                     fos.write(baos.toByteArray());
@@ -105,11 +113,11 @@ public class CompressImageUtil {
                     baos.flush();
                     baos.close();
                     bitmap.recycle();
-                    sendMsg(true, thumbnailFile.getPath(), null, listener);
-                    sendProgress(1,listener);
+                    sendMsg(true, imgUri, null, listener);
+                    sendProgress(1, listener);
 
                 } catch (Exception e) {
-                    sendMsg(false, imgPath, "quality compress failed,bitmap is null.", listener);
+                    sendMsg(false, imgUri, "quality compress failed,bitmap is null.", listener);
                     e.printStackTrace();
                 }
             }
@@ -121,15 +129,15 @@ public class CompressImageUtil {
      * 像素压缩
      * 按比例缩小图片的像素以达到压缩的目的
      */
-    private void compressImageByPixel(String imgPath, CompressResultListener listener) throws FileNotFoundException {
-        if (imgPath == null) {
+    private void compressImageByPixel(Uri imgUri, CompressResultListener listener) throws FileNotFoundException {
+        if (imgUri == null || TextUtils.isEmpty(imgUri.getPath())) {
             sendMsg(false, null, "is compress picture is not extends.", listener);
             return;
         }
         BitmapFactory.Options newOpts = new BitmapFactory.Options();
         // 只读边,不读内容
         newOpts.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(imgPath, newOpts);
+        BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imgUri), null, newOpts);
         newOpts.inJustDecodeBounds = false;
         int width = newOpts.outWidth;
         int height = newOpts.outHeight;
@@ -157,15 +165,15 @@ public class CompressImageUtil {
         newOpts.inPurgeable = true;
         // 当系统内存不够时候图片自动被回收
         newOpts.inInputShareable = true;
-        Bitmap bitmap = BitmapFactory.decodeFile(imgPath, newOpts);
+        Bitmap bitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imgUri), null, newOpts);
         if (config.isEnableQualityCompress()) {
             // 压缩好比例大小后再进行质量压缩
-            compressImageByQuality(bitmap, imgPath, listener);
+            compressImageByQuality(bitmap, imgUri, listener);
         } else {
-            File thumbnailFile = getThumbnailFile(new File(imgPath));
+            File thumbnailFile = getThumbnailFile(new File(CommonUtils.uriToPath(context, imgUri)));
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(thumbnailFile));
 
-            listener.onCompressSuccess(thumbnailFile.getPath());
+            listener.onCompressSuccess(imgUri);
             listener.onCompressProgress(1);
         }
     }
@@ -178,7 +186,7 @@ public class CompressImageUtil {
     }
 
     private File getPhotoCacheDir(File file) {
-        File mCacheDir = new File(context.getCacheDir() ,Constants.COMPRESS_CACHE);
+        File mCacheDir = new File(context.getCacheDir(), Constants.COMPRESS_CACHE);
         Log.e("compress >>> ", mCacheDir.getAbsolutePath());
         if (!mCacheDir.mkdirs() && (!mCacheDir.exists() || !mCacheDir.isDirectory())) {
             return file;
@@ -192,20 +200,20 @@ public class CompressImageUtil {
      *
      * @param isSuccess 压缩是否成功
      */
-    private void sendMsg(final boolean isSuccess, final String imagePath, final String message, final CompressResultListener listener) {
+    private void sendMsg(final boolean isSuccess, final Uri imageUri, final String message, final CompressResultListener listener) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 if (isSuccess) {
-                    listener.onCompressSuccess(imagePath);
+                    listener.onCompressSuccess(imageUri);
                 } else {
-                    listener.onCompressFailed(imagePath, message);
+                    listener.onCompressFailed(imageUri, message);
                 }
             }
         });
     }
 
-    private void sendProgress(final int progress,final CompressResultListener listener) {
+    private void sendProgress(final int progress, final CompressResultListener listener) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {

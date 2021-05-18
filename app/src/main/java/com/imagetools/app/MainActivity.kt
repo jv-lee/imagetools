@@ -8,6 +8,7 @@ import com.imagetools.app.base.BaseActivity
 import com.imagetools.select.ImageLaunch
 import com.imagetools.select.entity.SelectConfig
 import com.imagetools.select.entity.TakeConfig
+import com.imagetools.select.tools.UriTools
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
@@ -30,8 +31,8 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                         columnCount = 3
                     )
                 )  {
-                    iv_image.setImageURI(Uri.fromFile(File(it[0].path)))
-                    toast("count:${it.size} , path:${it[0].path}")
+                    iv_image.setImageURI(it[0].uri)
+                    toast("count:${it.size} , uri:${it[0].uri}")
                 }
             }
         }
@@ -45,8 +46,8 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                         isCompress = true
                     )
                 ) {
-                    iv_image.setImageURI(Uri.fromFile(File(it[0].path)))
-                    toast("count:${it.size} , path:${it[0].path}")
+                    iv_image.setImageURI(it[0].uri)
+                    toast("count:${it.size} , uri:${it[0].uri}")
                 }
             }
         }
@@ -54,8 +55,8 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         btn_take_image.setOnClickListener {
             requestPermission(Manifest.permission.CAMERA) {
                 imageLaunch.take(TakeConfig(isCrop = true, isCompress = true, isSquare = false)) {
-                    iv_image.setImageURI(Uri.fromFile(File(it.path)))
-                    toast("path:${it.path}")
+                    iv_image.setImageURI(it.uri)
+                    toast("uri:${it.uri}")
                 }
             }
         }

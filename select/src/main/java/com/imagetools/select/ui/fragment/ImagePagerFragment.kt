@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.imagetools.select.R
 import com.imagetools.select.constant.SharedConstants
 import com.imagetools.select.entity.Image
+import com.imagetools.select.tools.UriTools
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
 import kotlinx.android.synthetic.main.fragment_image_pager_imagetools.*
@@ -37,7 +38,12 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager_imagetools
                         data.run {
                             val images = arrayListOf<Image>()
                             for ((index, item) in this.withIndex()) {
-                                images.add(Image(index.toLong(), item))
+                                images.add(
+                                    Image(
+                                        index.toLong(),
+                                        UriTools.pathToUri(requireContext(), item)
+                                    )
+                                )
                             }
                             return@run images
                         }
@@ -105,7 +111,7 @@ class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager_imagetools
                 val position = vp_container.currentItem
                 val view = vp_container.findViewById<View>(R.id.drag_image)
                 view?.run {
-                    sharedElements.put(data[position].path, this)
+                    sharedElements.put(data[position].uri.path ?: "", this)
                 }
             }
         })

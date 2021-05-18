@@ -3,14 +3,15 @@ package com.imagetools.select.result
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
-import com.imagetools.select.ui.activity.ImageSelectActivity
 import com.imagetools.select.constant.Constants
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.SelectConfig
 import com.imagetools.select.entity.TakeConfig
 import com.imagetools.select.tools.UriTools
+import com.imagetools.select.ui.activity.ImageSelectActivity
 import com.soundclound.android.crop.Crop
 
 /**
@@ -23,16 +24,14 @@ internal class ActivityResultContracts {
     internal class CropActivityResult :
         ActivityResultContract<Image, Image>() {
 
-        private var tempPath: String? = null
+        private var saveUri: Uri? = null
         private var image: Image? = null
 
         override fun createIntent(context: Context, input: Image?): Intent {
-            tempPath = UriTools.getImageFilePath(context)
+            saveUri = UriTools.pathToUri(context, UriTools.getImageFilePath(context))
             image = input
-            val crop = Crop.of(
-                UriTools.pathToUri(context, image?.path!!),
-                UriTools.pathToUri(context, tempPath!!)
-            )
+            val uri = image?.uri
+            val crop = Crop.of(uri, saveUri)
             if (input?.isSquare == true) {
                 crop.asSquare()
             }
@@ -45,7 +44,7 @@ internal class ActivityResultContracts {
         override fun parseResult(resultCode: Int, intent: Intent?): Image? {
             if (resultCode == Activity.RESULT_OK) {
                 image?.let {
-                    return Image(it.id, tempPath ?: return null)
+                    return Image(it.id, saveUri ?: return null)
                 }
             }
             return null
@@ -75,13 +74,18 @@ internal class ActivityResultContracts {
         private var image: Image? = null
 
         override fun createIntent(context: Context, input: TakeConfig): Intent {
-            val path = UriTools.getImageFilePath(context)
+            val uri = UriTools.pathToUri(context, UriTools.getImageFilePath(context))
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
             takeConfig = input
-            image = Image(-1, path, isCompress = input.isCompress,isSquare = input.isSquare)
+            image = Image(
+                Constants.DEFAULT_ID,
+                uri,
+                isCompress = input.isCompress,
+                isSquare = input.isSquare
+            )
 
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, UriTools.pathToUri(context, path))
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
             intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             return intent
         }
