@@ -104,7 +104,7 @@ public class CompressImageUtil {
                     }
                 }
                 try {
-                    File thumbnailFile = getThumbnailFile(new File(CommonUtils.uriToPath(context, imgUri)));
+                    File thumbnailFile = getThumbnailFile(new File(CommonUtils.getImageFilePath(context)));
                     //将压缩后的图片保存的本地上指定路径中
                     FileOutputStream fos = new FileOutputStream(thumbnailFile);
                     fos.write(baos.toByteArray());
@@ -113,7 +113,7 @@ public class CompressImageUtil {
                     baos.flush();
                     baos.close();
                     bitmap.recycle();
-                    sendMsg(true, imgUri, null, listener);
+                    sendMsg(true, CommonUtils.fileToUri(context,thumbnailFile), null, listener);
                     sendProgress(1, listener);
 
                 } catch (Exception e) {
@@ -170,10 +170,10 @@ public class CompressImageUtil {
             // 压缩好比例大小后再进行质量压缩
             compressImageByQuality(bitmap, imgUri, listener);
         } else {
-            File thumbnailFile = getThumbnailFile(new File(CommonUtils.uriToPath(context, imgUri)));
+            File thumbnailFile = getThumbnailFile(new File(CommonUtils.getImageFilePath(context)));
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(thumbnailFile));
 
-            listener.onCompressSuccess(imgUri);
+            listener.onCompressSuccess(CommonUtils.fileToUri(context,thumbnailFile));
             listener.onCompressProgress(1);
         }
     }
