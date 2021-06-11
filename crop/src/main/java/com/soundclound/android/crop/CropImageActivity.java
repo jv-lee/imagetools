@@ -35,7 +35,6 @@ import com.imagetools.compress.bean.Photo;
 import com.imagetools.compress.config.CompressConfig;
 import com.imagetools.compress.listener.CompressImage;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -140,10 +139,10 @@ public class CropImageActivity extends MonitoredActivity {
                 option.inSampleSize = sampleSize;
                 rotateBitmap = new RotateBitmap(BitmapFactory.decodeStream(is, null, option), exifRotation);
             } catch (IOException e) {
-                Log.e("Error reading image: " + e.getMessage(), e);
+                Log.i("Error reading image: " + e.getMessage(), e);
                 setResultException(e);
             } catch (OutOfMemoryError e) {
-                Log.e("OOM reading image: " + e.getMessage(), e);
+                Log.i("OOM reading image: " + e.getMessage(), e);
                 setResultException(e);
             } finally {
                 CropUtil.closeSilently(is);
