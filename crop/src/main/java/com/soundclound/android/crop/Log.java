@@ -12,4 +12,12 @@ class Log {
         android.util.Log.e(TAG, msg, e);
     }
 
+    public static void i(String msg) {
+        android.util.Log.i(TAG, msg);
+    }
+
+    public static void i(String msg, Throwable e) {
+        android.util.Log.i(TAG, msg, e);
+    }
+
 }
