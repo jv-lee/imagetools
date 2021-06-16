@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.fragment_image_pager_imagetools.*
  * @date 2020/12/12
  * @description
  */
-class ImagePagerFragment : BaseFragment(R.layout.fragment_image_pager_imagetools) {
+class ImagePagerFragment : Fragment(R.layout.fragment_image_pager_imagetools) {
 
     companion object {
 
