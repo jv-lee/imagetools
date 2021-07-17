@@ -3,7 +3,6 @@ package com.imagetools.select.ui.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.Animation
@@ -45,11 +44,18 @@ class DragImageView : TransformImageView, ViewLifecycle {
 
     private var isParentTouch = false
     private var isChildTouch = false
+    private var isClose = false
 
     private val mAnimation = ReIndexAnimation()
     private var mCallback: Callback? = null
 
-    private val mSingleTapRunnable = Runnable { mCallback?.onClicked() }
+    private val mSingleTapRunnable = Runnable {
+        if (isClose) {
+            isClose = false
+            return@Runnable
+        }
+        mCallback?.onClicked()
+    }
 
     private val mGesture =
         GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
@@ -101,7 +107,8 @@ class DragImageView : TransformImageView, ViewLifecycle {
 
                 //判断当前View是否可以拖动 可拖动情况下 拦截父容器事件 子view处理当前滑动事件.
                 if ((abs(distanceX) > abs(distanceY) && canScrollHorizontally(distanceX.toInt())) ||
-                    (abs(distanceY) > abs(distanceX)) && canScrollVertically(distanceY.toInt())) {
+                    (abs(distanceY) > abs(distanceX)) && canScrollVertically(distanceY.toInt())
+                ) {
                     parent.requestDisallowInterceptTouchEvent(true)
                     return super.dispatchTouchEvent(ev)
                 }
@@ -150,7 +157,7 @@ class DragImageView : TransformImageView, ViewLifecycle {
         val x = event.rawX.toInt()
         val y = event.rawY.toInt()
         when (event.action) {
-            MotionEvent.ACTION_DOWN ->{
+            MotionEvent.ACTION_DOWN -> {
                 mStartY = event.y
                 mStartX = event.x
             }
@@ -182,6 +189,7 @@ class DragImageView : TransformImageView, ViewLifecycle {
                 isClickable = true
                 //获取当前时间减最后移动时间 如果超过500毫秒 代表用户悬停 onReIndex  否则直接关闭.
                 if ((System.currentTimeMillis() - mMoveMillis) < 500 && translationY > 0) {
+                    isClose = true
                     mCallback?.onDragClose()
                 } else {
                     onReIndex()
