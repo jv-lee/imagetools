@@ -16,25 +16,40 @@ import com.imagetools.select.result.ActivityResultContracts
  * @date 2020/12/11
  * @description 图片选择器功能入口
  */
-class ImageLaunch private constructor() : LifecycleObserver {
+class ImageLaunch {
 
-    private var activity: FragmentActivity? = null
-    private var fragment: Fragment? = null
+    constructor(fragmentActivity: FragmentActivity) {
+        createLaunch(fragmentActivity)
+    }
 
-    private lateinit var selectLaunch: ActivityResultLauncher<SelectConfig>
-    private lateinit var cropLaunch: ActivityResultLauncher<Image>
-    private lateinit var takeLaunch: ActivityResultLauncher<TakeConfig>
+    constructor(fragment: Fragment) {
+        createLaunch(fragment)
+    }
+
+    private var selectLaunch: ActivityResultLauncher<SelectConfig>? = null
+    private var cropLaunch: ActivityResultLauncher<Image>? = null
+    private var takeLaunch: ActivityResultLauncher<TakeConfig>? = null
 
     private var imageCall: ((image: Image) -> Unit)? = null
     private var imageFailedCall: (() -> Unit)? = null
     private var imagesCall: ((images: ArrayList<Image>) -> Unit)? = null
     private var imagesFailedCall: (() -> Unit)? = null
 
-    constructor(activity: FragmentActivity) : this() {
-        this.activity = activity
-        this.activity?.lifecycle?.addObserver(this)
+    private fun createLaunch(thisClass: Any) {
+        val thisT = when (thisClass) {
+            is FragmentActivity -> {
+                thisClass
+            }
+            is Fragment -> {
+                thisClass
+            }
+            else -> {
+                throw ClassCastException("thisClass type not is FragmentActivity/Fragment")
+            }
+        }
+
         this.selectLaunch =
-            activity.registerForActivityResult(ActivityResultContracts.SelectActivityResult()) {
+            thisT.registerForActivityResult(ActivityResultContracts.SelectActivityResult()) {
                 if (it.isNullOrEmpty()) {
                     imagesFailedCall?.invoke()
                 } else {
@@ -42,7 +57,7 @@ class ImageLaunch private constructor() : LifecycleObserver {
                 }
             }
         this.cropLaunch =
-            activity.registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
+            thisT.registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
                 if (it == null) {
                     imageFailedCall?.invoke()
                 } else {
@@ -51,7 +66,7 @@ class ImageLaunch private constructor() : LifecycleObserver {
             }
         val takePicture = ActivityResultContracts.TakePicture()
         this.takeLaunch =
-            activity.registerForActivityResult(takePicture) {
+            thisT.registerForActivityResult(takePicture) {
                 takePicture.getTakeConfig()?.let { takeConfig ->
                     it?.let { image ->
                         image.isCompress = takeConfig.isCompress
@@ -59,7 +74,7 @@ class ImageLaunch private constructor() : LifecycleObserver {
                     }
                 }
                 if (takePicture.getTakeConfig()?.isCrop == true) {
-                    cropLaunch.launch(it)
+                    cropLaunch?.launch(it)
                     return@registerForActivityResult
                 }
 
@@ -69,47 +84,17 @@ class ImageLaunch private constructor() : LifecycleObserver {
                     imageCall?.invoke(it)
                 }
             }
-    }
 
-    constructor(fragment: Fragment) : this() {
-        this.fragment = fragment
-        this.fragment?.lifecycle?.addObserver(this)
-        this.selectLaunch =
-            fragment.registerForActivityResult(ActivityResultContracts.SelectActivityResult()) {
-                if (it.isNullOrEmpty()) {
-                    imagesFailedCall?.invoke()
-                } else {
-                    imagesCall?.invoke(it)
-                }
+        //设置声明周期监听
+        thisT.lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun destroy() {
+                thisT.lifecycle.removeObserver(this)
+                selectLaunch?.unregister()
+                cropLaunch?.unregister()
+                takeLaunch?.unregister()
             }
-        this.cropLaunch =
-            fragment.registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
-                if (it == null) {
-                    imageFailedCall?.invoke()
-                } else {
-                    imageCall?.invoke(it)
-                }
-            }
-        val takePicture = ActivityResultContracts.TakePicture()
-        this.takeLaunch =
-            fragment.registerForActivityResult(takePicture) {
-                takePicture.getTakeConfig()?.let { takeConfig ->
-                    it?.let { image ->
-                        image.isCompress = takeConfig.isCompress
-                        image.isSquare = takeConfig.isSquare
-                    }
-                }
-                if (takePicture.getTakeConfig()?.isCrop == true) {
-                    cropLaunch.launch(it)
-                    return@registerForActivityResult
-                }
-
-                if (it == null) {
-                    imageFailedCall?.invoke()
-                } else {
-                    imageCall?.invoke(it)
-                }
-            }
+        })
     }
 
     /**
@@ -119,7 +104,7 @@ class ImageLaunch private constructor() : LifecycleObserver {
      */
     fun select(config: SelectConfig, call: (image: ArrayList<Image>) -> Unit) {
         imagesCall = call
-        selectLaunch.launch(config)
+        selectLaunch?.launch(config)
     }
 
     /**
@@ -129,7 +114,7 @@ class ImageLaunch private constructor() : LifecycleObserver {
      */
     fun take(config: TakeConfig, call: (image: Image) -> Unit) {
         imageCall = call
-        takeLaunch.launch(config)
+        takeLaunch?.launch(config)
     }
 
     /**
@@ -139,16 +124,7 @@ class ImageLaunch private constructor() : LifecycleObserver {
      */
     fun crop(image: Image, call: (image: Image) -> Unit) {
         imageCall = call
-        cropLaunch.launch(image)
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    private fun unBindLifecycle() {
-        selectLaunch.unregister()
-        cropLaunch.unregister()
-        takeLaunch.unregister()
-        this.activity?.lifecycle?.removeObserver(this)
-        this.fragment?.lifecycle?.removeObserver(this)
+        cropLaunch?.launch(image)
     }
 
 }
