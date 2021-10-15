@@ -6,6 +6,11 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
+import android.widget.CheckBox
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.FragmentActivity
@@ -16,10 +21,8 @@ import com.imagetools.select.event.ImageEventBus
 import com.imagetools.select.tools.WeakDataHolder
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
+import com.imagetools.select.ui.widget.StatusPaddingFrameLayout
 import kotlinx.android.parcel.Parcelize
-import kotlinx.android.synthetic.main.activity_image_details_imagetools.*
-import kotlinx.android.synthetic.main.layout_edit_top_imagetools.*
-import kotlinx.android.synthetic.main.layout_navigation_imagetools.*
 
 /**
  * @author jv.lee
@@ -108,6 +111,17 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         }
     }
 
+    private val vpContainer: ViewPager2 by lazy { findViewById(R.id.vp_container) }
+    private val cbOriginal:CheckBox by lazy { findViewById(R.id.cb_original) }
+    private val tvReview: TextView by lazy { findViewById(R.id.tv_review) }
+    private val tvDone: TextView by lazy { findViewById(R.id.tv_done) }
+    private val ivBack: ImageView by lazy { findViewById(R.id.iv_back)}
+    private val frameSelect: FrameLayout by lazy { findViewById(R.id.frame_select) }
+    private val constNavigation:ConstraintLayout by lazy { findViewById(R.id.const_navigation)}
+    private val constNavigationTop: StatusPaddingFrameLayout by lazy { findViewById(R.id.const_navigation_top)}
+    private val tvSelectNumber:TextView by lazy { findViewById(R.id.tv_select_number) }
+    private val ivCheck:ImageView by lazy { findViewById(R.id.iv_check) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initAnimation()
@@ -128,8 +142,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 names: MutableList<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                val position = vp_container.currentItem
-                val view = vp_container.findViewById<View>(R.id.drag_image)
+                val position = vpContainer.currentItem
+                val view = vpContainer.findViewById<View>(R.id.drag_image)
                 view?.run {
                     sharedElements.put(adapter.data[position].uri.path ?: "", this)
                 }
@@ -145,9 +159,9 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
     private fun initPager() {
         //初始化加载详情图Pager页面.
-        vp_container.adapter = adapter
+        vpContainer.adapter = adapter
         //每次切换页面动态更改回调值
-        vp_container.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        vpContainer.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 setSelectView(position)
@@ -155,35 +169,35 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             }
         })
         //是否是预览模式 设置页面position
-        if (!params.isReview) vp_container.setCurrentItem(params.position, false)
+        if (!params.isReview) vpContainer.setCurrentItem(params.position, false)
     }
 
     private fun initEditLayout() {
-        tv_review.text = getString(R.string.edit_text)
-        tv_review.visibility = View.GONE
-        cb_original.isChecked = params.isOriginal
+        tvReview.text = getString(R.string.edit_text)
+        tvReview.visibility = View.GONE
+        cbOriginal.isChecked = params.isOriginal
 
-        cb_original.setOnCheckedChangeListener { buttonView, isChecked ->
+        cbOriginal.setOnCheckedChangeListener { buttonView, isChecked ->
             parseResult()
         }
-        tv_done.setOnClickListener {
+        tvDone.setOnClickListener {
             finishImageData()
         }
-        iv_back.setOnClickListener { supportFinishAfterTransition() }
-        frame_select.setOnClickListener { clickSelect() }
+        ivBack.setOnClickListener { supportFinishAfterTransition() }
+        frameSelect.setOnClickListener { clickSelect() }
         setDoneCount()
     }
 
     private fun switchEditLayoutVisible() {
-        const_navigation.visibility =
-            if (const_navigation.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-        const_navigation_top.visibility =
-            if (const_navigation_top.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        constNavigation.visibility =
+            if (constNavigation.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        constNavigationTop.visibility =
+            if (constNavigationTop.visibility == View.VISIBLE) View.GONE else View.VISIBLE
     }
 
     private fun setEditLayoutVisible(visible: Boolean) {
-        const_navigation.visibility = if (visible) View.VISIBLE else View.GONE
-        const_navigation_top.visibility = if (visible) View.VISIBLE else View.GONE
+        constNavigation.visibility = if (visible) View.VISIBLE else View.GONE
+        constNavigationTop.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     private fun clickSelect() {
@@ -193,11 +207,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             return
         }
         //设置选择
-        val position = vp_container.currentItem
+        val position = vpContainer.currentItem
         val item = data[position]
-        //发送事件通知上层页面刷新
-        ImageEventBus.getInstance().eventLiveData.value =
-            ImageEventBus.ImageEvent(item, item.select)
         if (item.select) {
             params.selectData.remove(item)
             item.select = false
@@ -205,6 +216,9 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             item.select = true
             params.selectData.add(item)
         }
+        //发送事件通知上层页面刷新
+        ImageEventBus.getInstance().eventLiveData.value =
+            ImageEventBus.ImageEvent(item, item.select)
         setSelectView(position)
     }
 
@@ -212,27 +226,27 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         val item = data[position]
         if (params.selectData.contains(item)) {
             val index = params.selectData.indexOf(item)
-            tv_select_number.text = index.plus(1).toString()
-            tv_select_number.visibility = View.VISIBLE
-            iv_check.visibility = View.GONE
+            tvSelectNumber.text = index.plus(1).toString()
+            tvSelectNumber.visibility = View.VISIBLE
+            ivCheck.visibility = View.GONE
         } else {
-            tv_select_number.visibility = View.GONE
-            iv_check.visibility = View.VISIBLE
+            tvSelectNumber.visibility = View.GONE
+            ivCheck.visibility = View.VISIBLE
         }
         setDoneCount()
     }
 
     private fun setDoneCount() {
         if (params.selectData.isEmpty()) {
-            tv_done.setText(R.string.done_text)
+            tvDone.setText(R.string.done_text)
         } else {
-            tv_done.text = getString(R.string.done_format_text, params.selectData.size)
+            tvDone.text = getString(R.string.done_format_text, params.selectData.size)
         }
     }
 
     private fun finishImageData() {
         if (params.selectData.isEmpty()) {
-            val image = data[vp_container.currentItem]
+            val image = data[vpContainer.currentItem]
             ImageEventBus.getInstance().eventLiveData.value = ImageEventBus.ImageEvent(image, false)
         }
 
@@ -243,8 +257,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private fun parseResult() {
         setResult(
             Activity.RESULT_OK, Intent()
-                .putExtra(KEY_IMAGE, data[vp_container.currentItem])
-                .putExtra(KEY_IS_ORIGINAL, cb_original.isChecked)
+                .putExtra(KEY_IMAGE, data[vpContainer.currentItem])
+                .putExtra(KEY_IS_ORIGINAL, cbOriginal.isChecked)
 
         )
     }

@@ -7,9 +7,9 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ImageView
+import android.widget.*
 import androidx.activity.viewModels
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -28,8 +28,7 @@ import com.imagetools.select.result.ActivityResultContracts
 import com.imagetools.select.tools.Tools
 import com.imagetools.select.viewmodel.ImageViewModel
 import com.imagetools.select.ui.widget.ImageSelectBar
-import kotlinx.android.synthetic.main.activity_image_select_imagetools.*
-import kotlinx.android.synthetic.main.layout_navigation_imagetools.*
+import com.imagetools.select.ui.widget.StreamerView
 
 /**
  * @author jv.lee
@@ -85,7 +84,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             finishImagesResult(
                 selectConfig,
                 arrayListOf(it),
-                cb_original.isChecked,
+                cbOriginal.isChecked,
                 loadingDialog
             )
         }
@@ -95,12 +94,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             it ?: return@Observer
             if (it.isSelect) {
                 val item = mImageAdapter.getItem(mImageAdapter.getPosition(it.image))
-                mImageAdapter.selectList.remove(item)
-                item.select = false
-            } else {
-                val item = mImageAdapter.getItem(mImageAdapter.getPosition(it.image))
                 item.select = true
                 mImageAdapter.selectList.add(item)
+            } else {
+                val item = mImageAdapter.getItem(mImageAdapter.getPosition(it.image))
+                mImageAdapter.selectList.remove(item)
+                item.select = false
             }
             mImageAdapter.notifyDataSetChanged()
             selectDoneCount(mImageAdapter.selectList.size)
@@ -114,11 +113,21 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             finishImagesResult(
                 selectConfig,
                 (mImageAdapter).selectList,
-                cb_original.isChecked,
+                cbOriginal.isChecked,
                 loadingDialog
             )
         }, 300)
     }
+
+    private val constNavigation: ConstraintLayout by lazy { findViewById(R.id.const_navigation) }
+    private val streamerView: StreamerView by lazy { findViewById(R.id.streamer_view) }
+    private val cbOriginal: CheckBox by lazy { findViewById(R.id.cb_original) }
+    private val lvSelect: ListView by lazy { findViewById(R.id.lv_select) }
+    private val gvImages: GridView by lazy { findViewById(R.id.gv_images) }
+    private val imageSelectBar:ImageSelectBar by lazy{findViewById(R.id.image_select_bar)}
+    private val tvReview: TextView by lazy { findViewById(R.id.tv_review) }
+    private val tvDone: TextView by lazy { findViewById(R.id.tv_done) }
+    private val mask: View by lazy { findViewById(R.id.mask) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,20 +139,20 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
 
     private fun bindView() {
-        const_navigation.visibility = if (selectConfig.isMultiple) View.VISIBLE else View.GONE
+        constNavigation.visibility = if (selectConfig.isMultiple) View.VISIBLE else View.GONE
 
-        streamer_view.setColumnCount(selectConfig.columnCount)
+        streamerView.setColumnCount(selectConfig.columnCount)
 
-        lv_select.adapter = mAlbumAdapter
+        lvSelect.adapter = mAlbumAdapter
 
-        gv_images.layoutAnimation = Tools.getItemOrderAnimator(this)
+        gvImages.layoutAnimation = Tools.getItemOrderAnimator(this)
 
         //默认未选中状态
         checkNavigationView(false)
     }
 
     private fun bindListener() {
-        tv_review.setOnClickListener {
+        tvReview.setOnClickListener {
             val position = mImageAdapter.getSelectFirstPosition()
             ImageDetailsActivity.startActivity(
                 this,
@@ -152,46 +161,46 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 position,
                 mImageAdapter.size,
                 true,
-                cb_original.isChecked,
+                cbOriginal.isChecked,
                 selectConfig.selectLimit,
                 mImageAdapter.selectList,
                 mImageAdapter.selectList
             )
         }
-        tv_done.setOnClickListener {
+        tvDone.setOnClickListener {
             finishImagesResult(
                 selectConfig,
                 (mImageAdapter).selectList,
-                cb_original.isChecked,
+                cbOriginal.isChecked,
                 loadingDialog
             )
         }
         mask.setOnClickListener {
-            if (image_select_bar.isExpansion()) {
-                image_select_bar.switch()
+            if (imageSelectBar.isExpansion()) {
+                imageSelectBar.switch()
             }
         }
-        image_select_bar.setAnimCallback(object : ImageSelectBar.AnimCallback {
+        imageSelectBar.setAnimCallback(object : ImageSelectBar.AnimCallback {
             override fun animEnd() {
             }
 
             override fun animCall(enable: Boolean) {
-                animator = Tools.selectViewTranslationAnimator(enable, lv_select, mask)
+                animator = Tools.selectViewTranslationAnimator(enable, lvSelect, mask)
             }
         })
-        lv_select.onItemClickListener = object : ShakeItemClickListener() {
+        lvSelect.onItemClickListener = object : ShakeItemClickListener() {
             override fun onShakeClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val item = mAlbumAdapter.getItem(position)
                 viewModel.albumId = item.id
                 viewModel.albumName = item.name ?: ""
                 if (viewModel.isCurrentAlbum()) {
-                    image_select_bar.switch()
+                    imageSelectBar.switch()
                 } else {
                     viewModel.getImages(LoadStatus.INIT)
                 }
             }
         }
-        gv_images.onItemClickListener = object : ShakeItemClickListener() {
+        gvImages.onItemClickListener = object : ShakeItemClickListener() {
             override fun onShakeClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 if (mImageAdapter.isMultiple) {
                     val imageView = view.findViewById<ImageView>(R.id.iv_image)
@@ -202,7 +211,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                         position,
                         mImageAdapter.size,
                         false,
-                        cb_original.isChecked,
+                        cbOriginal.isChecked,
                         selectConfig.selectLimit,
                         arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
                         mImageAdapter.selectList
@@ -230,7 +239,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 animImage?.let { image ->
                     isReset = false
                     val position = mImageAdapter.getPosition(image)
-                    val itemView = gv_images.getChildAt(position - gv_images.firstVisiblePosition)
+                    val itemView = gvImages.getChildAt(position - gvImages.firstVisiblePosition)
                     itemView?.let {
                         sharedElements.put(image.uri.path ?: "", it.findViewById(R.id.iv_image))
                     }
@@ -260,18 +269,18 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
             mImageAdapter.addData(it)
 
-            if (gv_images.adapter == null) {
-                gv_images.adapter = mImageAdapter
-                gv_images.numColumns = selectConfig.columnCount
-                gv_images.visibility = View.VISIBLE
-                streamer_view.loadCompleteDelay()
+            if (gvImages.adapter == null) {
+                gvImages.adapter = mImageAdapter
+                gvImages.numColumns = selectConfig.columnCount
+                gvImages.visibility = View.VISIBLE
+                streamerView.loadCompleteDelay()
             } else {
                 mImageAdapter.notifyDataSetChanged()
             }
 
-            if (image_select_bar.isExpansion()) {
-                image_select_bar.setSelectName(viewModel.albumName)
-                image_select_bar.switch()
+            if (imageSelectBar.isExpansion()) {
+                imageSelectBar.setSelectName(viewModel.albumName)
+                imageSelectBar.switch()
             }
 
         })
@@ -315,7 +324,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 isReset = true
                 it.classLoader = Image::class.java.classLoader
                 animImage = it.getParcelable(ImageDetailsActivity.KEY_IMAGE)
-                cb_original.isChecked = it.getBoolean(ImageDetailsActivity.KEY_IS_ORIGINAL)
+                cbOriginal.isChecked = it.getBoolean(ImageDetailsActivity.KEY_IS_ORIGINAL)
             }
         }
         super.onActivityReenter(resultCode, data)
@@ -327,9 +336,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
      */
     private fun selectDoneCount(count: Int) {
         if (count == 0) {
-            tv_done.setText(R.string.done_text)
+            tvDone.setText(R.string.done_text)
         } else {
-            tv_done.text = getString(R.string.done_format_text, count)
+            tvDone.text = getString(R.string.done_format_text, count)
         }
         checkNavigationView(count > 0)
     }
@@ -347,11 +356,11 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             this,
             if (enable) R.drawable.shape_button_press else R.drawable.shape_button_normal
         )
-        tv_review.setTextColor(textColor)
-        tv_review.isClickable = enable
-        tv_done.setTextColor(textColor)
-        tv_done.background = textBackground
-        tv_done.isClickable = enable
+        tvReview.setTextColor(textColor)
+        tvReview.isClickable = enable
+        tvDone.setTextColor(textColor)
+        tvDone.background = textBackground
+        tvDone.isClickable = enable
     }
 
 }

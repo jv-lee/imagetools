@@ -14,7 +14,6 @@ import com.imagetools.select.entity.Image
 import com.imagetools.select.tools.UriTools
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
-import kotlinx.android.synthetic.main.fragment_image_pager_imagetools.*
 
 /**
  * @author jv.lee
@@ -90,6 +89,8 @@ class ImagePagerFragment : Fragment(R.layout.fragment_image_pager_imagetools) {
         }
     }
 
+    private val vpContainer:ViewPager2 by lazy { requireView().findViewById(R.id.vp_container) }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initAnimation()
@@ -108,8 +109,8 @@ class ImagePagerFragment : Fragment(R.layout.fragment_image_pager_imagetools) {
                 names: MutableList<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                val position = vp_container.currentItem
-                val view = vp_container.findViewById<View>(R.id.drag_image)
+                val position = vpContainer.currentItem
+                val view = vpContainer.findViewById<View>(R.id.drag_image)
                 view?.run {
                     sharedElements.put(data[position].uri.path ?: "", this)
                 }
@@ -125,22 +126,22 @@ class ImagePagerFragment : Fragment(R.layout.fragment_image_pager_imagetools) {
 
     private fun initPager() {
         //初始化加载详情图Pager页面.
-        vp_container.adapter = adapter
+        vpContainer.adapter = adapter
         //每次切换页面动态更改回调值
-        vp_container.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        vpContainer.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 parseResult()
             }
         })
         //定位到选中位置
-        vp_container.setCurrentItem(position, false)
+        vpContainer.setCurrentItem(position, false)
     }
 
     private fun parseResult() {
         requireActivity().setResult(
             Activity.RESULT_OK,
-            Intent().putExtra(SharedConstants.KEY_POSITION, vp_container.currentItem)
+            Intent().putExtra(SharedConstants.KEY_POSITION, vpContainer.currentItem)
         )
     }
 
