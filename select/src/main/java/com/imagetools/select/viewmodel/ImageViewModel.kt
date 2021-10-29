@@ -2,6 +2,7 @@ package com.imagetools.select.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.imagetools.select.R
@@ -13,7 +14,6 @@ import com.imagetools.select.entity.PageNumber
 import com.imagetools.select.repository.ImageRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * @author jv.lee
@@ -22,11 +22,7 @@ import kotlinx.coroutines.withContext
  */
 internal class ImageViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository by lazy {
-        ImageRepository(
-            application
-        )
-    }
+    private val repository = ImageRepository(application)
 
     private val page = PageNumber(limit = 0)
     private var activeAlbumId = 0L
@@ -34,24 +30,22 @@ internal class ImageViewModel(application: Application) : AndroidViewModel(appli
     var albumId: Long = Constants.DEFAULT_ID
     var albumName: String = application.getString(R.string.default_album_name)
 
-    val albumsLiveData by lazy { MutableLiveData<List<Album>>() }
-    val imagesLiveData by lazy { MutableLiveData<List<Image>>() }
+    private val _albumsLive = MutableLiveData<List<Album>>()
+    val albumsLiveData: LiveData<List<Album>> = _albumsLive
+
+    private val _imageLive = MutableLiveData<List<Image>>()
+    val imagesLiveData: LiveData<List<Image>> = _imageLive
 
     fun getAlbums() {
-        viewModelScope.launch {
-            albumsLiveData.value = withContext(Dispatchers.IO) { repository.getAlbums() }
+        viewModelScope.launch(Dispatchers.IO) {
+            _albumsLive.postValue(repository.getAlbums())
         }
     }
 
     fun getImages(@LoadStatus status: Int) {
         activeAlbumId = albumId
-        viewModelScope.launch {
-            imagesLiveData.value = withContext(Dispatchers.IO) {
-                repository.getImagesByAlbum(
-                    albumId,
-                    page.getPage(status)
-                )
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            _imageLive.postValue(repository.getImagesByAlbum(albumId, page.getPage(status)))
         }
     }
 
