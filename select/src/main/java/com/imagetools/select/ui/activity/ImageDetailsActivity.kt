@@ -76,6 +76,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                     view,
                     params.transitionName
                 )
+            // api 19 使用binder传输 intent.putExtra bundle.putBinder 可突破intent1M限制
             WeakDataHolder.instance.saveData(KEY_DATA, data)
             activity.startActivity(
                 Intent(activity, ImageDetailsActivity::class.java)

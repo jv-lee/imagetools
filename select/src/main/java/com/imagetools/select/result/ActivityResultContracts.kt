@@ -27,27 +27,27 @@ internal class ActivityResultContracts {
         private var saveUri: Uri? = null
         private var image: Image? = null
 
-        override fun createIntent(context: Context, input: Image?): Intent {
+        override fun createIntent(context: Context, input: Image): Intent {
             saveUri = UriTools.pathToUri(context, UriTools.getImageFilePath(context))
             image = input
             val uri = image?.uri
             val crop = Crop.of(uri, saveUri)
-            if (input?.isSquare == true) {
+            if (input.isSquare) {
                 crop.asSquare()
             }
-            if (input?.isCompress == true) {
+            if (input.isCompress) {
                 crop.asCompress()
             }
             return crop.getIntent(context)
         }
 
-        override fun parseResult(resultCode: Int, intent: Intent?): Image? {
+        override fun parseResult(resultCode: Int, intent: Intent?): Image {
             if (resultCode == Activity.RESULT_OK) {
-                image?.let {
-                    return Image(it.id, saveUri ?: return null)
+                return image?.run { Image(id, saveUri ?: Uri.EMPTY) } ?: kotlin.run {
+                    Image(0, Uri.EMPTY)
                 }
             }
-            return null
+            return Image(0, Uri.EMPTY)
         }
 
     }
@@ -58,11 +58,12 @@ internal class ActivityResultContracts {
                 .putExtra(Constants.CONFIG_KEY, input)
         }
 
-        override fun parseResult(resultCode: Int, intent: Intent?): ArrayList<Image>? {
+        override fun parseResult(resultCode: Int, intent: Intent?): ArrayList<Image> {
             if (resultCode == Constants.IMAGE_DATA_RESULT_CODE) {
-                return intent?.getParcelableArrayListExtra<Image>(Constants.IMAGE_DATA_KEY)
+                return intent?.getParcelableArrayListExtra(Constants.IMAGE_DATA_KEY)
+                    ?: arrayListOf()
             }
-            return null
+            return arrayListOf()
         }
 
     }
