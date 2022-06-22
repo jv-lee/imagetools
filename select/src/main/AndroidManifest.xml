@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.imagetools.select">
 
     <!--  获取相册图片媒体文件资源读取权限  -->
@@ -9,13 +8,12 @@
     <!--  获取拍照权限  -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <application
-        tools:targetApi="q">
+    <application>
         <activity
             android:name="com.imagetools.select.ui.activity.ImageSelectActivity"
             android:theme="@style/ImageSelectActivity" />
         <activity
-            android:name=".ui.activity.ImageDetailsActivity"
+            android:name="com.imagetools.select.ui.activity.ImageDetailsActivity"
             android:theme="@style/ImagePagerActivity" />
 
         <provider
