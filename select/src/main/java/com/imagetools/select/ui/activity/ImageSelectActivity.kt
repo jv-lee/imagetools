@@ -14,21 +14,23 @@ import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.imagetools.select.R
-import com.imagetools.select.ui.adapter.AlbumSelectAdapter
-import com.imagetools.select.ui.adapter.ImageSelectAdapter
-import com.imagetools.select.ui.adapter.base.BaseSelectAdapter
 import com.imagetools.select.constant.Constants
-import com.imagetools.select.ui.dialog.CompressProgressDialog
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.LoadStatus
 import com.imagetools.select.entity.SelectConfig
 import com.imagetools.select.event.ImageEventBus
 import com.imagetools.select.listener.ShakeItemClickListener
 import com.imagetools.select.result.ActivityResultContracts
+import com.imagetools.select.tools.SharedElementTools.removeActivityFromTransitionManager
 import com.imagetools.select.tools.Tools
-import com.imagetools.select.viewmodel.ImageViewModel
+import com.imagetools.select.ui.adapter.AlbumSelectAdapter
+import com.imagetools.select.ui.adapter.ImageSelectAdapter
+import com.imagetools.select.ui.adapter.base.BaseSelectAdapter
+import com.imagetools.select.ui.dialog.CompressProgressDialog
 import com.imagetools.select.ui.widget.ImageSelectBar
 import com.imagetools.select.ui.widget.StreamerView
+import com.imagetools.select.viewmodel.ImageViewModel
+
 
 /**
  * @author jv.lee
@@ -119,12 +121,34 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         }, 300)
     }
 
+    private val shareCallback = object : SharedElementCallback() {
+        override fun onMapSharedElements(
+            names: MutableList<String>,
+            sharedElements: MutableMap<String, View>
+        ) {
+            //防止重复设置动画元素效果.
+            if (!isReset) {
+                return
+            }
+
+            animImage?.let { image ->
+                isReset = false
+                val position = mImageAdapter.getPosition(image)
+                val itemView = gvImages.getChildAt(position - gvImages.firstVisiblePosition)
+                itemView?.let {
+                    sharedElements.put(image.uri.path ?: "", it.findViewById(R.id.iv_image))
+                }
+            }
+
+        }
+    }
+
     private val constNavigation: ConstraintLayout by lazy { findViewById(R.id.const_navigation) }
     private val streamerView: StreamerView by lazy { findViewById(R.id.streamer_view) }
     private val cbOriginal: CheckBox by lazy { findViewById(R.id.cb_original) }
     private val lvSelect: ListView by lazy { findViewById(R.id.lv_select) }
     private val gvImages: GridView by lazy { findViewById(R.id.gv_images) }
-    private val imageSelectBar:ImageSelectBar by lazy{findViewById(R.id.image_select_bar)}
+    private val imageSelectBar: ImageSelectBar by lazy { findViewById(R.id.image_select_bar) }
     private val tvReview: TextView by lazy { findViewById(R.id.tv_review) }
     private val tvDone: TextView by lazy { findViewById(R.id.tv_done) }
     private val mask: View by lazy { findViewById(R.id.mask) }
@@ -226,27 +250,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
         }
 
-        setExitSharedElementCallback(object : SharedElementCallback() {
-            override fun onMapSharedElements(
-                names: MutableList<String>,
-                sharedElements: MutableMap<String, View>
-            ) {
-                //防止重复设置动画元素效果.
-                if (!isReset) {
-                    return
-                }
-
-                animImage?.let { image ->
-                    isReset = false
-                    val position = mImageAdapter.getPosition(image)
-                    val itemView = gvImages.getChildAt(position - gvImages.firstVisiblePosition)
-                    itemView?.let {
-                        sharedElements.put(image.uri.path ?: "", it.findViewById(R.id.iv_image))
-                    }
-                }
-
-            }
-        })
+        setExitSharedElementCallback(shareCallback)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.sharedElementEnterTransition.duration = 200
@@ -255,12 +259,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
 
     private fun bindObservable() {
-        viewModel.albumsLiveData.observe(this, Observer {
+        viewModel.albumsLiveData.observe(this) {
             mAlbumAdapter.addData(it)
             mAlbumAdapter.notifyDataSetChanged()
-        })
+        }
 
-        viewModel.imagesLiveData.observe(this, Observer {
+        viewModel.imagesLiveData.observe(this) {
             mImageAdapter.clearData()
             if (mImageAdapter.isMultiple) {
                 mImageAdapter.selectList.clear()
@@ -283,7 +287,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 imageSelectBar.switch()
             }
 
-        })
+        }
 
         viewModel.getAlbums()
         viewModel.getImages(LoadStatus.INIT)
@@ -294,40 +298,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             ImageEventBus.getInstance().eventLiveData.observeForever(eventObserver)
             ImageEventBus.getInstance().finishLiveData.observeForever(finishObserver)
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Tools.bindBottomFinishing(this)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        animator?.cancel()
-        animator = null
-        if (selectConfig.isMultiple) {
-            ImageEventBus.getInstance().eventLiveData.value = null
-            ImageEventBus.getInstance().eventLiveData.removeObserver(eventObserver)
-            ImageEventBus.getInstance().finishLiveData.value = null
-            ImageEventBus.getInstance().finishLiveData.removeObserver(finishObserver)
-        }
-    }
-
-    /**
-     * 共享元素回调设置
-     * @param resultCode 返回code
-     * @param data 返回数据 动态更改当前共享元素
-     */
-    override fun onActivityReenter(resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK && data != null) {
-            data.extras?.let {
-                isReset = true
-                it.classLoader = Image::class.java.classLoader
-                animImage = it.getParcelable(ImageDetailsActivity.KEY_IMAGE)
-                cbOriginal.isChecked = it.getBoolean(ImageDetailsActivity.KEY_IS_ORIGINAL)
-            }
-        }
-        super.onActivityReenter(resultCode, data)
     }
 
     /**
@@ -361,6 +331,45 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         tvDone.setTextColor(textColor)
         tvDone.background = textBackground
         tvDone.isClickable = enable
+    }
+
+    /**
+     * 共享元素回调设置
+     * @param resultCode 返回code
+     * @param data 返回数据 动态更改当前共享元素
+     */
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            data.extras?.let {
+                isReset = true
+                it.classLoader = Image::class.java.classLoader
+                animImage = it.getParcelable(ImageDetailsActivity.KEY_IMAGE)
+                cbOriginal.isChecked = it.getBoolean(ImageDetailsActivity.KEY_IS_ORIGINAL)
+            }
+        }
+        super.onActivityReenter(resultCode, data)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Tools.bindBottomFinishing(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        animator?.cancel()
+        animator = null
+        mImageAdapter.clearData()
+        mAlbumAdapter.clearData()
+        gvImages.adapter = null
+        lvSelect.adapter = null
+        if (selectConfig.isMultiple) {
+            ImageEventBus.getInstance().eventLiveData.value = null
+            ImageEventBus.getInstance().eventLiveData.removeObserver(eventObserver)
+            ImageEventBus.getInstance().finishLiveData.value = null
+            ImageEventBus.getInstance().finishLiveData.removeObserver(finishObserver)
+        }
+        removeActivityFromTransitionManager()
     }
 
 }

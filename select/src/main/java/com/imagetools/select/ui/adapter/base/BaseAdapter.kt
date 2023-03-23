@@ -35,7 +35,6 @@ internal abstract class BaseAdapter<T>(
 
     fun clearData() {
         getData().clear()
-        notifyDataSetChanged()
     }
 
 }

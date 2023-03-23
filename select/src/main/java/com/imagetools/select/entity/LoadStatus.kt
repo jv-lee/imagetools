@@ -1,6 +1,7 @@
 package com.imagetools.select.entity
 
 import androidx.annotation.IntDef
+import com.imagetools.select.entity.LoadStatus.Companion.INIT
 import com.imagetools.select.entity.LoadStatus.Companion.LOAD_MORE
 import com.imagetools.select.entity.LoadStatus.Companion.REFRESH
 import com.imagetools.select.entity.LoadStatus.Companion.RELOAD
@@ -10,7 +11,7 @@ import com.imagetools.select.entity.LoadStatus.Companion.RELOAD
  * @date 2020/11/25
  * @description
  */
-@IntDef(REFRESH, LOAD_MORE, RELOAD)
+@IntDef(INIT,REFRESH, LOAD_MORE, RELOAD)
 @Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 internal annotation class LoadStatus {

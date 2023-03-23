@@ -18,11 +18,12 @@ import androidx.viewpager2.widget.ViewPager2
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.event.ImageEventBus
+import com.imagetools.select.tools.SharedElementTools.removeActivityFromTransitionManager
 import com.imagetools.select.tools.WeakDataHolder
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
 import com.imagetools.select.ui.widget.StatusPaddingFrameLayout
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * @author jv.lee
@@ -113,15 +114,36 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     }
 
     private val vpContainer: ViewPager2 by lazy { findViewById(R.id.vp_container) }
-    private val cbOriginal:CheckBox by lazy { findViewById(R.id.cb_original) }
+    private val cbOriginal: CheckBox by lazy { findViewById(R.id.cb_original) }
     private val tvReview: TextView by lazy { findViewById(R.id.tv_review) }
     private val tvDone: TextView by lazy { findViewById(R.id.tv_done) }
-    private val ivBack: ImageView by lazy { findViewById(R.id.iv_back)}
+    private val ivBack: ImageView by lazy { findViewById(R.id.iv_back) }
     private val frameSelect: FrameLayout by lazy { findViewById(R.id.frame_select) }
-    private val constNavigation:ConstraintLayout by lazy { findViewById(R.id.const_navigation)}
-    private val constNavigationTop: StatusPaddingFrameLayout by lazy { findViewById(R.id.const_navigation_top)}
-    private val tvSelectNumber:TextView by lazy { findViewById(R.id.tv_select_number) }
-    private val ivCheck:ImageView by lazy { findViewById(R.id.iv_check) }
+    private val constNavigation: ConstraintLayout by lazy { findViewById(R.id.const_navigation) }
+    private val constNavigationTop: StatusPaddingFrameLayout by lazy { findViewById(R.id.const_navigation_top) }
+    private val tvSelectNumber: TextView by lazy { findViewById(R.id.tv_select_number) }
+    private val ivCheck: ImageView by lazy { findViewById(R.id.iv_check) }
+
+    private val shareCallback = object : SharedElementCallback() {
+        override fun onMapSharedElements(
+            names: MutableList<String>,
+            sharedElements: MutableMap<String, View>
+        ) {
+            val position = vpContainer.currentItem
+            val view = vpContainer.findViewById<View>(R.id.drag_image)
+            view?.run {
+                sharedElements.put(adapter.data[position].uri.path ?: "", this)
+            }
+        }
+    }
+
+    private val pageCallback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            super.onPageSelected(position)
+            setSelectView(position)
+            parseResult()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -138,18 +160,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
 
         //设置回调共享元素通信
-        setEnterSharedElementCallback(object : SharedElementCallback() {
-            override fun onMapSharedElements(
-                names: MutableList<String>,
-                sharedElements: MutableMap<String, View>
-            ) {
-                val position = vpContainer.currentItem
-                val view = vpContainer.findViewById<View>(R.id.drag_image)
-                view?.run {
-                    sharedElements.put(adapter.data[position].uri.path ?: "", this)
-                }
-            }
-        })
+        setEnterSharedElementCallback(shareCallback)
 
         //设置共享元素执行时长
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -162,13 +173,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         //初始化加载详情图Pager页面.
         vpContainer.adapter = adapter
         //每次切换页面动态更改回调值
-        vpContainer.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                setSelectView(position)
-                parseResult()
-            }
-        })
+        vpContainer.registerOnPageChangeCallback(pageCallback)
+
         //是否是预览模式 设置页面position
         if (!params.isReview) vpContainer.setCurrentItem(params.position, false)
     }
@@ -178,7 +184,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         tvReview.visibility = View.GONE
         cbOriginal.isChecked = params.isOriginal
 
-        cbOriginal.setOnCheckedChangeListener { buttonView, isChecked ->
+        cbOriginal.setOnCheckedChangeListener { _, _ ->
             parseResult()
         }
         tvDone.setOnClickListener {
@@ -262,6 +268,12 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 .putExtra(KEY_IS_ORIGINAL, cbOriginal.isChecked)
 
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        vpContainer.unregisterOnPageChangeCallback(pageCallback)
+        removeActivityFromTransitionManager()
     }
 
 }
