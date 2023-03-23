@@ -55,20 +55,19 @@ internal object Tools {
             containerView.translationY = it.animatedValue as Float
         }
         animator.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationRepeat(animation: Animator?) {
-
+            override fun onAnimationRepeat(animation: Animator) {
             }
 
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 if (enable) return
                 maskView.visibility = View.GONE
                 containerView.visibility = View.GONE
             }
 
-            override fun onAnimationCancel(animation: Animator?) {
+            override fun onAnimationCancel(animation: Animator) {
             }
 
-            override fun onAnimationStart(animation: Animator?) {
+            override fun onAnimationStart(animation: Animator) {
                 if (!enable) return
                 maskView.visibility = View.VISIBLE
                 containerView.visibility = View.VISIBLE

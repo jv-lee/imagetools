@@ -61,17 +61,17 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
                 LinearLayout.LayoutParams(it.animatedValue as Int, tvAlbumName.height)
         }
         animator.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationRepeat(animation: Animator?) {
+            override fun onAnimationRepeat(animation: Animator) {
             }
 
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 mAnimCallback?.animEnd()
             }
 
-            override fun onAnimationCancel(animation: Animator?) {
+            override fun onAnimationCancel(animation: Animator) {
             }
 
-            override fun onAnimationStart(animation: Animator?) {
+            override fun onAnimationStart(animation: Animator) {
                 tvAlbumName.text = text
             }
 
@@ -89,21 +89,21 @@ internal class ImageSelectBar constructor(context: Context, attributeSet: Attrib
             ivIcon.rotation = it.animatedValue as Float
         }
         animator.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationRepeat(animation: Animator?) {
+            override fun onAnimationRepeat(animation: Animator) {
 
             }
 
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 switchTag = false
                 linearSelect.isClickable = true
             }
 
-            override fun onAnimationCancel(animation: Animator?) {
+            override fun onAnimationCancel(animation: Animator) {
                 ivIcon.rotation = if (expansion) 180f else 0f
                 linearSelect.isClickable = true
             }
 
-            override fun onAnimationStart(animation: Animator?) {
+            override fun onAnimationStart(animation: Animator) {
                 switchTag = true
                 expansion = !expansion
                 mAnimCallback?.animCall(expansion)

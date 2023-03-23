@@ -86,12 +86,12 @@ open class ZoomImageView : AppCompatImageView {
         mScaleGestureDetector = ScaleGestureDetector(
             context,
             object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                override fun onScale(detector: ScaleGestureDetector?): Boolean {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
                     onGestureScale(detector)
                     return true
                 }
 
-                override fun onScaleEnd(detector: ScaleGestureDetector?) {
+                override fun onScaleEnd(detector: ScaleGestureDetector) {
                     onGestureScaleEnd(detector)
                 }
             })
@@ -100,8 +100,8 @@ open class ZoomImageView : AppCompatImageView {
         gestureDetector =
             GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
                 override fun onScroll(
-                    e1: MotionEvent?,
-                    e2: MotionEvent?,
+                    e1: MotionEvent,
+                    e2: MotionEvent,
                     distanceX: Float,
                     distanceY: Float
                 ): Boolean {
@@ -109,8 +109,8 @@ open class ZoomImageView : AppCompatImageView {
                     return true
                 }
 
-                override fun onDoubleTap(e: MotionEvent?): Boolean {
-                    e?.run { onDoubleScale(x, y) }
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    onDoubleScale(x, y)
                     return true
                 }
 
@@ -127,7 +127,7 @@ open class ZoomImageView : AppCompatImageView {
                     }
                 }
 
-                override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
                     onClickListener?.onClick(this@ZoomImageView)
                     return true
                 }
@@ -414,19 +414,18 @@ open class ZoomImageView : AppCompatImageView {
                 imageMatrix = mScaleMatrix
             }
             addListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {
-
+                override fun onAnimationRepeat(animation: Animator) {
                 }
 
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     //复原缩放操作 直接初始化控件大小位置.
                     if (getDoubleScale() != mScale) drawViewLayout()
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {
+                override fun onAnimationCancel(animation: Animator) {
                 }
 
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                 }
 
             })

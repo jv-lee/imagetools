@@ -59,12 +59,12 @@ class DragImageView : TransformImageView, ViewLifecycle {
 
     private val mGesture =
         GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onDoubleTap(e: MotionEvent?): Boolean {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
                 removeCallbacks(mSingleTapRunnable)
                 return false
             }
 
-            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            override fun onSingleTapUp(e: MotionEvent): Boolean {
                 postDelayed(mSingleTapRunnable, 200)
                 return false
             }
@@ -79,17 +79,17 @@ class DragImageView : TransformImageView, ViewLifecycle {
         clearAnimation()
     }
 
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         //多点触控则直接交由当前view处理 拦截父容器处理事件
-        if (ev.pointerCount > 1) {
+        if (event.pointerCount > 1) {
             parent.requestDisallowInterceptTouchEvent(true)
-            return super.dispatchTouchEvent(ev)
+            return super.dispatchTouchEvent(event)
         }
-        when (ev.action) {
+        when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 // 记录手指按下的位置
-                mStartY = ev.y
-                mStartX = ev.x
+                mStartY = event.y
+                mStartX = event.x
                 // 初始化标记
                 isParentTouch = false
                 isChildTouch = false
@@ -100,8 +100,8 @@ class DragImageView : TransformImageView, ViewLifecycle {
                     return false
                 }
                 // 获取当前手指位置
-                val endY: Float = ev.y
-                val endX: Float = ev.x
+                val endY: Float = event.y
+                val endX: Float = event.x
                 val distanceX: Float = mStartX - endX
                 val distanceY: Float = mStartY - endY
 
@@ -110,7 +110,7 @@ class DragImageView : TransformImageView, ViewLifecycle {
                     (abs(distanceY) > abs(distanceX)) && canScrollVertically(distanceY.toInt())
                 ) {
                     parent.requestDisallowInterceptTouchEvent(true)
-                    return super.dispatchTouchEvent(ev)
+                    return super.dispatchTouchEvent(event)
                 }
                 // 当前子view不可消费事件 且为横向拖动 则返回false 子view不处理 直接返回父容器处理事件
                 if (!isChildTouch && abs(distanceX) > abs(distanceY)) {
@@ -130,7 +130,7 @@ class DragImageView : TransformImageView, ViewLifecycle {
                     isParentTouch = false
                     isDispatch = false
                     parent.requestDisallowInterceptTouchEvent(true)
-                    return super.dispatchTouchEvent(ev)
+                    return super.dispatchTouchEvent(event)
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
@@ -141,7 +141,7 @@ class DragImageView : TransformImageView, ViewLifecycle {
                 isDispatch = true
             }
         }
-        return super.dispatchTouchEvent(ev)
+        return super.dispatchTouchEvent(event)
     }
 
     @SuppressLint("ClickableViewAccessibility")
