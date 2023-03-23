@@ -24,11 +24,6 @@ internal abstract class BaseAdapter<T>(
 
     fun getData() = data
 
-    fun updateData(data: List<T>) {
-        this.data.clear()
-        this.data.addAll(data)
-    }
-
     fun addData(data: List<T>) {
         this.data.addAll(data)
     }

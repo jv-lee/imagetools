@@ -33,7 +33,6 @@ import kotlinx.parcelize.Parcelize
 internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details_imagetools) {
 
     companion object {
-        const val TAG = "ImageDetailsActivity"
         const val KEY_IS_ORIGINAL = "original"
         const val KEY_IMAGE = "image"
         const val KEY_PARAMS = "params"
