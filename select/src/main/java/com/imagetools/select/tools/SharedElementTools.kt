@@ -3,17 +3,12 @@ package com.imagetools.select.tools
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
-import android.transition.Transition
-import android.transition.TransitionManager
-import android.util.ArrayMap
+import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.FragmentActivity
 import com.imagetools.select.constant.SharedConstants
-import java.lang.ref.WeakReference
-import java.lang.reflect.Field
 
 /**
  * @author jv.lee
@@ -65,73 +60,49 @@ object SharedElementTools {
         }
     }
 
-    @Suppress("UNCHECKED_CAST","DiscouragedPrivateApi")
+    @Suppress("UNCHECKED_CAST", "DiscouragedPrivateApi")
     fun AppCompatActivity.removeActivityFromTransitionManager() {
-//        if (Build.VERSION.SDK_INT < 21) {
-//            return
-//        }
-//        val transitionManagerClass: Class<TransitionManager> = TransitionManager::class.java
-//        try {
-//            val runningTransitionsField: Field =
-//                transitionManagerClass.getDeclaredField("sRunningTransitions")
-//            runningTransitionsField.isAccessible = true
-//
-//            val runningTransitions: ThreadLocal<WeakReference<ArrayMap<ViewGroup, ArrayList<Transition>>>> =
-//                runningTransitionsField.get(transitionManagerClass) as ThreadLocal<WeakReference<ArrayMap<ViewGroup, ArrayList<Transition>>>>
-//            runningTransitions.get() ?: throw NullPointerException("runningTransitions.get() null")
-//            runningTransitions.get()?.get()
-//                ?: throw NullPointerException("runningTransitions.get().get() null")
-//
-//            val decorView = window.decorView
-//            runningTransitions.get()?.get()?.takeIf { it.containsKey(decorView) }
-//                ?.run { remove(decorView) }
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            Toast.makeText(this, "not", Toast.LENGTH_SHORT).show()
-//        }
         if (Build.VERSION.SDK_INT < 21) {
             return
         }
-        val transitionManagerClass: Class<*> = TransitionManager::class.java
-        try {
-            val runningTransitionsField: Field =
-                transitionManagerClass.getDeclaredField("sRunningTransitions")
-            runningTransitionsField.isAccessible = true
-            val runningTransitions: ThreadLocal<WeakReference<ArrayMap<ViewGroup, ArrayList<Transition>>>?> =
-                runningTransitionsField.get(transitionManagerClass) as ThreadLocal<WeakReference<ArrayMap<ViewGroup, ArrayList<Transition>>>?>
-            if (runningTransitions.get() == null || runningTransitions.get()?.get() == null) {
-                return
-            }
-            val map: ArrayMap<ViewGroup, ArrayList<Transition>> =
-                runningTransitions.get()?.get() as ArrayMap<ViewGroup, ArrayList<Transition>>
-            map[window.decorView]?.let { transitionList ->
-                transitionList.forEach { transition ->
-                    //Add a listener to all transitions. The last one to finish will remove the decor view:
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        transition.addListener(object : Transition.TransitionListener {
-                            override fun onTransitionEnd(transition: Transition) {
-                                //When a transition is finished, it gets removed from the transition list
-                                // internally right before this callback. Remove the decor view only when
-                                // all the transitions related to it are done:
-                                if (transitionList.isEmpty()) {
-                                    map.remove(window.decorView)
-                                }
-                                transition.removeListener(this)
-                            }
-
-                            override fun onTransitionCancel(transition: Transition?) {}
-                            override fun onTransitionPause(transition: Transition?) {}
-                            override fun onTransitionResume(transition: Transition?) {}
-                            override fun onTransitionStart(transition: Transition?) {}
-                        })
-                    }
-                }
-                //If there are no active transitions, just remove the decor view immediately:
-                if (transitionList.isEmpty()) {
-                    map.remove(window.decorView)
-                }
-            }
-        } catch (_: Throwable) {}
+        clearTransitionState()
     }
+
+    private fun Activity.clearTransitionState() {
+        try {
+            getActivityTransitionState()?.apply {
+                Log.i("JV-LEE", "class->${javaClass}")
+                Log.i("JV-LEE", "declaredFields.size:${javaClass.declaredFields.size}")
+                invokeClearMethod()
+            }
+        } catch (e: Exception) {
+            // no-op
+            e.printStackTrace()
+        }
+    }
+
+    private fun Activity.getActivityTransitionState() =
+        Activity::class.java.getField("mActivityTransitionState", this)
+
+    private fun Any.invokeClearMethod() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            javaClass.superclass?.invokeClearStateMethod(this)
+        } else {
+            javaClass.invokeClearStateMethod(this)
+        }
+    }
+
+    private fun <T> Class<T>.invokeClearStateMethod(target: Any) {
+        getDeclaredMethod("clear").apply {
+            isAccessible = true
+            invoke(target)
+        }
+    }
+
+    private fun <T> Class<T>.getField(name: String, target: Any): Any? =
+        getDeclaredField(name).run {
+            isAccessible = true
+            get(target)
+        }
 
 }

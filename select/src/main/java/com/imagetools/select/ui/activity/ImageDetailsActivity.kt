@@ -104,7 +104,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
                 override fun changeAlpha(alpha: Float) {
                     //根据下拉修改activity透明度
-                    it.setBackgroundAlphaCompat(window.decorView, (255 * alpha).toInt())
+                    it.setBackgroundAlphaCompat(constRoot, (255 * alpha).toInt())
                     setEditLayoutVisible(alpha == 1.0F)
                 }
 
@@ -112,6 +112,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         }
     }
 
+    private val constRoot: ConstraintLayout by lazy { findViewById(R.id.const_root) }
     private val vpContainer: ViewPager2 by lazy { findViewById(R.id.vp_container) }
     private val cbOriginal: CheckBox by lazy { findViewById(R.id.cb_original) }
     private val tvReview: TextView by lazy { findViewById(R.id.tv_review) }
