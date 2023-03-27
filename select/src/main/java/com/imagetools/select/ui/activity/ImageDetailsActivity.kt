@@ -18,7 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.event.ImageEventBus
-import com.imagetools.select.tools.SharedElementTools.removeActivityFromTransitionManager
+import com.imagetools.select.tools.SharedElementTools
 import com.imagetools.select.tools.WeakDataHolder
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
@@ -270,10 +270,14 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         )
     }
 
+    override fun onStop() {
+        SharedElementTools.onStop(this)
+        super.onStop()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         vpContainer.unregisterOnPageChangeCallback(pageCallback)
-        removeActivityFromTransitionManager()
     }
 
 }

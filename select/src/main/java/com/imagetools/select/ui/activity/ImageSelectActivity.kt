@@ -21,7 +21,7 @@ import com.imagetools.select.entity.SelectConfig
 import com.imagetools.select.event.ImageEventBus
 import com.imagetools.select.listener.ShakeItemClickListener
 import com.imagetools.select.result.ActivityResultContracts
-import com.imagetools.select.tools.SharedElementTools.removeActivityFromTransitionManager
+import com.imagetools.select.tools.SharedElementTools.clearTransitionState
 import com.imagetools.select.tools.Tools
 import com.imagetools.select.ui.adapter.AlbumSelectAdapter
 import com.imagetools.select.ui.adapter.ImageSelectAdapter
@@ -351,11 +351,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
 
     override fun onPause() {
-        super.onPause()
         Tools.bindBottomFinishing(this)
+        super.onPause()
     }
 
     override fun onDestroy() {
+        clearTransitionState()
         super.onDestroy()
         animator?.cancel()
         animator = null
@@ -369,7 +370,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             ImageEventBus.getInstance().finishLiveData.value = null
             ImageEventBus.getInstance().finishLiveData.removeObserver(finishObserver)
         }
-        removeActivityFromTransitionManager()
     }
 
 }

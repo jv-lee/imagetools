@@ -1,14 +1,17 @@
 package com.imagetools.select.tools
 
 import android.app.Activity
+import android.app.Instrumentation
+import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.FragmentActivity
 import com.imagetools.select.constant.SharedConstants
+import me.weishu.reflection.Reflection
 
 /**
  * @author jv.lee
@@ -40,10 +43,8 @@ object SharedElementTools {
             }
         })
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            activity.window.sharedElementEnterTransition.duration = 200
-            activity.window.sharedElementExitTransition.duration = 200
-        }
+        activity.window.sharedElementEnterTransition.duration = 200
+        activity.window.sharedElementExitTransition.duration = 200
     }
 
     /**
@@ -60,40 +61,68 @@ object SharedElementTools {
         }
     }
 
-    @Suppress("UNCHECKED_CAST", "DiscouragedPrivateApi")
-    fun AppCompatActivity.removeActivityFromTransitionManager() {
-        if (Build.VERSION.SDK_INT < 21) {
-            return
-        }
-        clearTransitionState()
+    /**
+     * 修复Q及以上系统，3个及以上连续的activity拥有共享元素动画时，共享元素动画丢失的BUG（使用反射）
+     * 请在Application.attachBaseContext中调用该方法(super之后)
+     */
+    fun enableMultipleActivityTransition(context: Context) {
+        Reflection.unseal(context)
     }
 
-    private fun Activity.clearTransitionState() {
+    /**
+     * 修复Q及以上系统，activity调用onStop后共享元素动画丢失的BUG
+     * 请在Activity.onStop中调用该方法(super之前)
+     * @param activity
+     */
+    fun onStop(activity: Activity) {
+        if (!activity.isFinishing && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Instrumentation().callActivityOnSaveInstanceState(activity, Bundle())
+        }
+    }
+
+    /**
+     * 修复Q及以上系统，3个及以上连续的activity拥有共享元素动画时，共享元素动画丢失的BUG（使用反射）
+     * Activity.finishAfterTransition中调用该方法(super之前)
+     */
+    fun Activity.finishAfterTransition(activity: Activity, transitionNames: List<String>) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
         try {
             getActivityTransitionState()?.apply {
-                Log.i("JV-LEE", "class->${javaClass}")
-                Log.i("JV-LEE", "declaredFields.size:${javaClass.declaredFields.size}")
-                invokeClearMethod()
+                val mPendingExitNamesField = javaClass.getDeclaredField("mPendingExitNames")
+                mPendingExitNamesField.isAccessible = true
+                mPendingExitNamesField[this] = transitionNames
+            }
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            Log.e("SharedElementTools", "reflective set pending exit shared elements failed!", e)
+        }
+    }
+
+    fun Activity.clearTransitionState() {
+        try {
+            getActivityTransitionState()?.apply {
+                invokeMethod("restoreExitedViews")
+                invokeMethod("clear")
             }
         } catch (e: Exception) {
-            // no-op
             e.printStackTrace()
+            Log.e("SharedElementTools", "reflective clearTransitionState", e)
         }
     }
 
     private fun Activity.getActivityTransitionState() =
         Activity::class.java.getField("mActivityTransitionState", this)
 
-    private fun Any.invokeClearMethod() {
+    private fun Any.invokeMethod(methodName: String) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            javaClass.superclass?.invokeClearStateMethod(this)
+            javaClass.superclass?.invokeMethod(methodName, this)
         } else {
-            javaClass.invokeClearStateMethod(this)
+            javaClass.invokeMethod(methodName, this)
         }
     }
 
-    private fun <T> Class<T>.invokeClearStateMethod(target: Any) {
-        getDeclaredMethod("clear").apply {
+    private fun <T> Class<T>.invokeMethod(methodName: String, target: Any) {
+        getDeclaredMethod(methodName).apply {
             isAccessible = true
             invoke(target)
         }
