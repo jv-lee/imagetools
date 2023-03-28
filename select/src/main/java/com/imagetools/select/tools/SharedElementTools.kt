@@ -16,7 +16,7 @@ import me.weishu.reflection.Reflection
 /**
  * @author jv.lee
  * @date 2021/1/7
- * @description
+ * @description 共享元素操作帮助类
  */
 object SharedElementTools {
 
@@ -72,11 +72,10 @@ object SharedElementTools {
     /**
      * 修复Q及以上系统，activity调用onStop后共享元素动画丢失的BUG
      * 请在Activity.onStop中调用该方法(super之前)
-     * @param activity
      */
-    fun onStop(activity: Activity) {
-        if (!activity.isFinishing && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Instrumentation().callActivityOnSaveInstanceState(activity, Bundle())
+    fun Activity.onStopClearInstanceState() {
+        if (!isFinishing && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Instrumentation().callActivityOnSaveInstanceState(this, Bundle())
         }
     }
 
@@ -84,7 +83,7 @@ object SharedElementTools {
      * 修复Q及以上系统，3个及以上连续的activity拥有共享元素动画时，共享元素动画丢失的BUG（使用反射）
      * Activity.finishAfterTransition中调用该方法(super之前)
      */
-    fun Activity.finishAfterTransition(activity: Activity, transitionNames: List<String>) {
+    fun Activity.finishAfterTransition(transitionNames: List<String>) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
         try {
             getActivityTransitionState()?.apply {
@@ -92,17 +91,25 @@ object SharedElementTools {
                 mPendingExitNamesField.isAccessible = true
                 mPendingExitNamesField[this] = transitionNames
             }
+            Log.d("SharedElementTools", "finishAfterTransition success.")
         } catch (e: Throwable) {
             e.printStackTrace()
             Log.e("SharedElementTools", "reflective set pending exit shared elements failed!", e)
         }
     }
 
+    /**
+     * 修复部分系统使用共享动画内存泄露问题 （暂时未解决，后续优化）
+     * 请在Activity.onStop中调用该方法(super之前)
+     */
     fun Activity.clearTransitionState() {
+        if (!isFinishing) return
         try {
             getActivityTransitionState()?.apply {
+//                getField("mCalledExitCoordinator")?.invokeMethod("clearState")
                 invokeMethod("restoreExitedViews")
                 invokeMethod("clear")
+                Log.d("SharedElementTools", "clearTransitionState  success.")
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -118,6 +125,14 @@ object SharedElementTools {
             javaClass.superclass?.invokeMethod(methodName, this)
         } else {
             javaClass.invokeMethod(methodName, this)
+        }
+    }
+
+    private fun Any.getField(fieldName: String): Any? {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            javaClass.superclass?.getField(fieldName, this)
+        } else {
+            javaClass.getField(fieldName, this)
         }
     }
 

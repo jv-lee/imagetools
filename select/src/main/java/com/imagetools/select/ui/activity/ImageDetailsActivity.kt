@@ -2,7 +2,6 @@ package com.imagetools.select.ui.activity
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
@@ -18,7 +17,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.imagetools.select.R
 import com.imagetools.select.entity.Image
 import com.imagetools.select.event.ImageEventBus
-import com.imagetools.select.tools.SharedElementTools
+import com.imagetools.select.tools.SharedElementTools.onStopClearInstanceState
 import com.imagetools.select.tools.WeakDataHolder
 import com.imagetools.select.ui.adapter.ImagePagerAdapter
 import com.imagetools.select.ui.widget.DragImageView
@@ -163,10 +162,8 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         setEnterSharedElementCallback(shareCallback)
 
         //设置共享元素执行时长
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.sharedElementEnterTransition.duration = 200
-            window.sharedElementExitTransition.duration = 200
-        }
+        window.sharedElementEnterTransition.duration = 200
+        window.sharedElementExitTransition.duration = 200
     }
 
     private fun initPager() {
@@ -271,7 +268,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     }
 
     override fun onStop() {
-        SharedElementTools.onStop(this)
+        onStopClearInstanceState()
         super.onStop()
     }
 

@@ -4,7 +4,6 @@ import android.Manifest
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -92,7 +91,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         }
 
     private val eventObserver =
-        Observer<ImageEventBus.ImageEvent> { it ->
+        Observer<ImageEventBus.ImageEvent> {
             it ?: return@Observer
             if (it.isSelect) {
                 val item = mImageAdapter.getItem(mImageAdapter.getPosition(it.image))
@@ -252,10 +251,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
         setExitSharedElementCallback(shareCallback)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.sharedElementEnterTransition.duration = 200
-            window.sharedElementExitTransition.duration = 200
-        }
+        window.sharedElementEnterTransition.duration = 200
+        window.sharedElementExitTransition.duration = 200
     }
 
     private fun bindObservable() {
@@ -355,8 +352,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         super.onPause()
     }
 
-    override fun onDestroy() {
+    override fun onStop() {
         clearTransitionState()
+        super.onStop()
+    }
+
+    override fun onDestroy() {
         super.onDestroy()
         animator?.cancel()
         animator = null
