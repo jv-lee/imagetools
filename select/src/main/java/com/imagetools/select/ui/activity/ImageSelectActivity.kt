@@ -36,22 +36,24 @@ import com.imagetools.select.viewmodel.ImageViewModel
  * @date 2020/12/1
  * @description 图片选择视口
  */
-internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select_imagetools) {
+internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select_imagetools),
+    BaseSelectAdapter.ItemSelectCallback {
 
     private val viewModel by viewModels<ImageViewModel>()
+
+    // 共享元素动画使用 取消重复修改元素
+    private var isReset = false
+    private var animImage: Image? = null
+    private var animator: ValueAnimator? = null
+    private var shareCallback: SharedElementCallback? = null
+
+    // 事件观察者
+    private var eventObserver: Observer<ImageEventBus.ImageEvent>? = null
+    private var finishObserver: Observer<Boolean>? = null
+
     private val selectConfig by lazy {
         intent.getParcelableExtra(Constants.CONFIG_KEY) ?: SelectConfig()
     }
-
-    //共享元素动画使用 取消重复修改元素
-    private var isReset = false
-    private var animImage: Image? = null
-
-    private var animator: ValueAnimator? = null
-
-    private val loadingDialog by lazy { CompressProgressDialog(this) }
-
-    private val mAlbumAdapter by lazy { AlbumSelectAdapter(this) }
 
     private val mImageAdapter by lazy {
         ImageSelectAdapter(
@@ -59,26 +61,14 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
             isMultiple = selectConfig.isMultiple,
             selectLimit = selectConfig.selectLimit,
             columnCount = selectConfig.columnCount
-        ).also {
-            if (it.isMultiple) {
-                it.setSelectCallback(object : BaseSelectAdapter.ItemSelectCallback {
-                    override fun selectItem(item: Image) {
-                        it.updateSelected(item)
-                    }
-
-                    override fun selectEnd(limit: Int) {
-                        toast(getString(R.string.select_limit_description, limit))
-                    }
-
-                    override fun selectCall(count: Int) {
-                        this@ImageSelectActivity.selectDoneCount(count)
-                    }
-                })
-            }
-        }
+        )
     }
 
-    //单图裁剪后返回
+    private val mAlbumAdapter by lazy { AlbumSelectAdapter(this) }
+
+    private val loadingDialog by lazy { CompressProgressDialog(this) }
+
+    // 单图裁剪后返回
     private val imageLaunch =
         registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
             it ?: return@registerForActivityResult
@@ -89,58 +79,6 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 loadingDialog
             )
         }
-
-    private val eventObserver =
-        Observer<ImageEventBus.ImageEvent> {
-            it ?: return@Observer
-            if (it.isSelect) {
-                val item = mImageAdapter.getItem(mImageAdapter.getPosition(it.image))
-                item.select = true
-                mImageAdapter.selectList.add(item)
-            } else {
-                val item = mImageAdapter.getItem(mImageAdapter.getPosition(it.image))
-                mImageAdapter.selectList.remove(item)
-                item.select = false
-            }
-            mImageAdapter.notifyDataSetChanged()
-            selectDoneCount(mImageAdapter.selectList.size)
-        }
-
-    private val finishObserver = Observer<Boolean> {
-        it ?: return@Observer
-        if (mImageAdapter.selectList.isEmpty()) return@Observer
-        loadingDialog.show()
-        window.decorView.postDelayed({
-            finishImagesResult(
-                selectConfig,
-                (mImageAdapter).selectList,
-                cbOriginal.isChecked,
-                loadingDialog
-            )
-        }, 300)
-    }
-
-    private val shareCallback = object : SharedElementCallback() {
-        override fun onMapSharedElements(
-            names: MutableList<String>,
-            sharedElements: MutableMap<String, View>
-        ) {
-            //防止重复设置动画元素效果.
-            if (!isReset) {
-                return
-            }
-
-            animImage?.let { image ->
-                isReset = false
-                val position = mImageAdapter.getPosition(image)
-                val itemView = gvImages.getChildAt(position - gvImages.firstVisiblePosition)
-                itemView?.let {
-                    sharedElements.put(image.uri.path ?: "", it.findViewById(R.id.iv_image))
-                }
-            }
-
-        }
-    }
 
     private val constNavigation: ConstraintLayout by lazy { findViewById(R.id.const_navigation) }
     private val streamerView: StreamerView by lazy { findViewById(R.id.streamer_view) }
@@ -170,7 +108,11 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
         gvImages.layoutAnimation = Tools.getItemOrderAnimator(this)
 
-        //默认未选中状态
+        if (mImageAdapter.isMultiple) {
+            mImageAdapter.setSelectCallback(this)
+        }
+
+        // 默认未选中状态
         checkNavigationView(false)
     }
 
@@ -249,8 +191,30 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
         }
 
-        setExitSharedElementCallback(shareCallback)
+        shareCallback ?: kotlin.run {
+            shareCallback = object : SharedElementCallback() {
+                override fun onMapSharedElements(
+                    names: MutableList<String>,
+                    sharedElements: MutableMap<String, View>
+                ) {
+                    // 防止重复设置动画元素效果.
+                    if (!isReset) {
+                        return
+                    }
 
+                    animImage?.let { image ->
+                        isReset = false
+                        val position = mImageAdapter.getPosition(image)
+                        val itemView = gvImages.getChildAt(position - gvImages.firstVisiblePosition)
+                        itemView?.let {
+                            sharedElements.put(image.uri.path ?: "", it.findViewById(R.id.iv_image))
+                        }
+                    }
+
+                }
+            }
+        }
+        shareCallback?.run(this::setExitSharedElementCallback)
         window.sharedElementEnterTransition.duration = 200
         window.sharedElementExitTransition.duration = 200
     }
@@ -292,8 +256,39 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private fun bindEvent() {
         if (selectConfig.isMultiple) {
-            ImageEventBus.getInstance().eventLiveData.observeForever(eventObserver)
-            ImageEventBus.getInstance().finishLiveData.observeForever(finishObserver)
+            eventObserver ?: kotlin.run {
+                eventObserver = Observer<ImageEventBus.ImageEvent> { event ->
+                    event ?: return@Observer
+                    if (event.isSelect) {
+                        val item = mImageAdapter.getItem(mImageAdapter.getPosition(event.image))
+                        item.select = true
+                        mImageAdapter.selectList.add(item)
+                    } else {
+                        val item = mImageAdapter.getItem(mImageAdapter.getPosition(event.image))
+                        mImageAdapter.selectList.remove(item)
+                        item.select = false
+                    }
+                    mImageAdapter.notifyDataSetChanged()
+                    selectDoneCount(mImageAdapter.selectList.size)
+                }
+            }
+            finishObserver ?: kotlin.run {
+                finishObserver = Observer<Boolean> { isFinishing ->
+                    isFinishing ?: return@Observer
+                    if (mImageAdapter.selectList.isEmpty()) return@Observer
+                    loadingDialog.show()
+                    window.decorView.postDelayed({
+                        finishImagesResult(
+                            selectConfig,
+                            (mImageAdapter).selectList,
+                            cbOriginal.isChecked,
+                            loadingDialog
+                        )
+                    }, 300)
+                }
+            }
+            eventObserver?.run(ImageEventBus.getInstance().eventLiveData::observeForever)
+            finishObserver?.run(ImageEventBus.getInstance().finishLiveData::observeForever)
         }
     }
 
@@ -328,6 +323,18 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         tvDone.setTextColor(textColor)
         tvDone.background = textBackground
         tvDone.isClickable = enable
+    }
+
+    override fun selectItem(item: Image) {
+        mImageAdapter.updateSelected(item)
+    }
+
+    override fun selectEnd(limit: Int) {
+        toast(getString(R.string.select_limit_description, limit))
+    }
+
+    override fun selectCall(count: Int) {
+        selectDoneCount(count)
     }
 
     /**
@@ -367,9 +374,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         lvSelect.adapter = null
         if (selectConfig.isMultiple) {
             ImageEventBus.getInstance().eventLiveData.value = null
-            ImageEventBus.getInstance().eventLiveData.removeObserver(eventObserver)
+            eventObserver?.run(ImageEventBus.getInstance().eventLiveData::removeObserver)
             ImageEventBus.getInstance().finishLiveData.value = null
-            ImageEventBus.getInstance().finishLiveData.removeObserver(finishObserver)
+            finishObserver?.run(ImageEventBus.getInstance().finishLiveData::removeObserver)
         }
     }
 

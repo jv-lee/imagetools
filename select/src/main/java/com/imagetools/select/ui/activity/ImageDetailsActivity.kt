@@ -29,7 +29,8 @@ import kotlinx.parcelize.Parcelize
  * @date 2020/12/14
  * @description 图片详情pager页面
  */
-internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details_imagetools) {
+internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_details_imagetools),
+    DragImageView.Callback {
 
     companion object {
         const val KEY_IS_ORIGINAL = "original"
@@ -85,31 +86,13 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
     }
 
+    private var shareCallback: SharedElementCallback? = null
+    private var pageCallback: ViewPager2.OnPageChangeCallback? = null
+
     private val params by lazy<ImageDetailsParams> { intent.getParcelableExtra(KEY_PARAMS)!! }
     private val data by lazy { WeakDataHolder.instance.getData(KEY_DATA) ?: arrayListOf<Image>() }
 
-    private val adapter by lazy {
-        ImagePagerAdapter(data).also {
-            it.setDragCallback(object : DragImageView.Callback {
-                override fun onClicked() {
-                    //单击事件
-                    switchEditLayoutVisible()
-                }
-
-                override fun onDragClose() {
-                    //关闭当前activity 执行共享动画关闭
-                    supportFinishAfterTransition()
-                }
-
-                override fun changeAlpha(alpha: Float) {
-                    //根据下拉修改activity透明度
-                    it.setBackgroundAlphaCompat(constRoot, (255 * alpha).toInt())
-                    setEditLayoutVisible(alpha == 1.0F)
-                }
-
-            })
-        }
-    }
+    private val adapter by lazy { ImagePagerAdapter(data) }
 
     private val constRoot: ConstraintLayout by lazy { findViewById(R.id.const_root) }
     private val vpContainer: ViewPager2 by lazy { findViewById(R.id.vp_container) }
@@ -123,27 +106,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private val tvSelectNumber: TextView by lazy { findViewById(R.id.tv_select_number) }
     private val ivCheck: ImageView by lazy { findViewById(R.id.iv_check) }
 
-    private val shareCallback = object : SharedElementCallback() {
-        override fun onMapSharedElements(
-            names: MutableList<String>,
-            sharedElements: MutableMap<String, View>
-        ) {
-            val position = vpContainer.currentItem
-            val view = vpContainer.findViewById<View>(R.id.drag_image)
-            view?.run {
-                sharedElements.put(adapter.data[position].uri.path ?: "", this)
-            }
-        }
-    }
-
-    private val pageCallback = object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageSelected(position: Int) {
-            super.onPageSelected(position)
-            setSelectView(position)
-            parseResult()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initAnimation()
@@ -152,27 +114,53 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     }
 
     private fun initAnimation() {
-//        //暂时阻止共享元素过渡
+//        // 暂时阻止共享元素过渡
 //        supportPostponeEnterTransition()
-//        //占位图加载完成后 开启共享元素共享动画
+//        // 占位图加载完成后 开启共享元素共享动画
 //        supportStartPostponedEnterTransition()
 
 
-        //设置回调共享元素通信
+        // 设置回调共享元素通信
+        shareCallback ?: kotlin.run {
+            shareCallback = object : SharedElementCallback() {
+                override fun onMapSharedElements(
+                    names: MutableList<String>,
+                    sharedElements: MutableMap<String, View>
+                ) {
+                    val position = vpContainer.currentItem
+                    val view = vpContainer.findViewById<View>(R.id.drag_image)
+                    view?.run {
+                        sharedElements.put(adapter.data[position].uri.path ?: "", this)
+                    }
+                }
+            }
+        }
         setEnterSharedElementCallback(shareCallback)
 
-        //设置共享元素执行时长
+        // 设置共享元素执行时长
         window.sharedElementEnterTransition.duration = 200
         window.sharedElementExitTransition.duration = 200
     }
 
     private fun initPager() {
-        //初始化加载详情图Pager页面.
-        vpContainer.adapter = adapter
-        //每次切换页面动态更改回调值
-        vpContainer.registerOnPageChangeCallback(pageCallback)
+        // 设置pagerAdapter拖拽回调
+        adapter.setDragCallback(this)
 
-        //是否是预览模式 设置页面position
+        // 初始化加载详情图Pager页面.
+        vpContainer.adapter = adapter
+        // 每次切换页面动态更改回调值
+        pageCallback ?: kotlin.run {
+            pageCallback = object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    setSelectView(position)
+                    parseResult()
+                }
+            }
+        }
+        pageCallback?.run(vpContainer::registerOnPageChangeCallback)
+
+        // 是否是预览模式 设置页面position
         if (!params.isReview) vpContainer.setCurrentItem(params.position, false)
     }
 
@@ -205,12 +193,12 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     }
 
     private fun clickSelect() {
-        //检验最大选择数
+        // 检验最大选择数
         if (params.selectData.size >= params.selectLimit) {
             toast(getString(R.string.select_limit_description, params.selectLimit))
             return
         }
-        //设置选择
+        // 设置选择
         val position = vpContainer.currentItem
         val item = data[position]
         if (item.select) {
@@ -267,6 +255,22 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         )
     }
 
+    override fun onClicked() {
+        // 单击事件
+        switchEditLayoutVisible()
+    }
+
+    override fun onDragClose() {
+        // 关闭当前activity 执行共享动画关闭
+        supportFinishAfterTransition()
+    }
+
+    override fun changeAlpha(alpha: Float) {
+        // 根据下拉修改activity透明度
+        adapter.setBackgroundAlphaCompat(constRoot, (255 * alpha).toInt())
+        setEditLayoutVisible(alpha == 1.0F)
+    }
+
     override fun onStop() {
         onStopClearInstanceState()
         super.onStop()
@@ -274,7 +278,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
 
     override fun onDestroy() {
         super.onDestroy()
-        vpContainer.unregisterOnPageChangeCallback(pageCallback)
+        pageCallback?.run(vpContainer::unregisterOnPageChangeCallback)
     }
 
 }
