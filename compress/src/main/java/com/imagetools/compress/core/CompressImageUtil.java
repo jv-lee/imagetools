@@ -28,11 +28,11 @@ import java.util.concurrent.TimeUnit;
  * @author jv.lee
  */
 public class CompressImageUtil {
-    private CompressConfig config;
-    private Context context;
-    private Handler mHandler = new Handler();
+    private final CompressConfig config;
+    private final Context context;
+    private final Handler mHandler = new Handler();
 
-    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(3,
+    private final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(3,
             Integer.MAX_VALUE,
             15,
             TimeUnit.SECONDS,
@@ -52,14 +52,14 @@ public class CompressImageUtil {
     public void compress(Uri imageUri, CompressResultListener listener) {
         if (config.isEnablePixelCompress()) {
             try {
-                //启用像素压缩
+                // 启用像素压缩
                 compressImageByPixel(imageUri, listener);
             } catch (Exception e) {
                 listener.onCompressFailed(imageUri, String.format("Picture compress failed, %s", e.toString()));
                 e.printStackTrace();
             }
         } else {
-            //质量压缩
+            // 质量压缩
             try {
                 compressImageByQuality(BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageUri)), imageUri, listener);
             } catch (FileNotFoundException e) {
@@ -78,7 +78,7 @@ public class CompressImageUtil {
             sendMsg(false, imgUri, "quality compress failed,bitmap is null.", listener);
             return;
         }
-        //开启多线程进行压缩处理
+        // 开启多线程进行压缩处理
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -105,7 +105,7 @@ public class CompressImageUtil {
                 }
                 try {
                     File thumbnailFile = getThumbnailFile(new File(CommonUtils.getImageFilePath(context)));
-                    //将压缩后的图片保存的本地上指定路径中
+                    // 将压缩后的图片保存的本地上指定路径中
                     FileOutputStream fos = new FileOutputStream(thumbnailFile);
                     fos.write(baos.toByteArray());
                     fos.flush();

@@ -85,13 +85,13 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
     }
 
     private fun drawGrid(canvas: Canvas) {
-        //绘制填充
+        // 绘制填充
         mPaint.shader = buildGradientStreamer(0f, 0f, mWidth, mHeight)
         canvas.drawRect(0f, 0f, itemPadding * columnCount.plus(1) + size * columnCount, mHeight, mPaint)
     }
 
     private fun drawLine(canvas: Canvas) {
-        //绘制水平间距
+        // 绘制水平间距
         for (rowIndex in 1..rowCount) {
             canvas.drawLine(
                 0f,
@@ -102,7 +102,7 @@ class StreamerView(context: Context, attributeSet: AttributeSet) : View(context,
             )
         }
 
-        //绘制垂直间距
+        // 绘制垂直间距
         for (columnIndex in 0..columnCount) {
             canvas.drawLine(
                 (itemPadding * columnIndex) + (size * columnIndex) + (itemPadding / 2),

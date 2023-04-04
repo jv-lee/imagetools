@@ -56,35 +56,20 @@ internal abstract class BaseActivity(@LayoutRes layoutId: Int) : AppCompatActivi
         window: Window,
         navigationBarTranslucent: Boolean
     ) {
-        //5.0以设置沉浸式
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            //设置状态栏颜色调整
-            window.statusBarColor = Color.TRANSPARENT
-            var visibility = window.decorView.systemUiVisibility
-            //布局内容全屏展示
-            visibility = visibility or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            //隐藏虚拟导航栏
-//            visibility |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-            //设置沉浸式 导航栏
-            if (navigationBarTranslucent) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-            }
-            //防止内容区域大小发生变化
-            visibility = visibility or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            window.decorView.systemUiVisibility = visibility
-            //4.0设置
-        } else {
-            //设置沉浸式 状态栏
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                //设置沉浸式 导航栏
-                if (navigationBarTranslucent) {
-                    window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-                }
-            }
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        //设置状态栏颜色调整
+        window.statusBarColor = Color.TRANSPARENT
+        var visibility = window.decorView.systemUiVisibility
+        //布局内容全屏展示
+        visibility = visibility or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        //设置沉浸式 导航栏
+        if (navigationBarTranslucent) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         }
+        //防止内容区域大小发生变化
+        visibility = visibility or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        window.decorView.systemUiVisibility = visibility
     }
 
 
@@ -109,7 +94,7 @@ internal abstract class BaseActivity(@LayoutRes layoutId: Int) : AppCompatActivi
     private fun setLightStatusIcon(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val originFlag = activity.window.decorView.systemUiVisibility
-            //使用异或清除SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            // 使用异或清除SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
             activity.window.decorView.systemUiVisibility =
                 originFlag and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
         }
@@ -125,7 +110,7 @@ internal abstract class BaseActivity(@LayoutRes layoutId: Int) : AppCompatActivi
         isOriginal: Boolean,
         loadingDialog: CompressProgressDialog
     ) {
-        //不使用自带压缩
+        // 不使用自带压缩
         if (!config.isCompress) {
             parseImageResult(images.also {
                 for (image in it) {
@@ -134,12 +119,12 @@ internal abstract class BaseActivity(@LayoutRes layoutId: Int) : AppCompatActivi
             }, loadingDialog)
             return
         }
-        //使用自带压缩 且 使用原图模式 取消压缩方式
-        if (config.isCompress && isOriginal) {
+        // 使用自带压缩 且 使用原图模式 取消压缩方式
+        if (isOriginal) {
             parseImageResult(images, loadingDialog)
             return
         }
-        //使用自带压缩
+        // 使用自带压缩
         loadingDialog.show()
         CompressImageManager.build(
             applicationContext,

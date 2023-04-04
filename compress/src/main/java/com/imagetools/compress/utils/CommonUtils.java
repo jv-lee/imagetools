@@ -40,12 +40,12 @@ public class CommonUtils {
     }
 
     public static String getImageFilePath(Context context) {
-        //设置文件路径创建文件对象
+        // 设置文件路径创建文件对象
         File fileDir = new File(context.getCacheDir(), Constants.COMPRESS_CACHE);
         if (!fileDir.exists()) fileDir.mkdir();
         File file = new File(fileDir.getAbsolutePath(), System.currentTimeMillis() + ".jpg");
 
-        //文件创建操作
+        // 文件创建操作
         if (!file.getParentFile().exists()) file.getParentFile().mkdir();
 
         return file.getAbsolutePath();

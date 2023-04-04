@@ -67,7 +67,7 @@ public class CompressImageManager implements CompressImage {
             }
         }
 
-        //开始递归 ，从第一张图片对象开始压缩
+        // 开始递归 ，从第一张图片对象开始压缩
         compress(images.get(0));
     }
 
@@ -90,17 +90,17 @@ public class CompressImageManager implements CompressImage {
 
         // <= 200KB
         if (file.length() < config.getMaxSize()) {
-            //不满足压缩条件直接将原地址设置为压缩地址 方便调用.
+            // 不满足压缩条件直接将原地址设置为压缩地址 方便调用.
             image.setCompressUri(image.getOriginalUri());
             continueCompress(image, true);
             return;
         }
 
-        //条件满足 开始压缩
+        // 条件满足 开始压缩
         compressImageUtil.compress(image.getOriginalUri(), new CompressResultListener() {
             @Override
             public void onCompressSuccess(Uri imgUri) {
-                //压缩成功
+                // 压缩成功
                 image.setCompressUri(imgUri);
                 continueCompress(image, true);
             }
@@ -108,7 +108,7 @@ public class CompressImageManager implements CompressImage {
 
             @Override
             public void onCompressFailed(Uri imgUri, String error) {
-                //压缩失败
+                // 压缩失败
                 continueCompress(image, false, error);
             }
 
@@ -130,11 +130,11 @@ public class CompressImageManager implements CompressImage {
      * @param error
      */
     private void continueCompress(Photo image, boolean b, String... error) {
-        //给图片对象设置是否成功属性
+        // 给图片对象设置是否成功属性
         image.setCompressed(b);
-        //当前的图片的索引
+        // 当前的图片的索引
         int index = images.indexOf(image);
-        //判断是否最后一张
+        // 判断是否最后一张
         if (index == images.size() - 1) {
             handlerCallback(error);
         } else {
@@ -144,14 +144,14 @@ public class CompressImageManager implements CompressImage {
     }
 
     private void handlerCallback(String... error) {
-        //如果存在错误信息
+        // 如果存在错误信息
         if (error.length > 0) {
             listener.onCompressFailed(images, "one a picture compress failed.");
             return;
         }
 
         for (Photo photo : images) {
-            //如果存在没有压缩的图片，或者压缩失败的
+            // 如果存在没有压缩的图片，或者压缩失败的
             if (!photo.isCompressed()) {
                 listener.onCompressFailed(images, "one a picture compress failed.");
                 return;
