@@ -41,43 +41,28 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
         @Parcelize
         data class ImageDetailsParams(
             val transitionName: String = "",
-            val position: Int,
-            val size: Int,
+            val position: Int = 0,
+            val size: Int = 0,
             val isReview: Boolean = false,
             val isOriginal: Boolean = false,
             val selectLimit: Int = 9,
-            val selectData: ArrayList<Image>
+            val selectData: ArrayList<Image> = arrayListOf()
         ) : Parcelable
 
         fun startActivity(
             activity: FragmentActivity,
             view: View,
-            transitionName: String,
-            position: Int,
-            size: Int,
-            isReview: Boolean = false,
-            isOriginal: Boolean = false,
-            selectLimit: Int = 9,
             data: ArrayList<Image>,
-            selectData: ArrayList<Image>
+            params: ImageDetailsParams
         ) {
-            val params = ImageDetailsParams(
-                transitionName,
-                position,
-                size,
-                isReview,
-                isOriginal,
-                selectLimit,
-                selectData
-            )
+            // api 19 使用binder传输 intent.putExtra bundle.putBinder 可突破intent1M限制
+            WeakDataHolder.instance.saveData(KEY_DATA, data)
             val optionsCompat =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(
                     activity,
                     view,
                     params.transitionName
                 )
-            // api 19 使用binder传输 intent.putExtra bundle.putBinder 可突破intent1M限制
-            WeakDataHolder.instance.saveData(KEY_DATA, data)
             activity.startActivity(
                 Intent(activity, ImageDetailsActivity::class.java)
                     .putExtra(KEY_PARAMS, params), optionsCompat.toBundle()
@@ -89,7 +74,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
     private var shareCallback: SharedElementCallback? = null
     private var pageCallback: ViewPager2.OnPageChangeCallback? = null
 
-    private val params by lazy<ImageDetailsParams> { intent.getParcelableExtra(KEY_PARAMS)!! }
+    private val params by lazy { intent.getParcelableExtra(KEY_PARAMS) ?: ImageDetailsParams() }
     private val data by lazy { WeakDataHolder.instance.getData(KEY_DATA) ?: arrayListOf<Image>() }
 
     private val adapter by lazy { ImagePagerAdapter(data) }
@@ -135,7 +120,7 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
                 }
             }
         }
-        setEnterSharedElementCallback(shareCallback)
+        shareCallback?.run(this::setEnterSharedElementCallback)
 
         // 设置共享元素执行时长
         window.sharedElementEnterTransition.duration = 200
@@ -251,7 +236,6 @@ internal class ImageDetailsActivity : BaseActivity(R.layout.activity_image_detai
             Activity.RESULT_OK, Intent()
                 .putExtra(KEY_IMAGE, data[vpContainer.currentItem])
                 .putExtra(KEY_IS_ORIGINAL, cbOriginal.isChecked)
-
         )
     }
 
