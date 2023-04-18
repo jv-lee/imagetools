@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.View.OnClickListener
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -37,6 +38,7 @@ import com.imagetools.select.viewmodel.ImageViewModel
  * @description 图片选择视口
  */
 internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select_imagetools),
+    OnClickListener,
     BaseSelectAdapter.ItemSelectCallback {
 
     private val viewModel by viewModels<ImageViewModel>()
@@ -117,34 +119,9 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
 
     private fun bindListener() {
-        tvReview.setOnClickListener {
-            val position = mImageAdapter.getSelectFirstPosition()
-            ImageDetailsActivity.startActivity(
-                this,
-                View(this),
-                "",
-                position,
-                mImageAdapter.size,
-                true,
-                cbOriginal.isChecked,
-                selectConfig.selectLimit,
-                mImageAdapter.selectList,
-                mImageAdapter.selectList
-            )
-        }
-        tvDone.setOnClickListener {
-            finishImagesResult(
-                selectConfig,
-                (mImageAdapter).selectList,
-                cbOriginal.isChecked,
-                loadingDialog
-            )
-        }
-        mask.setOnClickListener {
-            if (imageSelectBar.isExpansion()) {
-                imageSelectBar.switch()
-            }
-        }
+        tvReview.setOnClickListener(this)
+        tvDone.setOnClickListener(this)
+        mask.setOnClickListener(this)
         imageSelectBar.setAnimCallback(object : ImageSelectBar.AnimCallback {
             override fun animEnd() {
             }
@@ -172,14 +149,16 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                     ImageDetailsActivity.startActivity(
                         this@ImageSelectActivity,
                         imageView,
-                        mImageAdapter.getItem(position).uri.path ?: "",
-                        position,
-                        mImageAdapter.size,
-                        false,
-                        cbOriginal.isChecked,
-                        selectConfig.selectLimit,
                         arrayListOf<Image>().also { it.addAll(mImageAdapter.getData()) },
-                        mImageAdapter.selectList
+                        ImageDetailsActivity.Companion.ImageDetailsParams(
+                            mImageAdapter.getItem(position).uri.path ?: "",
+                            position,
+                            mImageAdapter.size,
+                            false,
+                            cbOriginal.isChecked,
+                            selectConfig.selectLimit,
+                            mImageAdapter.selectList
+                        )
                     )
                 } else {
                     imageLaunch.launch(mImageAdapter.getItem(position).also {
@@ -323,6 +302,43 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         tvDone.setTextColor(textColor)
         tvDone.background = textBackground
         tvDone.isClickable = enable
+    }
+
+
+    override fun onClick(v: View) {
+        when (v) {
+            tvReview -> {
+                val position = mImageAdapter.getSelectFirstPosition()
+                ImageDetailsActivity.startActivity(
+                    this,
+                    View(this),
+                    mImageAdapter.selectList,
+                    ImageDetailsActivity.Companion.ImageDetailsParams(
+                        "",
+                        position,
+                        mImageAdapter.size,
+                        true,
+                        cbOriginal.isChecked,
+                        selectConfig.selectLimit,
+                        mImageAdapter.selectList
+                    )
+                )
+            }
+            tvDone -> {
+                finishImagesResult(
+                    selectConfig,
+                    (mImageAdapter).selectList,
+                    cbOriginal.isChecked,
+                    loadingDialog
+                )
+            }
+            mask -> {
+                if (imageSelectBar.isExpansion()) {
+                    imageSelectBar.switch()
+                }
+            }
+        }
+
     }
 
     override fun selectItem(item: Image) {
