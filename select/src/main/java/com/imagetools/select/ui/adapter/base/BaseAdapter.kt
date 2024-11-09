@@ -1,7 +1,5 @@
 package com.imagetools.select.ui.adapter.base
 
-import android.content.Context
-import android.view.LayoutInflater
 import android.widget.BaseAdapter
 
 /**
@@ -9,12 +7,7 @@ import android.widget.BaseAdapter
  * @date 2020/12/7
  * @description
  */
-internal abstract class BaseAdapter<T>(
-    protected val context: Context,
-    private val data: MutableList<T>
-) : BaseAdapter() {
-
-    protected val layoutInflater: LayoutInflater = LayoutInflater.from(context)
+internal abstract class BaseAdapter<T>(private val data: MutableList<T>) : BaseAdapter() {
 
     override fun getCount() = data.size
 

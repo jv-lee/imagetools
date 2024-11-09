@@ -99,8 +99,9 @@ open class ZoomImageView : AppCompatImageView {
         //基础手势事件监听
         gestureDetector =
             GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+
                 override fun onScroll(
-                    e1: MotionEvent,
+                    e1: MotionEvent?,
                     e2: MotionEvent,
                     distanceX: Float,
                     distanceY: Float
@@ -115,7 +116,7 @@ open class ZoomImageView : AppCompatImageView {
                 }
 
                 override fun onFling(
-                    e1: MotionEvent,
+                    e1: MotionEvent?,
                     e2: MotionEvent,
                     velocityX: Float,
                     velocityY: Float

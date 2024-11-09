@@ -10,7 +10,7 @@ import com.imagetools.select.entity.Image
  */
 class ImageEventBus {
 
-    data class ImageEvent(val image: Image, val isSelect: Boolean)
+    data class ImageEvent(val image: Image? = null, val isSelect: Boolean = false)
 
     val eventLiveData = MutableLiveData<ImageEvent>()
     val finishLiveData = MutableLiveData<Boolean>()

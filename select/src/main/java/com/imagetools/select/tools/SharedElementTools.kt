@@ -106,7 +106,8 @@ object SharedElementTools {
         if (!isFinishing) return
         try {
             getActivityTransitionState()?.apply {
-//                getField("mCalledExitCoordinator")?.invokeMethod("clearState")
+                getEnterTransitionCoordinator()?.invokeClearStateMethod()
+
                 invokeMethod("restoreExitedViews")
                 invokeMethod("clear")
                 Log.d("SharedElementTools", "clearTransitionState  success.")
@@ -119,6 +120,24 @@ object SharedElementTools {
 
     private fun Activity.getActivityTransitionState() =
         Activity::class.java.getField("mActivityTransitionState", this)
+
+    private fun Any.getEnterTransitionCoordinator() =
+        javaClass.getField("mEnterTransitionCoordinator", this)
+
+    private fun Any.invokeClearStateMethod() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            javaClass.superclass?.invokeClearStateMethod(this)
+        } else {
+            javaClass.invokeClearStateMethod(this)
+        }
+    }
+
+    private fun <T> Class<T>.invokeClearStateMethod(target: Any) {
+        getDeclaredMethod("clearState").apply {
+            isAccessible = true
+            invoke(target)
+        }
+    }
 
     private fun Any.invokeMethod(methodName: String) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {

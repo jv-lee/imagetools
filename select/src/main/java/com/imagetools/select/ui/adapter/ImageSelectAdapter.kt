@@ -1,8 +1,8 @@
 package com.imagetools.select.ui.adapter
 
-import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -20,7 +20,7 @@ import com.bumptech.glide.request.target.Target
 import com.imagetools.select.R
 import com.imagetools.select.constant.Constants
 import com.imagetools.select.entity.Image
-import com.imagetools.select.tools.UriTools
+import com.imagetools.select.tools.Tools
 import com.imagetools.select.ui.adapter.base.BaseSelectAdapter
 
 /**
@@ -29,12 +29,14 @@ import com.imagetools.select.ui.adapter.base.BaseSelectAdapter
  * @description
  */
 internal class ImageSelectAdapter(
-    context: Context,
     isMultiple: Boolean = false,
     selectLimit: Int = 9,
-    columnCount: Int = 4
+    private val columnCount: Int = 4
 ) :
-    BaseSelectAdapter<Image>(context, arrayListOf(), isMultiple, selectLimit, columnCount) {
+    BaseSelectAdapter<Image>(arrayListOf(), isMultiple, selectLimit) {
+
+    var size = 0
+        private set
 
     fun getPosition(item: Image): Int {
         return getData().indexOf(item)
@@ -47,11 +49,13 @@ internal class ImageSelectAdapter(
         return getPosition(selectList[0])
     }
 
-    override fun getView(position: Int, converView: View?, parent: ViewGroup?): View {
+    override fun getView(position: Int, converView: View?, parent: ViewGroup): View {
+        val context = parent.context
         val itemView: View
         val viewHolder: ViewHolder
         if (converView == null) {
-            itemView = layoutInflater.inflate(R.layout.item_image_imagetools, parent, false)
+            itemView =
+                LayoutInflater.from(context).inflate(R.layout.item_image_imagetools, parent, false)
             viewHolder = ViewHolder(
                 itemView.findViewById(R.id.iv_image),
                 itemView.findViewById(R.id.iv_mask),
@@ -67,6 +71,7 @@ internal class ImageSelectAdapter(
         val item = getItem(position)
         viewHolder.frameSelect.visibility = View.GONE
 
+        size = Tools.getImageSize(context, columnCount)
         viewHolder.ivImage.layoutParams = ConstraintLayout.LayoutParams(size, size)
 
         var glide = Glide.with(context).load(item.uri)
@@ -79,17 +84,17 @@ internal class ImageSelectAdapter(
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
-                    target: Target<Drawable>?,
+                    target: Target<Drawable>,
                     isFirstResource: Boolean
                 ): Boolean {
                     return false
                 }
 
                 override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
+                    resource: Drawable,
+                    model: Any,
+                    target: Target<Drawable>,
+                    dataSource: DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
                     if (isMultiple) viewHolder.frameSelect.visibility = View.VISIBLE

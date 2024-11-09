@@ -7,7 +7,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.CheckBox
+import android.widget.GridView
+import android.widget.ImageView
+import android.widget.ListView
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.SharedElementCallback
@@ -59,21 +64,19 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
 
     private val mImageAdapter by lazy {
         ImageSelectAdapter(
-            this,
             isMultiple = selectConfig.isMultiple,
             selectLimit = selectConfig.selectLimit,
             columnCount = selectConfig.columnCount
         )
     }
 
-    private val mAlbumAdapter by lazy { AlbumSelectAdapter(this) }
+    private val mAlbumAdapter by lazy { AlbumSelectAdapter() }
 
     private val loadingDialog by lazy { CompressProgressDialog(this) }
 
     // 单图裁剪后返回
     private val imageLaunch =
         registerForActivityResult(ActivityResultContracts.CropActivityResult()) {
-            it ?: return@registerForActivityResult
             finishImagesResult(
                 selectConfig,
                 arrayListOf(it),
@@ -236,8 +239,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     private fun bindEvent() {
         if (selectConfig.isMultiple) {
             eventObserver ?: kotlin.run {
-                eventObserver = Observer<ImageEventBus.ImageEvent> { event ->
-                    event ?: return@Observer
+                eventObserver = Observer { event ->
+                    event.image ?: return@Observer
                     if (event.isSelect) {
                         val item = mImageAdapter.getItem(mImageAdapter.getPosition(event.image))
                         item.select = true
@@ -252,8 +255,8 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                 }
             }
             finishObserver ?: kotlin.run {
-                finishObserver = Observer<Boolean> { isFinishing ->
-                    isFinishing ?: return@Observer
+                finishObserver = Observer { isFinishing ->
+                    if (!isFinishing) return@Observer
                     if (mImageAdapter.selectList.isEmpty()) return@Observer
                     loadingDialog.show()
                     window.decorView.postDelayed({
@@ -324,6 +327,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                     )
                 )
             }
+
             tvDone -> {
                 finishImagesResult(
                     selectConfig,
@@ -332,6 +336,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
                     loadingDialog
                 )
             }
+
             mask -> {
                 if (imageSelectBar.isExpansion()) {
                     imageSelectBar.switch()
@@ -371,7 +376,7 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
     }
 
     override fun onPause() {
-        Tools.bindBottomFinishing(this)
+        if (isFinishing) overridePendingTransition(R.anim.default_in_out, R.anim.slide_bottom_out)
         super.onPause()
     }
 
@@ -389,10 +394,12 @@ internal class ImageSelectActivity : BaseActivity(R.layout.activity_image_select
         gvImages.adapter = null
         lvSelect.adapter = null
         if (selectConfig.isMultiple) {
-            ImageEventBus.getInstance().eventLiveData.value = null
+            ImageEventBus.getInstance().eventLiveData.value = ImageEventBus.ImageEvent()
             eventObserver?.run(ImageEventBus.getInstance().eventLiveData::removeObserver)
-            ImageEventBus.getInstance().finishLiveData.value = null
+            eventObserver = null
+            ImageEventBus.getInstance().finishLiveData.value = false
             finishObserver?.run(ImageEventBus.getInstance().finishLiveData::removeObserver)
+            finishObserver = null
         }
     }
 

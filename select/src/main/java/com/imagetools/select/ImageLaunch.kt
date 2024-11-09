@@ -4,8 +4,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.imagetools.select.entity.Image
 import com.imagetools.select.entity.SelectConfig
 import com.imagetools.select.entity.TakeConfig
@@ -40,9 +40,11 @@ class ImageLaunch {
             is FragmentActivity -> {
                 thisClass
             }
+
             is Fragment -> {
                 thisClass
             }
+
             else -> {
                 throw ClassCastException("thisClass type not is FragmentActivity/Fragment")
             }
@@ -74,7 +76,9 @@ class ImageLaunch {
                     }
                 }
                 if (takePicture.getTakeConfig()?.isCrop == true) {
-                    cropLaunch?.launch(it)
+                    it?.let { image ->
+                        cropLaunch?.launch(image)
+                    }
                     return@registerForActivityResult
                 }
 
@@ -86,14 +90,16 @@ class ImageLaunch {
             }
 
         //设置声明周期监听
-        thisT.lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun destroy() {
-                thisT.lifecycle.removeObserver(this)
-                selectLaunch?.unregister()
-                cropLaunch?.unregister()
-                takeLaunch?.unregister()
+        thisT.lifecycle.addObserver(object : LifecycleEventObserver{
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    thisT.lifecycle.removeObserver(this)
+                    selectLaunch?.unregister()
+                    cropLaunch?.unregister()
+                    takeLaunch?.unregister()
+                }
             }
+
         })
     }
 

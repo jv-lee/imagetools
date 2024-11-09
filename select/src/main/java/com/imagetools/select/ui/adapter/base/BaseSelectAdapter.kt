@@ -10,15 +10,12 @@ import com.imagetools.select.tools.Tools
  * @description
  */
 internal abstract class BaseSelectAdapter<T>(
-    context: Context,
     data: MutableList<T>,
     val isMultiple: Boolean = false,
-    val selectLimit: Int = 9,
-    columnCount: Int = 4
+    val selectLimit: Int = 9
 ) :
-    BaseAdapter<T>(context, data) {
+    BaseAdapter<T>(data) {
 
-    val size = Tools.getImageSize(context, columnCount)
     val selectList = arrayListOf<Image>()
 
     protected var hasLoadMore: Boolean = true

@@ -23,7 +23,7 @@ import android.view.animation.Interpolator
 import android.widget.OverScroller
 import android.widget.Scroller
 import androidx.appcompat.widget.AppCompatImageView
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -153,7 +153,7 @@ open class TransformImageView : AppCompatImageView {
             }
 
             override fun onFling(
-                e1: MotionEvent,
+                e1: MotionEvent?,
                 e2: MotionEvent,
                 velocityX: Float,
                 velocityY: Float
@@ -187,7 +187,7 @@ open class TransformImageView : AppCompatImageView {
             }
 
             override fun onScroll(
-                e1: MotionEvent,
+                e1: MotionEvent?,
                 e2: MotionEvent,
                 distanceX: Float,
                 distanceY: Float
@@ -546,6 +546,7 @@ open class TransformImageView : AppCompatImageView {
             ScaleType.FIT_START -> initFitStart()
             ScaleType.FIT_END -> initFitEnd()
             ScaleType.FIT_XY -> initFitXY()
+            else -> {}
         }
         drawMatrixComplete()
     }
@@ -713,7 +714,7 @@ open class TransformImageView : AppCompatImageView {
         setImageDrawable(drawable)
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         try {
             super.onDraw(canvas)
         } catch (ignored: java.lang.Exception) {

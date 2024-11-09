@@ -2,7 +2,7 @@ package com.imagetools.select.entity
 
 import android.net.Uri
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * @author jv.lee

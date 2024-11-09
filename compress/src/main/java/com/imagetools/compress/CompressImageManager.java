@@ -23,23 +23,23 @@ import java.util.ArrayList;
  */
 public class CompressImageManager implements CompressImage {
 
-    private Context context;
+    private final Context context;
     /**
      * 压缩工具类
      */
-    private CompressImageUtil compressImageUtil;
+    private final CompressImageUtil compressImageUtil;
     /**
      * 需要压缩的图片集合
      */
-    private ArrayList<Photo> images;
+    private final ArrayList<Photo> images;
     /**
      * 压缩监听 告知调用 Activity
      */
-    private CompressListener listener;
+    private final CompressListener listener;
     /**
      * 压缩配置
      */
-    private CompressConfig config;
+    private final CompressConfig config;
 
     private CompressImageManager(Context context, CompressConfig config, ArrayList<Photo> images, CompressListener listener) {
         compressImageUtil = new CompressImageUtil(context, config);
@@ -74,7 +74,7 @@ public class CompressImageManager implements CompressImage {
     /**
      * 从第一张开始, index = 0
      *
-     * @param image
+     * @param image 图片对象
      */
     private void compress(final Photo image) {
         if (TextUtils.isEmpty(image.getOriginalUri().getPath())) {
@@ -125,9 +125,9 @@ public class CompressImageManager implements CompressImage {
     /**
      * 递归压缩，比较index是否最后一张
      *
-     * @param image
-     * @param b
-     * @param error
+     * @param image 图片对象
+     * @param b 是否压缩成功
+     * @param error 错误原因
      */
     private void continueCompress(Photo image, boolean b, String... error) {
         // 给图片对象设置是否成功属性

@@ -15,21 +15,19 @@ abstract class SimpleRequestListener<T> : RequestListener<T> {
     override fun onLoadFailed(
         e: GlideException?,
         model: Any?,
-        target: Target<T>?,
+        target: Target<T>,
         isFirstResource: Boolean
     ): Boolean {
-        call()
         return false
     }
 
     override fun onResourceReady(
-        resource: T?,
-        model: Any?,
+        resource: T & Any,
+        model: Any,
         target: Target<T>?,
-        dataSource: DataSource?,
+        dataSource: DataSource,
         isFirstResource: Boolean
     ): Boolean {
-        call()
         return false
     }
 

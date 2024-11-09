@@ -86,13 +86,6 @@ internal object Tools {
         return animController
     }
 
-    fun bindBottomFinishing(activity: Activity) {
-        if (activity.isFinishing) activity.overridePendingTransition(
-            R.anim.default_in_out,
-            R.anim.slide_bottom_out
-        )
-    }
-
     fun getImageSize(context: Context, columnCount: Int = 4): Int {
         val windowManager =
             context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager

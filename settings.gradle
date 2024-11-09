@@ -1,6 +1,0 @@
-include ':library'
-include ':compress'
-include ':crop'
-include ':select'
-include ':app'
-rootProject.name = "imagetools"
