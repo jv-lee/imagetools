@@ -42,8 +42,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":compress"))
-    implementation(project(":crop"))
+    api(project(":compress"))
+    api(project(":crop"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.ktx)
