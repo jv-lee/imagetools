@@ -6,7 +6,7 @@ versionCode = "150"
 versionName = "1.5.0"
 
 # plugin
-agp = "8.6.0"
+agp = "8.3.2"
 kotlin = "1.9.25"
 # androidx
 coreKtx = "1.15.0"
