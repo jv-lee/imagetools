@@ -1,6 +1,19 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.mavenPublish)
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                groupId = "com.github.jv-lee"
+                artifactId = "imagetools"
+                version = libs.versions.versionName.get()
+            }
+        }
+    }
 }
 
 android {

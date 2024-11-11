@@ -2,8 +2,8 @@
 minSdk = "21"
 compileSdk = "35"
 targetSdk = "35"
-versionCode = "159"
-versionName = "1.5.9"
+versionCode = "160"
+versionName = "1.6.0"
 
 # plugin
 agp = "8.3.2"
