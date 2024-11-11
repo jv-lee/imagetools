@@ -5,18 +5,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinKapt)
     alias(libs.plugins.mavenPublish)
 }
-
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                groupId = "com.lee.imagetools"
-                artifactId = "select"
-                version = libs.versions.versionName.get()
-            }
-        }
-    }
-}
+group = "com.github.jv-lee"
 
 android {
     namespace = "com.imagetools.select"
