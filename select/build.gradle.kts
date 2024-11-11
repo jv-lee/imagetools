@@ -5,7 +5,18 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinKapt)
     alias(libs.plugins.mavenPublish)
 }
-group = "jv.lee@foxmail.com"
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                groupId = "com.github.jv-lee"
+                artifactId = "imagetools"
+                version = libs.versions.versionName.get()
+            }
+        }
+    }
+}
 
 android {
     namespace = "com.imagetools.select"
