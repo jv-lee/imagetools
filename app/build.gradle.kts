@@ -33,7 +33,8 @@ android {
 }
 
 dependencies {
-    implementation(libs.imagetools)
+    implementation(project(":select"))
+//    implementation(libs.imagetools)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

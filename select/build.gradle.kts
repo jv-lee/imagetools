@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinKapt)
     alias(libs.plugins.mavenPublish)
 }
-group = "com.github.jv-lee"
+group = "jv.lee@foxmail.com"
 
 android {
     namespace = "com.imagetools.select"
